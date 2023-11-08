@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
 using TMPro;
 using MixedReality.Toolkit.UX;
+using Unity.VisualScripting;
 
 public class ToggleSpatialMeshVisibility : MonoBehaviour
 {
@@ -16,8 +17,10 @@ public class ToggleSpatialMeshVisibility : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log(button.gameObject.name);
         if (button != null)
         {
+            Debug.Log("Button is not null!");
             button.OnClicked.AddListener(ToggleVisibility);
             UpdateButton();
         }
@@ -26,8 +29,7 @@ public class ToggleSpatialMeshVisibility : MonoBehaviour
         buttonTMPro = button.GetComponentInChildren<TextMeshProUGUI>();
 
         Debug.Log(mrtkXRRig.gameObject.name);
-        Debug.Log(arMeshManager.gameObject.name);
-        Debug.Log(button.gameObject.name);
+        //Debug.Log(arMeshManager.gameObject.name);
     }
 
     void ToggleVisibility()

@@ -34,9 +34,9 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
+  - HorizontalPlanes
+  - XR Simulation
+  - Spatial Mesh
   m_SortingLayers:
   - name: Default
     uniqueID: 0
