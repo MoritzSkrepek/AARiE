@@ -1,57 +1,104 @@
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
 
-public class AnchorScript : MonoBehaviour//, IMixedRealityGestureHandler<Vector3>
+public class PlaceObjectOnLookedAtDesk : MonoBehaviour
 {
-    /*public GameObject placingGameObject;
-    public GameObject anchorPrefab;
-    public ActualContent actualContent;
+    public ARRaycastManager raycastManager;
+    public ARPlaneManager planeManager;
+    public ARAnchorManager anchorManager;     //TODO: add the Anchor to the placed Object
+    public GameObject objectToPlace; // Assign your 3D object in the inspector.
+    public float requiredLookTime = 3.0f; // Time in seconds for desk confirmation.
 
-    private void OnEnable()
-    {
-        CoreServices.InputSystem?.RegisterHandler<IMixedRealityGestureHandler<Vector3>>(this);
-    }
+    private ARPlane selectedDeskPlane;
+    private float lookStartTime = -1f;
+    private bool objectPlaced = false;
+    private float heightOffset = 0.05f;
 
-    private void OnDisable()
+    void Update()
     {
-        CoreServices.InputSystem?.UnregisterHandler<IMixedRealityGestureHandler<Vector3>>(this);
-    }
-
-    public void OnGestureStarted(InputEventData eventData)
-    {
-        if (eventData.InputSource.SourceType == InputSourceType.Hand &&
-            eventData.InputSource.Pointers[0].IsInteractionEnabled)
+        if (!objectPlaced)
         {
-            if (eventData.InputSource.Pointers[0].Controller.ControllerHandedness == Handedness.Right)
+            Debug.Log("Object has not been placed yet!");
+
+            List<ARRaycastHit> hits = new List<ARRaycastHit>();
+            if (raycastManager.Raycast(new Vector2(Screen.width / 2, Screen.height / 2), hits, TrackableType.Planes))
             {
-                PlaceObject(eventData.InputData);
+                Debug.Log("Player is looking at a plane");
+                ARPlane plane = planeManager.GetPlane(hits[0].trackableId);
+                if (plane != null)
+                {
+                    if (selectedDeskPlane == null)
+                    {
+                        selectedDeskPlane = plane;
+                        lookStartTime = Time.time; // Start the timer when a new plane is selected.
+                        Debug.Log("Plane selected. Timer started.");
+                    }
+
+                    if (selectedDeskPlane == plane)
+                    {
+                        float timeLookedAtPlane = Time.time - lookStartTime;
+                        Debug.Log("Time looked at plane: " + timeLookedAtPlane);
+
+                        if (timeLookedAtPlane >= requiredLookTime)
+                        {
+                            PlaceObjectOnDesk(selectedDeskPlane);
+                            Debug.Log("Object is now placed.");
+                            objectPlaced = true;
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("User is now looking at a different plane.");
+                        selectedDeskPlane = null;
+                    }
+                }
+                else
+                {
+                    Debug.Log("User is now looking at a different plane.");
+                    selectedDeskPlane = null;
+                }
+            }
+            else
+            {
+                Debug.Log("No planes detected.");
+                selectedDeskPlane = null;
             }
         }
     }
 
-    public void OnGestureUpdated(InputEventData eventData)
+    void PlaceObjectOnDesk(ARPlane deskPlane)
     {
-        // You can add behavior for gesture updates here if needed.
+        // Disable the plane manager to stop further plane detection.
+        planeManager.enabled = false;
+
+        // Disable this script so it won't run again.
+        gameObject.SetActive(false);
+
+        // Calculate the object's position above the center of the plane.
+        Vector3 objectPosition = deskPlane.center + Vector3.up * heightOffset;
+
+        // Instantiate the object and place it at the calculated position.
+        Instantiate(objectToPlace, objectPosition, Quaternion.identity);
+
+        /*
+        //This code handles the calculation for the placement position and also attaches an ARAnchor to the placed Object
+        // Disable the plane manager to stop further plane detection.
+        planeManager.enabled = false;
+
+        // Disable this script so it won't run again.
+        gameObject.SetActive(false);
+
+        // Calculate the object's position above the center of the plane.
+        Vector3 objectPosition = deskPlane.center + Vector3.up * heightOffset;
+
+        //Create Anchor
+        ARAnchor newAnchor = anchorManager.AddComponent<ARAnchor>();
+        GameObject anchorVisual = Instantiate(objectToPlace, objectPosition, Quaternion.identity);
+        anchorVisual.transform.parent = newAnchor.transform;
+        */
     }
-
-    public void OnGestureCompleted(InputEventData eventData)
-    {
-        // You can add behavior for gesture completion here if needed.
-    }
-
-    public void OnGestureCanceled(InputEventData eventData)
-    {
-        // You can add behavior for gesture cancellation here if needed.
-    }
-
-    private void PlaceObject(Vector3 pinchPosition)
-    {
-        // Create an anchor at the pinch position.
-        GameObject anchor = Instantiate(anchorPrefab, pinchPosition, Quaternion.identity);
-
-        // Attach the actual content to the anchor.
-        actualContent.AttachToAnchor(anchor);
-
-        // Position the Placing Game Object at the anchor.
-        placingGameObject.transform.position = anchor.transform.position;
-    }*/
 }
+
