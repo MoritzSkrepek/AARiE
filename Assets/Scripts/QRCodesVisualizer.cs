@@ -1,12 +1,15 @@
 ﻿
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace QRTracking
 {
     public class QRCodesVisualizer : MonoBehaviour
     {
         public GameObject qrCodePrefab;
+
+        public bool VisualizeQRCodes = false;
 
         private SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
         private Queue<ActionData> pendingActions = new Queue<ActionData>();
@@ -33,17 +36,20 @@ namespace QRTracking
         // Use this for initialization
         void Start()
         {
-            Debug.Log("QRCodesVisualizer start");
-            qrCodesObjectsList = new SortedDictionary<System.Guid, GameObject>();
+      if (VisualizeQRCodes)
+      {
+        Debug.Log("QRCodesVisualizer start");
+        qrCodesObjectsList = new SortedDictionary<System.Guid, GameObject>();
 
-            QRCodesManager.Instance.QRCodesTrackingStateChanged += Instance_QRCodesTrackingStateChanged;
-            QRCodesManager.Instance.QRCodeAdded += Instance_QRCodeAdded;
-            QRCodesManager.Instance.QRCodeUpdated += Instance_QRCodeUpdated;
-            QRCodesManager.Instance.QRCodeRemoved += Instance_QRCodeRemoved;
-            if (qrCodePrefab == null)
-            {
-                throw new System.Exception("Prefab not assigned");
-            }
+        QRCodesManager.Instance.QRCodesTrackingStateChanged += Instance_QRCodesTrackingStateChanged;
+        QRCodesManager.Instance.QRCodeAdded += Instance_QRCodeAdded;
+        QRCodesManager.Instance.QRCodeUpdated += Instance_QRCodeUpdated;
+        QRCodesManager.Instance.QRCodeRemoved += Instance_QRCodeRemoved;
+        if (qrCodePrefab == null)
+        {
+          throw new System.Exception("Prefab not assigned");
+        }
+      }
         }
         private void Instance_QRCodesTrackingStateChanged(object sender, bool status)
         {
@@ -131,11 +137,15 @@ namespace QRTracking
             }
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-            HandleEvents();
-        }
+    // Update is called once per frame
+    void Update()
+    {
+      if (VisualizeQRCodes)
+      {
+
+        HandleEvents();
+      }
+    }
     }
 
 }
