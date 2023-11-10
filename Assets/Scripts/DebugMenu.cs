@@ -1,26 +1,46 @@
 using UnityEngine;
 
-public class ToggleVisibility : MonoBehaviour
+public class ToggleMenu : MonoBehaviour
 {
-    public GameObject menuToToggle;
-    private bool isVisible = false;
+    public GameObject menu; // Reference to your menu GameObject
 
-    private void Start()
+    // Start is called before the first frame update
+    void Start()
     {
-        // Ensure the menu starts in the desired initial state
-        SetVisibility(isVisible);
+        // Ensure the menu is initially hidden
+        menu.SetActive(false);
     }
 
-    public void OnButtonClick()
+    // Update is called once per frame
+    void Update()
     {
-        // Toggle the visibility of the menu
-        isVisible = !isVisible;
-        SetVisibility(isVisible);
+        // Check for input, e.g., tapping on HoloLens 2
+        if (Input.GetMouseButtonDown(0) && IsPointerOverButton())
+        {
+            ToggleMenuVisibility();
+        }
     }
 
-    private void SetVisibility(bool isVisible)
+    void ToggleMenuVisibility()
     {
-        // Set the visibility of the menu
-        menuToToggle.SetActive(isVisible);
+        // Toggle the menu's active state
+        menu.SetActive(!menu.activeSelf);
+    }
+
+    bool IsPointerOverButton()
+    {
+        // Check if the user's gaze is over the button
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            if (hit.collider.gameObject == gameObject)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
