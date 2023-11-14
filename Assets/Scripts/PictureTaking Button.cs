@@ -11,21 +11,18 @@ public class PictureTakingButton : MonoBehaviour
     // Start is called before the first frame update
     PhotoCapture photoCaptureObject = null;
     Texture2D targetTexture = null;
+    PhotoCapture captureObject = null;
     CameraParameters cameraParameters = new CameraParameters();
-    Resolution cameraResolution;
     int width;
 
     // Use this for initialization
     void Start()
     {
         Debug.Log("Start");
-        cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
+        Resolution cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
         width = cameraResolution.width;
         targetTexture = new Texture2D(cameraResolution.width, cameraResolution.height);
-    }
-    public void takingPicture()
-    {
-        Debug.Log("Start taking Picture");
+
         // Create a PhotoCapture object
         PhotoCapture.CreateAsync(false, delegate (PhotoCapture captureObject)
         {
@@ -37,18 +34,28 @@ public class PictureTakingButton : MonoBehaviour
                 cameraParameters.cameraResolutionWidth = cameraResolution.width;
                 cameraParameters.cameraResolutionHeight = cameraResolution.height;
                 cameraParameters.pixelFormat = CapturePixelFormat.BGRA32;
-                // Activate the camera
-                photoCaptureObject.StartPhotoModeAsync(cameraParameters, delegate (PhotoCapture.PhotoCaptureResult result) {
-                    Debug.Log("Camera Activated");
-                photoCaptureObject.TakePhotoAsync(onCapturedPhotoToMemory);
-                    Debug.Log("Picture taken");
-                // Deactivate the camera
-                photoCaptureObject.StopPhotoModeAsync(onStoppedPhotoMode);
-                    Debug.Log("Camera deactivated");
-                });
 
             }
         });
+       }
+    public void takingPicture()
+    {
+        if (captureObject != null)
+        {
+            // Activate the camera
+            photoCaptureObject.StartPhotoModeAsync(cameraParameters, delegate (PhotoCapture.PhotoCaptureResult result) {
+                    Debug.Log("Camera Activated");
+                    photoCaptureObject.TakePhotoAsync(onCapturedPhotoToMemory);
+                    Debug.Log("Picture taken");
+                    // Deactivate the camera
+                    photoCaptureObject.StopPhotoModeAsync(onStoppedPhotoMode);
+                    Debug.Log("Camera deactivated");
+                });
+            }
+            else
+            {
+                Debug.LogError("Capture object is null. Check your camera setup.");
+            }
     }
 
     void onCapturedPhotoToMemory(PhotoCapture.PhotoCaptureResult result, PhotoCaptureFrame photoCaptureFrame)
@@ -84,7 +91,7 @@ public class PictureTakingButton : MonoBehaviour
 
         for (int i = 0; i < pixels.Length; i++)
         {
-
+            
             // Check if the pixel is predominantly red (you can adjust the threshold)
             if (pixels[i].r > 0.8f && pixels[i].g < 0.5f && pixels[i].b < 0.5f)
             {
@@ -94,7 +101,7 @@ public class PictureTakingButton : MonoBehaviour
                 int x = i - y * width;
                 Debug.Log("Red pixel found at x = " + x + " y = " + y);
                 //getzCoordinate(pixels);
-
+                
             }
             else
             {
