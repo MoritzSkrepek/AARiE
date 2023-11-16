@@ -44,12 +44,10 @@ namespace QRTracking
             {
                 if (node.TryLocate(FrameTime.OnUpdate, out Pose pose))
                 {
-                    // If there is a parent to the camera that means we are using teleport and we should not apply the teleport
-                    // to these objects so apply the inverse
                  
                     if(Camera.main == null)
                     {
-                        Debug.Log("No Camera has been tagged as MainCamera");
+                        throw new System.Exception("No Camera has been tagged as 'MainCamera'");
                     }
 
                     if (Camera.main.transform.parent != null)
@@ -58,11 +56,6 @@ namespace QRTracking
                     }
                     
                     gameObject.transform.SetPositionAndRotation(pose.position, pose.rotation);
-                    Debug.Log("Id= " + Id + " QRPose = " + pose.position.ToString("F7") + " QRRot = " + pose.rotation.ToString("F7"));
-                }
-                else
-                {
-                    Debug.LogWarning("Cannot locate " + Id);
                 }
             }
         }
@@ -72,7 +65,6 @@ namespace QRTracking
             if (node == null || force)
             {
                 node = (Id != System.Guid.Empty) ? SpatialGraphNode.FromStaticNodeId(Id) : null;
-                Debug.Log("Initialize SpatialGraphNode Id= " + Id);
             }
         }
     }
