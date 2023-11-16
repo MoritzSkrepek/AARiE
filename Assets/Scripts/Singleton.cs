@@ -19,12 +19,7 @@ namespace QRTracking
         {
             get
             {
-                if (m_ShuttingDown)
-                {
-                    Debug.LogWarning("[Singleton] Instance '" + typeof(T) +
-                        "' already destroyed. Returning null.");
-                    return null;
-                }
+                if (m_ShuttingDown) return null;
 
                 lock (m_Lock)
                 {

@@ -20,7 +20,6 @@ namespace QRTracking
 
         void Awake()
         {
-            Debug.Log("QRCodesSetup Awake");
             qrCodesManager = QRCodesManager.Instance;
             if (AutoStartQRTracking)
             {

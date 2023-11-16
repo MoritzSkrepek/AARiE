@@ -11,7 +11,7 @@ namespace QRTracking
 
         public bool VisualizeQRCodes = false;
 
-        private SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
+        public SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
         private Queue<ActionData> pendingActions = new Queue<ActionData>();
         private bool clearExisting = false;
 
@@ -38,7 +38,6 @@ namespace QRTracking
         {
       if (VisualizeQRCodes)
       {
-        Debug.Log("QRCodesVisualizer start");
         qrCodesObjectsList = new SortedDictionary<System.Guid, GameObject>();
 
         QRCodesManager.Instance.QRCodesTrackingStateChanged += Instance_QRCodesTrackingStateChanged;
@@ -61,8 +60,6 @@ namespace QRTracking
 
         private void Instance_QRCodeAdded(object sender, QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode> e)
         {
-            Debug.Log("QRCodesVisualizer Instance_QRCodeAdded");
-
             lock (pendingActions)
             {
                 pendingActions.Enqueue(new ActionData(ActionData.Type.Added, e.Data));
@@ -71,8 +68,6 @@ namespace QRTracking
 
         private void Instance_QRCodeUpdated(object sender, QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode> e)
         {
-            Debug.Log("QRCodesVisualizer Instance_QRCodeUpdated");
-
             lock (pendingActions)
             {
                 pendingActions.Enqueue(new ActionData(ActionData.Type.Updated, e.Data));
@@ -81,8 +76,6 @@ namespace QRTracking
 
         private void Instance_QRCodeRemoved(object sender, QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode> e)
         {
-            Debug.Log("QRCodesVisualizer Instance_QRCodeRemoved");
-
             lock (pendingActions)
             {
                 pendingActions.Enqueue(new ActionData(ActionData.Type.Removed, e.Data));
@@ -96,7 +89,6 @@ namespace QRTracking
                 while (pendingActions.Count > 0)
                 {
                     var action = pendingActions.Dequeue();
-                    Debug.Log($"QRCodesVisualizer HandleEvents: {action.type}");
 
                     if (action.type == ActionData.Type.Added)
                     {
