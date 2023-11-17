@@ -36,19 +36,20 @@ namespace QRTracking
         // Use this for initialization
         void Start()
         {
-      if (VisualizeQRCodes)
-      {
-        qrCodesObjectsList = new SortedDictionary<System.Guid, GameObject>();
+            if (VisualizeQRCodes)
+            {
+                qrCodesObjectsList = new SortedDictionary<System.Guid, GameObject>();
 
-        QRCodesManager.Instance.QRCodesTrackingStateChanged += Instance_QRCodesTrackingStateChanged;
-        QRCodesManager.Instance.QRCodeAdded += Instance_QRCodeAdded;
-        QRCodesManager.Instance.QRCodeUpdated += Instance_QRCodeUpdated;
-        QRCodesManager.Instance.QRCodeRemoved += Instance_QRCodeRemoved;
-        if (qrCodePrefab == null)
-        {
-          throw new System.Exception("Prefab not assigned");
-        }
-      }
+                QRCodesManager.Instance.QRCodesTrackingStateChanged += Instance_QRCodesTrackingStateChanged;
+                QRCodesManager.Instance.QRCodeAdded += Instance_QRCodeAdded;
+                QRCodesManager.Instance.QRCodeUpdated += Instance_QRCodeUpdated;
+                QRCodesManager.Instance.QRCodeRemoved += Instance_QRCodeRemoved;
+
+                if (qrCodePrefab == null)
+                {
+                    throw new System.Exception("Prefab not assigned");
+                }
+            }
         }
         private void Instance_QRCodesTrackingStateChanged(object sender, bool status)
         {
@@ -129,15 +130,15 @@ namespace QRTracking
             }
         }
 
-    // Update is called once per frame
-    void Update()
-    {
-      if (VisualizeQRCodes)
-      {
+        // Update is called once per frame
+        void Update()
+        {
+            if (VisualizeQRCodes)
+            {
 
-        HandleEvents();
-      }
-    }
+                HandleEvents();
+            }
+        }
     }
 
 }

@@ -94,7 +94,6 @@ namespace QRTracking
                 qrTracker.Added += QRCodeWatcher_Added;
                 qrTracker.Updated += QRCodeWatcher_Updated;
                 qrTracker.Removed += QRCodeWatcher_Removed;
-                qrTracker.EnumerationCompleted += QRCodeWatcher_EnumerationCompleted;
             }
             catch (Exception ex)
             {

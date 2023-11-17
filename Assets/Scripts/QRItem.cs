@@ -16,6 +16,7 @@ namespace QRTracking
         }
 
         public QRData qrData;
+
         private Dictionary<int, QRData> items = new Dictionary<int, QRData>() { {1, new QRData { id = 1, name = "Federpenal", position = Vector3.zero, size = 3, form = Form.rectangle, value = 0 }},
                                                                 {2, new QRData { id = 2, name = "vereinzelt stifte", position = Vector3.zero, size = 1, form = Form.square, value = 0 }},
                                                                 {3, new QRData { id = 3, name = "Kopfhörer", position = Vector3.zero, size = 9, form = Form.rectangle, value = 0 }},
