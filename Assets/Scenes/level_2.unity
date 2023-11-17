@@ -520,7 +520,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &677565721
 Transform:
   m_ObjectHideFlags: 0
@@ -711,6 +711,10 @@ PrefabInstance:
     - target: {fileID: 2079062873306329133, guid: 9ceaea61be84db74ca74378863e9c03e, type: 3}
       propertyPath: m_Name
       value: QRCodesManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 2079062873306329133, guid: 9ceaea61be84db74ca74378863e9c03e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4908586973252628864, guid: 9ceaea61be84db74ca74378863e9c03e, type: 3}
       propertyPath: m_Enabled
@@ -2131,7 +2135,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1504251772
 Transform:
   m_ObjectHideFlags: 0
@@ -2297,7 +2301,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1764021497
 Transform:
   m_ObjectHideFlags: 0
@@ -2865,7 +2869,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1944903818
 Transform:
   m_ObjectHideFlags: 0
