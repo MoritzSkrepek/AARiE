@@ -1,5 +1,5 @@
+using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
@@ -8,56 +8,60 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
 {
     public ARRaycastManager raycastManager;
     public ARPlaneManager planeManager;
-    public ARAnchorManager anchorManager;     //TODO: add the Anchor to the placed Object
-    public GameObject objectToPlace; // Assign your 3D object in the inspector.
-    public float requiredLookTime = 3.0f; // Time in seconds for desk confirmation.
+    public GameObject inventoryObject;
+    public GameObject testObject;
+    public InventoryController inventoryController;
+    public GameObject qrCodesManager;
+    public float requiredLookTime = 5.0f; // Time in seconds for desk confirmation.
 
     private ARPlane selectedDeskPlane;
     private float lookStartTime = -1f;
     private bool objectPlaced = false;
     private float heightOffset = 0.05f;
 
+    private bool canStartScript = false;
+
+    void Start()
+    {
+        StartCoroutine(DelayedStart());
+    }
+
+    IEnumerator DelayedStart()
+    {
+        yield return new WaitForSeconds(3.0f); // Adjust the delay time as needed.
+        canStartScript = true;
+        Debug.Log("Script can now start.");
+    }
+
     void Update()
     {
-        if (!objectPlaced)
+        if (!objectPlaced && canStartScript)
         {
-            Debug.Log("Object has not been placed yet!");
-
             List<ARRaycastHit> hits = new List<ARRaycastHit>();
-            if (raycastManager.Raycast(new Vector2(Screen.width / 2, Screen.height / 2), hits, TrackableType.Planes))
+            // Use Camera.main.transform.forward as the ray direction
+            if (raycastManager.Raycast(new Ray(Camera.main.transform.position, Camera.main.transform.forward), hits, TrackableType.Planes))
             {
-                Debug.Log("Player is looking at a plane");
-                ARPlane plane = planeManager.GetPlane(hits[0].trackableId);
-                if (plane != null)
+                ARPlane closestPlane = FindClosestPlane(hits);
+                if (closestPlane != null)
                 {
-                    if (selectedDeskPlane == null)
+                    if (selectedDeskPlane == null || selectedDeskPlane != closestPlane)
                     {
-                        selectedDeskPlane = plane;
+                        selectedDeskPlane = closestPlane;
                         lookStartTime = Time.time; // Start the timer when a new plane is selected.
                         Debug.Log("Plane selected. Timer started.");
                     }
-
-                    if (selectedDeskPlane == plane)
+                    float timeLookedAtPlane = Time.time - lookStartTime;
+                    Debug.Log("Time looked at plane: " + timeLookedAtPlane);
+                    if (timeLookedAtPlane >= requiredLookTime)
                     {
-                        float timeLookedAtPlane = Time.time - lookStartTime;
-                        Debug.Log("Time looked at plane: " + timeLookedAtPlane);
-
-                        if (timeLookedAtPlane >= requiredLookTime)
-                        {
-                            PlaceObjectOnDesk(selectedDeskPlane);
-                            Debug.Log("Object is now placed.");
-                            objectPlaced = true;
-                        }
-                    }
-                    else
-                    {
-                        Debug.Log("User is now looking at a different plane.");
-                        selectedDeskPlane = null;
+                        PlaceObjectOnDesk(selectedDeskPlane);
+                        Debug.Log("Object is now placed.");
+                        objectPlaced = true;
                     }
                 }
                 else
                 {
-                    Debug.Log("User is now looking at a different plane.");
+                    Debug.Log("Current plane is null.");
                     selectedDeskPlane = null;
                 }
             }
@@ -69,36 +73,54 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
         }
     }
 
+    ARPlane FindClosestPlane(List<ARRaycastHit> hits)
+    {
+        ARPlane closestPlane = null;
+        float closestDistance = float.MaxValue;
+        foreach (var hit in hits)
+        {
+            ARPlane plane = planeManager.GetPlane(hit.trackableId);
+            if (plane != null)
+            {
+                float distanceToPlane = Vector3.Distance(Camera.main.transform.position, hit.pose.position);
+                if (distanceToPlane < closestDistance)
+                {
+                    closestPlane = plane;
+                    closestDistance = distanceToPlane;
+                }
+            }
+        }
+        return closestPlane;
+    }
+
     void PlaceObjectOnDesk(ARPlane deskPlane)
     {
-        // Disable the plane manager to stop further plane detection.
-        planeManager.enabled = false;
-
-        // Disable this script so it won't run again.
-        gameObject.SetActive(false);
-
         // Calculate the object's position above the center of the plane.
         Vector3 objectPosition = deskPlane.center + Vector3.up * heightOffset;
 
-        // Instantiate the object and place it at the calculated position.
-        Instantiate(objectToPlace, objectPosition, Quaternion.identity);
+        // Calculate the rotation to rotate the object -90 degrees around the x-axis.
+        Quaternion objectRotation = Quaternion.Euler(-90f, 0f, 0f);
 
-        /*
-        //This code handles the calculation for the placement position and also attaches an ARAnchor to the placed Object
-        // Disable the plane manager to stop further plane detection.
+        // Instantiate the object with rotation.
+        GameObject instantiatedObject = Instantiate(inventoryObject, objectPosition, objectRotation);
+
+        // Set the scale of the instantiated object.
+        instantiatedObject.transform.localScale = new Vector3(30f, 30f, 30f);
+
+        // Set the inventoryObject in the InventoryController
+        inventoryController.SetInventoryObject(instantiatedObject);
+
+        // Enable the InventoryController
+        inventoryController.gameObject.SetActive(true);
+
+        // Set the visibility of the planes.
+        planeManager.planePrefab = null;
+
         planeManager.enabled = false;
 
+        qrCodesManager.SetActive(true);
+
         // Disable this script so it won't run again.
-        gameObject.SetActive(false);
-
-        // Calculate the object's position above the center of the plane.
-        Vector3 objectPosition = deskPlane.center + Vector3.up * heightOffset;
-
-        //Create Anchor
-        ARAnchor newAnchor = anchorManager.AddComponent<ARAnchor>();
-        GameObject anchorVisual = Instantiate(objectToPlace, objectPosition, Quaternion.identity);
-        anchorVisual.transform.parent = newAnchor.transform;
-        */
+        this.gameObject.SetActive(false);
     }
 }
-
