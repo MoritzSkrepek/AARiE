@@ -139,16 +139,12 @@ public class InventoryController : MonoBehaviour
         // Find the row and column based on the object's position
         float cellWidth = inventoryBounds.size.x / numColumns;
         float cellHeight = inventoryBounds.size.z / numRows;
-
         int col = Mathf.FloorToInt((objectPosition.x - inventoryBounds.min.x) / cellWidth);
         int row = Mathf.FloorToInt((inventoryBounds.max.z - objectPosition.z) / cellHeight);
-
         // Clamp the column index to ensure it's within bounds
         col = Mathf.Clamp(col, 0, numColumns - 1);
-
         // Adjust the row index to ensure it's within bounds and consider the object's height
         row = Mathf.Clamp(row, 0, numRows - 1 - Mathf.FloorToInt((GetBounds(testObject).size.z / cellHeight)));
-
         return new Vector2(row, col);
     }
 
@@ -168,15 +164,12 @@ public class InventoryController : MonoBehaviour
         {
             // testObject.transform.position in the future -> QR-Code coordinates
             Vector2 gridPosition = CalculateGridPosition(testObject.transform.position);
-
             // Check if the object is in the last row or column
             bool isLastRow = (int)gridPosition.x == numRows - 1;
             bool isLastColumn = (int)gridPosition.y == numColumns - 1;
-
             // Check if the width and height of the object don't go past the limits of the array
             bool isWidthValid = gridPosition.x + QRWidth <= numRows;
             bool isHeightValid = gridPosition.y + QRHeight <= numColumns;
-
             // Object is inside bounds if any of the conditions are true
             isTestObjectInsideBounds = ((isLastRow || isLastColumn || (isWidthValid && isHeightValid)) && inventoryBounds.Contains(testObject.transform.position));
         }

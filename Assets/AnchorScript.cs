@@ -30,7 +30,6 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
     {
         yield return new WaitForSeconds(3.0f); // Adjust the delay time as needed.
         canStartScript = true;
-        Debug.Log("Script can now start.");
     }
 
     void Update()
@@ -48,26 +47,21 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
                     {
                         selectedDeskPlane = closestPlane;
                         lookStartTime = Time.time; // Start the timer when a new plane is selected.
-                        Debug.Log("Plane selected. Timer started.");
                     }
                     float timeLookedAtPlane = Time.time - lookStartTime;
-                    Debug.Log("Time looked at plane: " + timeLookedAtPlane);
                     if (timeLookedAtPlane >= requiredLookTime)
                     {
                         PlaceObjectOnDesk(selectedDeskPlane);
-                        Debug.Log("Object is now placed.");
                         objectPlaced = true;
                     }
                 }
                 else
                 {
-                    Debug.Log("Current plane is null.");
                     selectedDeskPlane = null;
                 }
             }
             else
             {
-                Debug.Log("No planes detected.");
                 selectedDeskPlane = null;
             }
         }
@@ -97,29 +91,20 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
     {
         // Calculate the object's position above the center of the plane.
         Vector3 objectPosition = deskPlane.center + Vector3.up * heightOffset;
-
         // Calculate the rotation to rotate the object -90 degrees around the x-axis.
         Quaternion objectRotation = Quaternion.Euler(-90f, 0f, 0f);
-
         // Instantiate the object with rotation.
         GameObject instantiatedObject = Instantiate(inventoryObject, objectPosition, objectRotation);
-
         // Set the scale of the instantiated object.
         instantiatedObject.transform.localScale = new Vector3(30f, 30f, 30f);
-
         // Set the inventoryObject in the InventoryController
         inventoryController.SetInventoryObject(instantiatedObject);
-
         // Enable the InventoryController
         inventoryController.gameObject.SetActive(true);
-
         // Set the visibility of the planes.
         planeManager.planePrefab = null;
-
         planeManager.enabled = false;
-
         qrCodesManager.SetActive(true);
-
         // Disable this script so it won't run again.
         this.gameObject.SetActive(false);
     }
