@@ -1,5 +1,7 @@
+using MixedReality.Toolkit.UX;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
@@ -12,6 +14,7 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
     public GameObject testObject;
     public InventoryController inventoryController;
     public GameObject qrCodesManager;
+    public GameObject infoObject;
     public float requiredLookTime = 5.0f; // Time in seconds for desk confirmation.
 
     private ARPlane selectedDeskPlane;
@@ -97,11 +100,19 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
         GameObject instantiatedObject = Instantiate(inventoryObject, objectPosition, objectRotation);
         // Set the scale of the instantiated object.
         instantiatedObject.transform.localScale = new Vector3(30f, 30f, 30f);
+        // Spawn infoGameObject (Two TextMeshes and button for Knapsack Algorithm)
+        Vector3 infoObjectPosition = objectPosition - Vector3.forward * 5f;
+        infoObject.transform.position = infoObjectPosition;
+        infoObject.SetActive(true);
         // Set the inventoryObject in the InventoryController
         inventoryController.SetInventoryObject(instantiatedObject);
         // Enable the InventoryController
         inventoryController.gameObject.SetActive(true);
         // Set the visibility of the planes.
+
+        Debug.Log("Coords: " + instantiatedObject.transform.position);
+        Debug.Log("Cords; " + infoObject.transform.position);
+        
         planeManager.planePrefab = null;
         planeManager.enabled = false;
         qrCodesManager.SetActive(true);
