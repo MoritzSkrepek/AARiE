@@ -12,8 +12,8 @@ public class InventoryController : MonoBehaviour
     private bool isTestObjectInsideBounds = false;
 
     // Grid parameters for a 7x7 grid
-    private int numRows = 7; // Adjust as needed
-    private int numColumns = 7; // Adjust as needed
+    private int numRows = 3; // Adjust as needed
+    private int numColumns = 3; // Adjust as needed
     private int[,] idGrid; // 2D array to store IDs
 
     // QR-Code parameters

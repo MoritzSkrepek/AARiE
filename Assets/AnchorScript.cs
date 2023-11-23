@@ -99,7 +99,7 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
         // Instantiate the object with rotation.
         GameObject instantiatedObject = Instantiate(inventoryObject, objectPosition, objectRotation);
         // Set the scale of the instantiated object.
-        instantiatedObject.transform.localScale = new Vector3(30f, 30f, 30f);
+        instantiatedObject.transform.localScale = new Vector3(20f, 20f, 20f);
         // Spawn infoGameObject (Two TextMeshes and button for Knapsack Algorithm)
         Vector3 infoObjectPosition = objectPosition - Vector3.forward * 5f;
         infoObject.transform.position = infoObjectPosition;
