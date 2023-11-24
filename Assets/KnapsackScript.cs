@@ -45,6 +45,7 @@ public class KnapsackScript : MonoBehaviour
         int capacity = 120;
         int maxValue = KnapsackMaxValue(items, capacity, out usedItems, out int coveredCapacity);
         maxVal.text += " " + maxValue.ToString();
+        maxVal.text = "Max Inventory Value: " + maxValue.ToString();
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
@@ -61,7 +62,7 @@ public class KnapsackScript : MonoBehaviour
             Debug.Log("");
         }
         int inventoryValue = KnapsackInventoryValue(items, inventory);
-        ownVal.text += " " + inventoryValue.ToString();
+        ownVal.text = "Own Inventory Value: " + inventoryValue.ToString();
     }
 
     int KnapsackMaxValue(Dictionary<int, Item> items, int capacity, out int[,] usedItems, out int coveredCapacity)
