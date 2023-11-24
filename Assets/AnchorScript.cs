@@ -101,7 +101,7 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
         // Set the scale of the instantiated object.
         instantiatedObject.transform.localScale = new Vector3(20f, 20f, 20f);
         // Spawn infoGameObject (Two TextMeshes and button for Knapsack Algorithm)
-        Vector3 infoObjectPosition = objectPosition - Vector3.forward * 5f;
+        Vector3 infoObjectPosition = objectPosition - Vector3.forward * 4.415f + Vector3.right * 0.4f;
         infoObject.transform.position = infoObjectPosition;
         infoObject.SetActive(true);
         // Set the inventoryObject in the InventoryController
