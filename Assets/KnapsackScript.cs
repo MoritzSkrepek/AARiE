@@ -42,13 +42,9 @@ public class KnapsackScript : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("Shalom");
         int capacity = 120;
         int maxValue = KnapsackMaxValue(items, capacity, out usedItems, out int coveredCapacity);
-        Debug.Log("Maximaler Wert des Knapsacks: " + maxValue);
         maxVal.text += " " + maxValue.ToString();
-
-        Debug.Log("Used items:");
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
@@ -64,26 +60,7 @@ public class KnapsackScript : MonoBehaviour
             }
             Debug.Log("");
         }
-
-        Debug.Log("Own Items:");
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                if (inventory[i, j] != 0)
-                {
-                    Debug.Log(inventory[i, j] + " ");
-                }
-                else
-                {
-                    Debug.Log(". ");
-                }
-            }
-            Debug.Log("");
-        }
-
         int inventoryValue = KnapsackInventoryValue(items, inventory);
-        Debug.Log("Wert des Inventars: " + inventoryValue);
         ownVal.text += " " + inventoryValue.ToString();
     }
 
