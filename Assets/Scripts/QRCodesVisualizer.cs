@@ -14,12 +14,7 @@ namespace QRTracking
 
         private SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
 
-        private ConcurrentDictionary<int, QRItem> activeQRObjects;
-
-        public ref ConcurrentDictionary<int, QRItem> GetActiveQRObjectsReference()
-        {
-            return ref activeQRObjects;
-        }
+        public ConcurrentDictionary<int, QRItem> activeQRObjects = new ConcurrentDictionary<int, QRItem>();
 
         private Queue<ActionData> pendingActions = new Queue<ActionData>();
         private bool clearExisting = false;
@@ -45,10 +40,10 @@ namespace QRTracking
         // Use this for initialization
         void Start()
         {
+            Debug.Log("QR OBJECTS: " + activeQRObjects);
             if (VisualizeQRCodes)
             {
                 qrCodesObjectsList = new SortedDictionary<System.Guid, GameObject>();
-                activeQRObjects = new ConcurrentDictionary<int, QRItem>();
 
                 QRCodesManager.Instance.QRCodesTrackingStateChanged += Instance_QRCodesTrackingStateChanged;
                 QRCodesManager.Instance.QRCodeAdded += Instance_QRCodeAdded;

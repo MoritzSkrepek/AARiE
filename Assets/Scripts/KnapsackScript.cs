@@ -1,71 +1,61 @@
+using QRTracking;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using static QRTracking.QRItem;
 
 public class KnapsackScript : MonoBehaviour
 {
-    [Serializable]
-    public class Item
-    {
-        public int ID;
-        public int Value;
-        public int Weight;
-    }
+    public GameObject QRCodeManager;
+
+    private ConcurrentDictionary<int, QRItem> activeQRObjects;
+    private List<QRItem> activeItems = new List<QRItem>();
+
+    private Dictionary<int, QRData> items = new QRItem().items;
+
+    public int capacity = 120;
+    private int maxItems = 9;
 
     public TextMeshPro ownVal;
     public TextMeshPro maxVal;
-    private int[,] inventory;
+    //private int[,] inventory;
     private int[,] usedItems;
 
-    // inventory for calculation testing
-    /*private int[,] inventory = new int[3, 3]
+    private int[,] inventory = new int[3, 3]
     {
-        { 1, 0, 0 },
-        { 2, 3, 0 },
-        { 0, 0, 0 }
-    };*/
+    {0, 0, 3},
+    {2, 0, 0},
+    {0, 0, 8}
+    };
 
-    private Dictionary<int, Item> items = new Dictionary<int, Item>
-    {
-        {1, new Item { ID = 1, Value = 50, Weight = 25}},
-        {2, new Item { ID = 2, Value = 20, Weight = 10}},
-        {3, new Item { ID = 3, Value = 10, Weight = 5}},
-        {4, new Item { ID = 4, Value = 25, Weight = 13}},
-        {5, new Item { ID = 5, Value = 40, Weight = 20}},
-        {6, new Item { ID = 6, Value = 45, Weight = 22}},
-        {7, new Item { ID = 7, Value = 5, Weight = 1}},
-        {8, new Item { ID = 8, Value = 100, Weight = 50}},
-        {9, new Item { ID = 9, Value = 30, Weight = 6}},
-        {10, new Item { ID = 10, Value = 15, Weight = 8}}
-    };  
 
     void Start()
     {
-        int capacity = 120;
-        int maxValue = KnapsackMaxValue(items, capacity, out usedItems, out int coveredCapacity);
-        maxVal.text += " " + maxValue.ToString();
-        maxVal.text = "Max Inventory Value: " + maxValue.ToString();
-        for (int i = 0; i < 3; i++)
+        activeQRObjects = QRCodeManager.GetComponent<QRCodesVisualizer>().activeQRObjects;
+
+        activeItems.Clear();
+        lock (activeQRObjects)
         {
-            for (int j = 0; j < 3; j++)
+            var enumerator = activeQRObjects.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                if (usedItems[i, j] != 0)
-                {
-                    Debug.Log(usedItems[i, j] + " ");
-                }
-                else
-                {
-                    Debug.Log(". ");
-                }
+                activeItems.Add(enumerator.Current.Value);
             }
-            Debug.Log("");
         }
-        int inventoryValue = KnapsackInventoryValue(items, inventory);
-        ownVal.text = "Own Inventory Value: " + inventoryValue.ToString();
+
+        int maxValue = KnapsackMaxValue(out usedItems, out int coveredCapacity);
+        int inventoryValue = KnapsackInventoryValue(inventory);
+
+        maxVal.text = "Max Value: " + maxValue.ToString();
+        ownVal.text = "Own Value: " + inventoryValue.ToString();
+        Debug.Log(maxValue.ToString());
+        Debug.Log(inventoryValue.ToString());   
     }
 
-    int KnapsackMaxValue(Dictionary<int, Item> items, int capacity, out int[,] usedItems, out int coveredCapacity)
+    int KnapsackMaxValue(out int[,] usedItems, out int coveredCapacity)
     {
         int n = items.Count;
         int[,] dp = new int[n + 1, capacity + 1];
@@ -77,9 +67,9 @@ public class KnapsackScript : MonoBehaviour
             {
                 if (i == 0 || w == 0)
                     dp[i, w] = 0;
-                else if (items[i].Weight <= w)
+                else if (items[i].weight <= w && i <= maxItems)
                 {
-                    int newValue = items[i].Value + dp[i - 1, w - items[i].Weight];
+                    int newValue = items[i].value + dp[i - 1, w - items[i].weight];
                     if (newValue > dp[i - 1, w])
                     {
                         dp[i, w] = newValue;
@@ -108,8 +98,8 @@ public class KnapsackScript : MonoBehaviour
             List<int> group = new List<int>();
             while (row > 0 && col > 0 && selected[row, col])
             {
-                group.Add(items[row].ID);
-                col -= items[row].Weight;
+                group.Add(items[row].id);
+                col -= items[row].weight;
                 row--;
             }
 
@@ -147,19 +137,21 @@ public class KnapsackScript : MonoBehaviour
         return dp[n, capacity];
     }
 
-    int KnapsackInventoryValue(Dictionary<int, Item> items, int[,] inventory)
+
+    int KnapsackInventoryValue(int[,] inventory)
     {
         int totalValue = 0;
 
-        for (int i = 1; i <= items.Count; i++)
+        foreach (var item in activeItems)
         {
-            int itemValue = items[i].Value;
+            int itemId = item.qrData.id;
+            int itemValue = item.qrData.value;
 
             for (int j = 0; j < inventory.GetLength(0); j++)
             {
                 for (int k = 0; k < inventory.GetLength(1); k++)
                 {
-                    if (inventory[j, k] == i)
+                    if (inventory[j, k] == itemId)
                     {
                         totalValue += itemValue;
                     }
@@ -172,6 +164,6 @@ public class KnapsackScript : MonoBehaviour
 
     public void SetInventory(int[,] newInventory)
     {
-        inventory = newInventory;
+        //inventory = newInventory;
     }
 }

@@ -1,27 +1,32 @@
+using QRTracking;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class InventoryController : MonoBehaviour
 {
-    public GameObject testObject;
+    public GameObject QRCodeManager;
     public GameObject knapsackSolverGameObject;
+
+    private ConcurrentDictionary<int, QRItem> activeQRObjects;
+
+    private List<QRItem> activeItems = new List<QRItem>();
 
     // Inventory Object parameters
     private GameObject inventoryObject;
-    private float verticalOffset = 0.05f; // Adjust this offset as needed
+    public float verticalOffset = 0.1f; // Adjust this offset as needed
     private Bounds inventoryBounds;
-    private bool isTestObjectInsideBounds = false;
 
-    // Grid parameters for a 7x7 grid
+    // Grid parameters for a 3x3 grid
     private int numRows = 3; // Adjust as needed
     private int numColumns = 3; // Adjust as needed
     private int[,] idGrid; // 2D array to store IDs
 
-    // QR-Code parameters
-    private int qrID = 1; //Replace with function to get id from qr-code
-
     void Start()
     {
         // Initialize inventory bounds and grid once at the start
+        activeQRObjects = QRCodeManager.GetComponent<QRCodesVisualizer>().activeQRObjects;
+        
         UpdateInventoryBounds();
         InitializeIDGrid();
     }
@@ -33,33 +38,48 @@ public class InventoryController : MonoBehaviour
 
     void Update()
     {
-        CheckObjectInBounds();
-        // If the object is inside bounds and can fit within the grid, calculate its grid position
-        if (isTestObjectInsideBounds)
+        activeQRObjects = QRCodeManager.GetComponent<QRCodesVisualizer>().activeQRObjects;
+        Debug.Log("QR OBJECTS: " + activeQRObjects);
+        activeItems.Clear();
+        Debug.Log("Cleared");
+        lock (activeQRObjects)
         {
-            // get QR ID from QR-Code
-            // Calculate the starting grid position
-            Vector2 startGridPosition = CalculateGridPosition(testObject.transform.position);
-            // Set the ID directly in the idGrid array
-            idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = qrID;
-            // This part will be deleted
-            testObject.GetComponent<Renderer>().material.color = Color.green;
-            // This part will be deleted
-            // Optionally, print the entire grid to the console
-            KnapsackScript knapsackScript = knapsackSolverGameObject.GetComponent<KnapsackScript>();
-            if (knapsackScript != null)
+            Debug.Log("Lock");
+
+            var enumerator = activeQRObjects.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                knapsackScript.SetInventory(idGrid);
+                Debug.Log("FOHSJFSDF");
+                activeItems.Add(enumerator.Current.Value);
             }
-            PrintGrid();
         }
-        else
+
+        foreach (var obj in activeItems)
         {
-            // Object doesn't fit within bounds, handle accordingly (e.g., display a message)
-            Debug.Log("Object doesn't fit within bounds.");
-            // This part will be deleted
-            testObject.GetComponent<Renderer>().material.color = Color.red;
-            // This part will be deleted
+            //HIER FEHLER FIXX BITTEEEEEEEEEEE
+            Debug.Log("QR Code " + obj.qrData.id + " is outside bounds");
+            Debug.Log("Is QRCode in bounds: " + inventoryBounds.Contains(obj.qrData.position));
+            // If the object is inside bounds and can fit within the grid, calculate its grid position
+            if (inventoryBounds.Contains(obj.qrData.position))
+            {
+                Debug.Log("QR Code " + obj.qrData.id + " is inside the inventory bounds");
+                // get QR ID from QR-Code
+                // Calculate the starting grid position
+                Vector2 startGridPosition = CalculateGridPosition(obj.qrData.position);
+                // Set the ID directly in the idGrid array
+                idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = obj.qrData.id;
+
+
+                // Optionally, print the entire grid to the console
+                KnapsackScript knapsackScript = knapsackSolverGameObject.GetComponent<KnapsackScript>();
+                if (knapsackScript != null)
+                {
+                    knapsackScript.SetInventory(idGrid);
+                }
+                PrintGrid();
+            }
+            
         }
     }
 
@@ -96,9 +116,9 @@ public class InventoryController : MonoBehaviour
         int col = Mathf.FloorToInt((objectPosition.x - inventoryBounds.min.x) / cellWidth);
         int row = Mathf.FloorToInt((inventoryBounds.max.z - objectPosition.z) / cellHeight);
         // Clamp the column index to ensure it's within bounds
-        col = Mathf.Clamp(col, 0, numColumns - 1);
+        //col = Mathf.Clamp(col, 0, numColumns - 1);
         // Adjust the row index to ensure it's within bounds and consider the object's height
-        row = Mathf.Clamp(row, 0, numRows - 1 - Mathf.FloorToInt((GetBounds(testObject).size.z / cellHeight)));
+        //row = Mathf.Clamp(row, 0, numRows - 1 - Mathf.FloorToInt((GetBounds(testObject).size.z / cellHeight)));
         return new Vector2(row, col);
     }
 
@@ -109,16 +129,6 @@ public class InventoryController : MonoBehaviour
             Bounds localBounds = GetBounds(inventoryObject);
             ExtendBounds(ref localBounds, verticalOffset);
             inventoryBounds = localBounds;
-        }
-    }
-
-    void CheckObjectInBounds()
-    {
-        if (testObject != null && inventoryObject != null)
-        {
-            // Check if the object is inside the inventory bounds
-            // replace testObject.transform.position with qr code positioin
-            isTestObjectInsideBounds = inventoryBounds.Contains(testObject.transform.position);
         }
     }
 

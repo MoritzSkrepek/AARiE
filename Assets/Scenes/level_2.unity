@@ -256,7 +256,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 278432895}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -707,6 +707,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0946775cf4d410647bd07c9fe267e2f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  QRCodeManager: {fileID: 960734452}
+  capacity: 120
   ownVal: {fileID: 462283048}
   maxVal: {fileID: 1155574618}
 --- !u!4 &472987675
@@ -816,8 +818,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04dd3f4c7632a2f4a95353f6d925dcb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testObject: {fileID: 2128523269}
+  QRCodeManager: {fileID: 960734452}
   knapsackSolverGameObject: {fileID: 472987673}
+  verticalOffset: 0.1
 --- !u!4 &800086819
 Transform:
   m_ObjectHideFlags: 0
@@ -1510,7 +1513,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8110664055982005406, guid: f443144a6d408c34bb8a7d70a73644c4, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 52
       objectReference: {fileID: 0}
     - target: {fileID: 8110664055982005406, guid: f443144a6d408c34bb8a7d70a73644c4, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -3073,7 +3076,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 52, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1778710008

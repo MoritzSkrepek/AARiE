@@ -1,4 +1,3 @@
-using MixedReality.Toolkit.UX;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -92,7 +91,7 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
 
     void PlaceObjectOnDesk(ARPlane deskPlane)
     {
-        qrCodesManager.gameObject.SetActive(true);
+        qrCodesManager.SetActive(true);
         // Calculate the object's position above the center of the plane.
         Vector3 objectPosition = deskPlane.center + Vector3.up * heightOffset;
         // Calculate the rotation to rotate the object -90 degrees around the x-axis.
