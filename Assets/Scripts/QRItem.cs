@@ -30,8 +30,6 @@ namespace QRTracking
             {11, new QRData { id = 11, name = "Handy", weight = 30, value = 100 }}
         };
 
-        public QRItem() { }
-
         public QRItem(int id)
         {
             items.TryGetValue(id, out qrData);

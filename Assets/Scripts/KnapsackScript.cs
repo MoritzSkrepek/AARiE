@@ -1,6 +1,4 @@
 using QRTracking;
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -9,50 +7,41 @@ using static QRTracking.QRItem;
 public class KnapsackScript : MonoBehaviour
 {
     public GameObject QRCodeManager;
+    public TextMeshPro ownVal;
+    public TextMeshPro maxVal;
 
-    private ConcurrentDictionary<int, QRItem> activeQRObjects;
-    private List<QRItem> activeItems = new List<QRItem>();
-
-    private Dictionary<int, QRData> items = new QRItem().items;
+    private Dictionary<int, QRData> items;
 
     public int capacity = 120;
     private int maxItems = 9;
-
-    public TextMeshPro ownVal;
-    public TextMeshPro maxVal;
-    //private int[,] inventory;
     private int[,] usedItems;
-
-    private int[,] inventory = new int[3, 3]
-    {
-    {0, 0, 3},
-    {2, 0, 0},
-    {0, 0, 8}
-    };
-
+    private int[,] inventory;
 
     void Start()
     {
-        activeQRObjects = QRCodeManager.GetComponent<QRCodesVisualizer>().activeQRObjects;
+        Initialize();
+        CalculateKnapsack();
+    }
 
-        activeItems.Clear();
-        lock (activeQRObjects)
-        {
-            var enumerator = activeQRObjects.GetEnumerator();
+    void Initialize()
+    {
+        items = new QRItem(0).items;
+    }
 
-            while (enumerator.MoveNext())
-            {
-                activeItems.Add(enumerator.Current.Value);
-            }
-        }
-
+    void CalculateKnapsack()
+    {
         int maxValue = KnapsackMaxValue(out usedItems, out int coveredCapacity);
-        int inventoryValue = KnapsackInventoryValue(inventory);
-
+        
         maxVal.text = "Max Value: " + maxValue.ToString();
-        ownVal.text = "Own Value: " + inventoryValue.ToString();
-        Debug.Log(maxValue.ToString());
-        Debug.Log(inventoryValue.ToString());   
+        try
+        {
+            int inventoryValue = KnapsackInventoryValue(inventory);
+            ownVal.text = "Own Value: " + inventoryValue.ToString();
+        } catch (System.Exception e)
+        {
+            if(inventory != null) Debug.LogError("Error calculating inventory value: " + e.Message);
+        }
+        
     }
 
     int KnapsackMaxValue(out int[,] usedItems, out int coveredCapacity)
@@ -137,15 +126,19 @@ public class KnapsackScript : MonoBehaviour
         return dp[n, capacity];
     }
 
-
     int KnapsackInventoryValue(int[,] inventory)
     {
+        if(inventory == null)
+        {
+            throw new System.Exception("Inventory is null");
+        }
+
         int totalValue = 0;
 
-        foreach (var item in activeItems)
+        foreach (var item in items.Values)
         {
-            int itemId = item.qrData.id;
-            int itemValue = item.qrData.value;
+            int itemId = item.id;
+            int itemValue = item.value;
 
             for (int j = 0; j < inventory.GetLength(0); j++)
             {
@@ -164,6 +157,6 @@ public class KnapsackScript : MonoBehaviour
 
     public void SetInventory(int[,] newInventory)
     {
-        //inventory = newInventory;
+        inventory = newInventory;
     }
 }

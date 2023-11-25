@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
@@ -109,9 +108,8 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
         // Enable the InventoryController
         inventoryController.gameObject.SetActive(true);
         // Set the visibility of the planes.
-        planeManager.planePrefab = null;
-        planeManager.enabled = false;
+        planeManager.planePrefab.SetActive(false);
         // Disable this script so it won't run again.
-        this.gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 }
