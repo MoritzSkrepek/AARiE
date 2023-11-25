@@ -45,7 +45,6 @@ namespace QRTracking
                 Debug.LogError("Error parsing QR Code data: " + e.Message);
             }
             
-            Debug.Log("Object: " + model.name + " " + model.activeSelf + " " + item.qrData.name + " " + item.qrData.name);
         }
 
         void UpdatePropertiesDisplay()

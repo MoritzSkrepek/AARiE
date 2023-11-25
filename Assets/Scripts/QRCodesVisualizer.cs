@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,6 +13,8 @@ namespace QRTracking
         public bool VisualizeQRCodes = false;
 
         public SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
+
+
         private Queue<ActionData> pendingActions = new Queue<ActionData>();
         private bool clearExisting = false;
 
@@ -96,24 +99,33 @@ namespace QRTracking
                         GameObject qrCodeObject = Instantiate(qrCodePrefab, new Vector3(0, 0, 0), Quaternion.identity);
                         qrCodeObject.GetComponent<SpatialGraphNodeTracker>().Id = action.qrCode.SpatialGraphNodeId;
                         qrCodeObject.GetComponent<QRCode>().qrCode = action.qrCode;
-                        qrCodesObjectsList.Add(action.qrCode.Id, qrCodeObject);
+                        lock (qrCodesObjectsList)
+                        {
+                            qrCodesObjectsList.Add(action.qrCode.Id, qrCodeObject);
+                        }
                     }
                     else if (action.type == ActionData.Type.Updated)
                     {
-                        if (!qrCodesObjectsList.ContainsKey(action.qrCode.Id))
+                        lock (qrCodesObjectsList)
                         {
-                            GameObject qrCodeObject = Instantiate(qrCodePrefab, new Vector3(0, 0, 0), Quaternion.identity);
-                            qrCodeObject.GetComponent<SpatialGraphNodeTracker>().Id = action.qrCode.SpatialGraphNodeId;
-                            qrCodeObject.GetComponent<QRCode>().qrCode = action.qrCode;
-                            qrCodesObjectsList.Add(action.qrCode.Id, qrCodeObject);
+                            if (!qrCodesObjectsList.ContainsKey(action.qrCode.Id))
+                            {
+                                GameObject qrCodeObject = Instantiate(qrCodePrefab, new Vector3(0, 0, 0), Quaternion.identity);
+                                qrCodeObject.GetComponent<SpatialGraphNodeTracker>().Id = action.qrCode.SpatialGraphNodeId;
+                                qrCodeObject.GetComponent<QRCode>().qrCode = action.qrCode;
+                                qrCodesObjectsList.Add(action.qrCode.Id, qrCodeObject);
+                            }
                         }
                     }
                     else if (action.type == ActionData.Type.Removed)
                     {
-                        if (qrCodesObjectsList.ContainsKey(action.qrCode.Id))
+                        lock (qrCodesObjectsList)
                         {
-                            Destroy(qrCodesObjectsList[action.qrCode.Id]);
-                            qrCodesObjectsList.Remove(action.qrCode.Id);
+                            if (qrCodesObjectsList.ContainsKey(action.qrCode.Id))
+                            {
+                                Destroy(qrCodesObjectsList[action.qrCode.Id]);
+                                qrCodesObjectsList.Remove(action.qrCode.Id);
+                            }
                         }
                     }
                 }
@@ -121,12 +133,15 @@ namespace QRTracking
             if (clearExisting)
             {
                 clearExisting = false;
-                foreach (var obj in qrCodesObjectsList)
+                lock (qrCodesObjectsList)
                 {
-                    Destroy(obj.Value);
+                    foreach (var obj in qrCodesObjectsList)
+                    {
+                        Destroy(obj.Value);
+                    }
+                    qrCodesObjectsList.Clear();
+                    //activeQRObjects.Clear();
                 }
-                qrCodesObjectsList.Clear();
-
             }
         }
 
@@ -135,7 +150,6 @@ namespace QRTracking
         {
             if (VisualizeQRCodes)
             {
-
                 HandleEvents();
             }
         }

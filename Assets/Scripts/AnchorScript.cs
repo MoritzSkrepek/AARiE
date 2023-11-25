@@ -1,7 +1,5 @@
-using MixedReality.Toolkit.UX;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
@@ -92,7 +90,7 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
 
     void PlaceObjectOnDesk(ARPlane deskPlane)
     {
-        qrCodesManager.gameObject.SetActive(true);
+        qrCodesManager.SetActive(true);
         // Calculate the object's position above the center of the plane.
         Vector3 objectPosition = deskPlane.center + Vector3.up * heightOffset;
         // Calculate the rotation to rotate the object -90 degrees around the x-axis.
@@ -110,9 +108,8 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
         // Enable the InventoryController
         inventoryController.gameObject.SetActive(true);
         // Set the visibility of the planes.
-        planeManager.planePrefab = null;
-        planeManager.enabled = false;
+        planeManager.planePrefab.SetActive(false);
         // Disable this script so it won't run again.
-        this.gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 }
