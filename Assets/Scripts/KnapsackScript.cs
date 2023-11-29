@@ -1,4 +1,5 @@
 using QRTracking;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -7,8 +8,9 @@ using static QRTracking.QRItem;
 public class KnapsackScript : MonoBehaviour
 {
     public GameObject QRCodeManager;
-    public TextMeshPro ownVal;
-    public TextMeshPro maxVal;
+    public TextMeshPro ownMesh;
+    public TextMeshPro maxMesh;
+    public TextMeshPro infoMesh;
 
     private Dictionary<int, QRData> items;
 
@@ -31,15 +33,25 @@ public class KnapsackScript : MonoBehaviour
     void CalculateKnapsack()
     {
         int maxValue = KnapsackMaxValue(out usedItems, out int coveredCapacity);
-        
-        maxVal.text = "Max Value: " + maxValue.ToString();
+        int inventoryValue = -1;
+        maxMesh.text = "Maximal erreichbarer Wert: " + maxValue.ToString();
         try
         {
-            int inventoryValue = KnapsackInventoryValue(inventory);
-            ownVal.text = "Own Value: " + inventoryValue.ToString();
-        } catch (System.Exception e)
+            inventoryValue = KnapsackInventoryValue(inventory);
+            ownMesh.text = "Erreichter Wert: " + inventoryValue.ToString();
+        } catch (NullReferenceException)
         {
-            if(inventory != null) Debug.LogError("Error calculating inventory value: " + e.Message);
+            infoMesh.color = Color.red;
+            infoMesh.text = "Inventar leer";
+        } 
+        catch (System.Exception e)
+        {
+            Debug.LogError("Error calculating inventory value: " + e.Message);
+        }
+        if(maxValue == inventoryValue)
+        {
+            infoMesh.color = Color.green;
+            infoMesh.text = "Maximale Punktzahl erreicht";
         }
         
     }

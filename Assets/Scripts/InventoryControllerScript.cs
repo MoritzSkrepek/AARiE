@@ -1,4 +1,5 @@
 using QRTracking;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,8 +9,6 @@ public class InventoryController : MonoBehaviour
     public GameObject QRCodeManager;
     public GameObject knapsackSolverGameObject;
 
-    public GameObject tempCube;
-
     private SortedDictionary<System.Guid, GameObject> activeQRObjects;
 
     private GameObject inventoryObject;
@@ -18,10 +17,16 @@ public class InventoryController : MonoBehaviour
     private int numRows = 3;
     private int numColumns = 3;
     private int[,] idGrid;
+    private KnapsackScript knapsackScript;
+    private int cap;
+    private int currWeight;
 
     void Start()
     {
         activeQRObjects = QRCodeManager.GetComponent<QRCodesVisualizer>().qrCodesObjectsList;
+        knapsackScript = knapsackSolverGameObject.GetComponent<KnapsackScript>();
+        cap = knapsackScript.capacity;
+                
         UpdateInventoryBounds();
         InitializeIDGrid();
     }
@@ -48,13 +53,18 @@ public class InventoryController : MonoBehaviour
 
                 if (item != null && inventoryBounds.Contains(worldPosition))
                 {
-                    Debug.Log("Item " + qRCode.item.qrData.id + " is in the inventory.");
-                    Vector2 startGridPosition = CalculateGridPosition(worldPosition);
-                    idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = qRCode.item.qrData.id;
-
-                    KnapsackScript knapsackScript = knapsackSolverGameObject.GetComponent<KnapsackScript>();
-                    knapsackScript?.SetInventory(idGrid);
-                    PrintGrid();
+                    if(currWeight + qRCode.item.qrData.weight > cap)
+                    {
+                        knapsackScript.infoMesh.color = Color.red;
+                        knapsackScript.infoMesh.text = "Gewicht überschritten!";
+                    }
+                    else
+                    {
+                        Vector2 startGridPosition = CalculateGridPosition(worldPosition);
+                        idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = qRCode.item.qrData.id;
+                        knapsackScript.SetInventory(idGrid);
+                        currWeight += qRCode.item.qrData.weight;
+                    }  
                 }
             }
         }

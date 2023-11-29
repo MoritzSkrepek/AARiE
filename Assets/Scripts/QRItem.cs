@@ -17,7 +17,7 @@ namespace QRTracking
         public QRData qrData;
 
         public Dictionary<int, QRData> items = new Dictionary<int, QRData>() {
-            {1, new QRData { id = 1, name = "Laptop", weight = 50, value = 100 }},
+            {1, new QRData { id = 1, name = "Laptop", weight = 70, value = 10000 }},
             {2, new QRData { id = 2, name = "Router", weight = 25, value = 50 }},
             {3, new QRData { id = 3, name = "Maus", weight = 12, value = 25 }},
             {4, new QRData { id = 4, name = "Block", weight = 6, value = 12 }},
