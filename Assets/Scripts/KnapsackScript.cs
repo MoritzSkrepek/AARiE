@@ -19,7 +19,7 @@ public class KnapsackScript : MonoBehaviour
     private int[,] usedItems;
     private int[,] inventory;
 
-    void Start()
+    void Awake()
     {
         Initialize();
         CalculateKnapsack();
@@ -38,7 +38,17 @@ public class KnapsackScript : MonoBehaviour
         try
         {
             inventoryValue = KnapsackInventoryValue(inventory);
+            if (maxValue == inventoryValue)
+            {
+                infoMesh.color = Color.green;
+                infoMesh.text = "Maximale Punktzahl erreicht";
+            }
+            else
+            {
+                infoMesh.text = "";
+            }
             ownMesh.text = "Erreichter Wert: " + inventoryValue.ToString();
+
         } catch (NullReferenceException)
         {
             infoMesh.color = Color.red;
@@ -48,12 +58,6 @@ public class KnapsackScript : MonoBehaviour
         {
             Debug.LogError("Error calculating inventory value: " + e.Message);
         }
-        if(maxValue == inventoryValue)
-        {
-            infoMesh.color = Color.green;
-            infoMesh.text = "Maximale Punktzahl erreicht";
-        }
-        
     }
 
     int KnapsackMaxValue(out int[,] usedItems, out int coveredCapacity)
