@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 
@@ -13,25 +15,26 @@ namespace QRTracking
         public Microsoft.MixedReality.QR.QRCode qrCode;
 
         public QRItem item;
-        
+
         public float PhysicalSize { get; private set; }
 
-        private GameObject qrCodeCube;
+        //private GameObject qrCodeCube;
         private GameObject model;
-        
+        private GameObject labels;
+
         private long lastTimeStamp = 0;
 
         // Use this for initialization
         void Start()
         {
             PhysicalSize = 0.1f;
-           
+
             if (qrCode == null)
             {
                 throw new System.Exception("QR Code Empty");
             }
 
-            qrCodeCube = gameObject.transform.Find("Cube").gameObject;
+            //qrCodeCube = gameObject.transform.Find("Cube").gameObject;
 
             PhysicalSize = qrCode.PhysicalSideLength;
 
@@ -40,11 +43,37 @@ namespace QRTracking
                 item = new QRItem(int.Parse(qrCode.Data));
                 model = gameObject.transform.Find(item.qrData.id.ToString()).gameObject;
                 model.SetActive(model != null);
-            } catch (System.Exception e)
+            }
+            catch (System.Exception e)
             {
                 Debug.LogError("Error parsing QR Code data: " + e.Message);
             }
-            
+
+            labels = gameObject.transform.Find("QRLabels").gameObject;
+            setLabels();
+        }
+
+        private void setLabels()
+        {
+            try
+            {
+                Transform canvas = labels.transform.Find("Canvas");
+                TextMeshProUGUI nameLabel = canvas.Find("nameLabel").gameObject.GetComponent<TextMeshProUGUI>();
+                TextMeshProUGUI valueLabel = canvas.Find("valueLabel").gameObject.GetComponent<TextMeshProUGUI>();
+                TextMeshProUGUI weightLabel = canvas.Find("weightLabel").gameObject.GetComponent<TextMeshProUGUI>();
+                nameLabel.text = "Name: " + item.qrData.name;
+                valueLabel.text = "Wert: " + item.qrData.value.ToString();
+                weightLabel.text = "Gewicht: " + item.qrData.weight.ToString();
+                nameLabel.color = Color.white;
+                valueLabel.color = Color.yellow;
+                weightLabel.color = Color.cyan;
+
+                
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Error setting labels: " + e.Message);
+            }
         }
 
         void UpdatePropertiesDisplay()
@@ -55,8 +84,11 @@ namespace QRTracking
                 PhysicalSize = qrCode.PhysicalSideLength;
 
                 item.qrData.position = new Vector3(PhysicalSize / 2.0f, PhysicalSize / 2.0f, 0.0f);
-                qrCodeCube.transform.localPosition = item.qrData.position;
-                qrCodeCube.transform.localScale = new Vector3(PhysicalSize, PhysicalSize, 0.005f);
+                //qrCodeCube.transform.localPosition = item.qrData.position;
+                //qrCodeCube.transform.localScale = new Vector3(PhysicalSize, PhysicalSize, 0.005f);
+
+                labels.transform.localPosition = item.qrData.position;
+                labels.transform.localScale = new Vector3(PhysicalSize - 0.1f, PhysicalSize - 0.1f, 0.005f); //0.1f is to small
 
                 model.transform.localPosition = item.qrData.position;
                 model.transform.localScale = new Vector3(PhysicalSize, PhysicalSize, PhysicalSize);
