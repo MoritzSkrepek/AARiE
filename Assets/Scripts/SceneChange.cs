@@ -8,6 +8,6 @@ public class SceneChanger : MonoBehaviour
     // Assign this method to the button's onClick event in the Unity Editor.
     public void ChangeScene()
     {
-        SceneManager.LoadScene(sceneToLoad);
+        SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
     }
 }
