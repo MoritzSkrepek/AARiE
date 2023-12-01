@@ -43,7 +43,6 @@ public class InventoryController : MonoBehaviour
 
     void UpdateGrid()
     {
-        InitializeIDGrid();
         lock (activeQRObjects)
         {
             foreach (var item in activeQRObjects.Values)
@@ -89,13 +88,6 @@ public class InventoryController : MonoBehaviour
     void InitializeIDGrid()
     {
         idGrid = new int[numRows, numColumns];
-        for (int row = 0; row < numRows; row++)
-        {
-            for (int col = 0; col < numColumns; col++)
-            {
-                idGrid[row, col] = 0;
-            }
-        }
         currWeight = 0;
     }
 
