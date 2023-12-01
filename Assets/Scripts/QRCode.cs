@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 
@@ -14,11 +15,12 @@ namespace QRTracking
 
         public QRItem item;
         
+        
         public float PhysicalSize { get; private set; }
 
-        private GameObject qrCodeCube;
         private GameObject model;
-        
+        private GameObject labels;
+
         private long lastTimeStamp = 0;
 
         // Use this for initialization
@@ -31,7 +33,7 @@ namespace QRTracking
                 throw new System.Exception("QR Code Empty");
             }
 
-            qrCodeCube = gameObject.transform.Find("Cube").gameObject;
+            //qrCodeCube = gameObject.transform.Find("Cube").gameObject;
 
             PhysicalSize = qrCode.PhysicalSideLength;
 
@@ -45,6 +47,32 @@ namespace QRTracking
                 Debug.LogError("Error parsing QR Code data: " + e.Message);
             }
             
+            setLabels();
+        }
+
+
+        private void setLabels()
+        {
+            labels = gameObject.transform.Find("QRLabels").gameObject;
+            try
+            {
+                Transform canvas = labels.transform.Find("Canvas");
+                TextMeshProUGUI nameLabel = canvas.Find("nameLabel").gameObject.GetComponent<TextMeshProUGUI>();
+                TextMeshProUGUI valueLabel = canvas.Find("valueLabel").gameObject.GetComponent<TextMeshProUGUI>();
+                TextMeshProUGUI weightLabel = canvas.Find("weightLabel").gameObject.GetComponent<TextMeshProUGUI>();
+                nameLabel.text = "Name: " + item.qrData.name;
+                valueLabel.text = "Wert: " + item.qrData.value.ToString();
+                weightLabel.text = "Gewicht: " + item.qrData.weight.ToString();
+                nameLabel.color = Color.white;
+                valueLabel.color = Color.yellow;
+                weightLabel.color = Color.cyan;
+
+
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Error setting labels: " + e.Message);
+            }            
         }
 
         void UpdatePropertiesDisplay()
@@ -55,8 +83,11 @@ namespace QRTracking
                 PhysicalSize = qrCode.PhysicalSideLength;
 
                 item.qrData.position = new Vector3(PhysicalSize / 2.0f, PhysicalSize / 2.0f, 0.0f);
-                qrCodeCube.transform.localPosition = item.qrData.position;
-                qrCodeCube.transform.localScale = new Vector3(PhysicalSize, PhysicalSize, 0.005f);
+                //qrCodeCube.transform.localPosition = item.qrData.position;
+                //qrCodeCube.transform.localScale = new Vector3(PhysicalSize, PhysicalSize, 0.005f);
+
+                labels.transform.localPosition = item.qrData.position;
+                labels.transform.localScale = new Vector3(PhysicalSize * 0.02f, PhysicalSize * 0.02f, 0.005f);
 
                 model.transform.localPosition = item.qrData.position;
                 model.transform.localScale = new Vector3(PhysicalSize, PhysicalSize, PhysicalSize);
