@@ -50,7 +50,6 @@ public class InventoryController : MonoBehaviour
                 QRCode qRCode = item.GetComponent<QRCode>();
                 Vector3 worldPosition = item.transform.TransformPoint(qRCode.item.qrData.position);
 
-
                 if (item != null && inventoryBounds.Contains(worldPosition))
                 {
                     Debug.Log("Item " + qRCode.item.qrData.id + " is in the inventory.");
