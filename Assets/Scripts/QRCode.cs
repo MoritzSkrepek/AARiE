@@ -49,12 +49,13 @@ namespace QRTracking
                 Debug.LogError("Error parsing QR Code data: " + e.Message);
             }
 
-            labels = gameObject.transform.Find("QRLabels").gameObject;
+            
             setLabels();
         }
 
         private void setLabels()
         {
+            labels = gameObject.transform.Find("QRLabels").gameObject;
             try
             {
                 Transform canvas = labels.transform.Find("Canvas");
@@ -88,7 +89,7 @@ namespace QRTracking
                 //qrCodeCube.transform.localScale = new Vector3(PhysicalSize, PhysicalSize, 0.005f);
 
                 labels.transform.localPosition = item.qrData.position;
-                labels.transform.localScale = new Vector3(PhysicalSize - 0.1f, PhysicalSize - 0.1f, 0.005f); //0.1f is to small
+                labels.transform.localScale = new Vector3(PhysicalSize * 0.02f, PhysicalSize * 0.02f, 0.005f);
 
                 model.transform.localPosition = item.qrData.position;
                 model.transform.localScale = new Vector3(PhysicalSize, PhysicalSize, PhysicalSize);
