@@ -21,7 +21,10 @@ public class PictureTakingButton : MonoBehaviour
     private List<Vector3> cablePositinos = new List<Vector3>();
     List<Vector2> redPixelCoordinates = new List<Vector2>();
     GameObject instantiatedObject;
-    bool isLeft = true, shouldMove = false;
+    GameObject instantiatedObjectInformationT;
+    GameObject instantiatedObjectInformationS;
+    bool isLeft = true;
+    bool shouldMove = false;
     bool showInformation = false;
 
     public ARRaycastManager raycastManager;
@@ -29,16 +32,19 @@ public class PictureTakingButton : MonoBehaviour
     [SerializeField]
     private GameObject virtualObject;
 
-    [SerializeField]
-    private GameObject checkPointObject;
+    public GameObject sendPackageButton;
 
-    public GameObject sendPackage1;
     public GameObject scanningButton;
 
-    // Used this for initialization
+    public GameObject showInformationButton;
+
+    public GameObject informationTechnical;
+
+    public GameObject informationSimple;
+
+    // Use this for initialization
     void Start()
     {
-        Debug.Log("Start");
         cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
         targetTexture = new Texture2D(cameraResolution.width, cameraResolution.height);
     }
@@ -112,27 +118,32 @@ public class PictureTakingButton : MonoBehaviour
                 if(PositionVirtualObject(redPixle, targetTexture))
                 {
                     Debug.Log("Activate buttons");
-                    sendPackage1.SetActive(true);
+                    sendPackageButton.SetActive(true);
                     scanningButton.SetActive(false);
+                    showInformationButton.SetActive(true);
                 }
             }
         }
-        else
-        {
-            Debug.Log("No Red Pixel found");
-        }
         takingNewPicture = false;
     }
-    public void sendPackage()
-    {
-        //if(isLeft)
-        //{
-        //    moveEnvelope(cablePositinos[0], cablePositinos[2]);
-        //} else
-        //{
-        //    moveEnvelope(cablePositinos[2], cablePositinos[0]);
-        //}
 
+    public void ShowInformation()
+    {
+        if (showInformation)
+        {
+            informationTechnical.SetActive(false);
+            informationSimple.SetActive(false);
+        }
+        else
+        {
+            informationTechnical.SetActive(true);
+            informationSimple.SetActive(true);
+        }
+        showInformation = !showInformation;
+    }
+
+    public void ShowAndSendPackage()
+    {
         if (instantiatedObject == null)
         {
             instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
@@ -140,50 +151,6 @@ public class PictureTakingButton : MonoBehaviour
 
         isLeft = !isLeft;
         shouldMove = true;
-    }
-
-
-    void moveEnvelope(Vector3 from,Vector3 to)
-    {
-        if (instantiatedObject == null)
-        {
-            instantiatedObject = Instantiate(virtualObject, from, Quaternion.identity);
-        }
-        Vector3 pass = cablePositinos[1];
-        while (true)
-        {
-            if (Vector3.Distance(from, pass) < 0.1f)
-            {
-                while (true)
-                {
-                    if (Vector3.Distance(pass, to) < 0.1f)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        wait();
-                        Debug.Log("Pass1: " + pass);
-                        pass = Vector3.MoveTowards(pass, to, 0.05f);
-                        Debug.Log("Pass2: " + pass);
-                        instantiatedObject.transform.position = pass;
-                    }
-                }
-                break;
-            }
-            else
-            {
-                wait();
-                from = Vector3.MoveTowards(from, pass, 0.05f);
-                instantiatedObject.transform.position = from;
-            }
-        }
-
-    }
-
-    private IEnumerator wait()
-    {
-        yield return new WaitForSeconds(10);
     }
 
     Texture2D editTextureV2(Texture2D textureToEdit)
@@ -225,18 +192,16 @@ public class PictureTakingButton : MonoBehaviour
         int averageX = getCenterCoordinate(xCoordinates);
         int averageY = getCenterCoordinate(yCoordinates);
         // Add the min X, average Y to redPixelCoordinates
-        //redPixelCoordinates.Add(new Vector2(xCoordinates.Min(), averageY));
-        // Add the average X, average Y to redPixelCoordinates
         redPixelCoordinates.Add(getSideCoordinate(xCoordinates,true, averageY));
+        // Add the average X, average Y to redPixelCoordinates
         redPixelCoordinates.Add(new Vector2(averageX, averageY));
+        // Add the max X, average Y to redPixelCoordinates
         redPixelCoordinates.Add(getSideCoordinate(xCoordinates, false, averageY));
-        //redPixelCoordinates.Add(new Vector2(xCoordinates.Max(),averageY));
 
         // Apply the edited pixels back to the texture
         textureToEdit.SetPixels(pixels);
         textureToEdit.Apply();
 
-        Debug.Log("Texture edited");
         return textureToEdit;
     }
 
@@ -273,18 +238,10 @@ public class PictureTakingButton : MonoBehaviour
     {
         if (shouldMove)
         {
-            if (showInformation)
-            {
-                showInformation = false;
-                //informationText.SetActive(false);
-            }
-            Debug.Log("move");
             if (isLeft)
             {
-                Debug.Log("move left " + instantiatedObject.transform.position + (cablePositinos[2] - cablePositinos[0]));
                 instantiatedObject.transform.Translate((cablePositinos[2] - cablePositinos[0]) * 0.01f);
 
-                Debug.Log("move left after " + instantiatedObject.transform.position);
                 if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[2]) < 0.01f)
                 {
                     shouldMove = false;
@@ -292,27 +249,14 @@ public class PictureTakingButton : MonoBehaviour
             }
             else
             {
-                Debug.Log("move right + " + instantiatedObject.transform.position);
                 instantiatedObject.transform.Translate((cablePositinos[0] - cablePositinos[2]) * 0.01f);
 
-                Debug.Log("move right after " + instantiatedObject.transform.position);
                 if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[0]) < 0.01f)
                 {
                     shouldMove = false;
                 }
             }
-        } else
-        {
-            if (showInformation)
-            {
-                //informationText.SetActive(true);
-            }
         }
-    }
-
-    public void showInfo()
-    {
-        showInformation = !showInformation;
     }
 
     ARPlane FindClosestPlane(List<ARRaycastHit> hits)
@@ -341,7 +285,6 @@ public class PictureTakingButton : MonoBehaviour
             redPixel.y * Camera.main.pixelHeight / image.height
         );
 
-        Vector2 middle = screenCoordinates - new Vector2(Camera.main.pixelWidth / 2, Camera.main.pixelHeight / 2);
 
         //(Debug) For comparison of the screen coordinates and the red pixel coordinates    
         //
@@ -353,22 +296,18 @@ public class PictureTakingButton : MonoBehaviour
         
         if (raycastManager.Raycast(screenCoordinates, hits, TrackableType.Planes))
         { 
-
-            Debug.Log("COUNT: " + hits.Count);
-
             for (int i = 0; i < hits.Count; i++)
                 {
-                    Debug.Log("Debug 1 Hit numero " + i);
                     if (hits[i].hitType != TrackableType.PlaneWithinInfinity)
                     {
                         if (hits[i] != null)
                         {
                             cablePositinos.Add(new Vector3(hits[i].pose.position.x, hits[i].pose.position.y + 0.25f, hits[i].pose.position.z));
-                            debugRaycast(hits[i], Color.red);
+                            //debugRaycast(hits[i], Color.red);
                         break;
                         } else
                         {
-                            Debug.Log("Hit " + hits[i] + " is null");
+                            Debug.LogWarning("Hit " + hits[i] + " is null");
                         return false;
                         }
                     }
@@ -407,100 +346,4 @@ public class PictureTakingButton : MonoBehaviour
         // Keep track of the instantiated objects
         instantiatedObjects.Add(instantiatedObject);
     }
-
-        /*
-        if (raycastManager.Raycast(new Vector2(Camera.main.pixelWidth / 2 + middle.x, Camera.main.pixelHeight / 2 +  middle.y), hits, TrackableType.Planes))
-        {
-            Debug.Log("COUNT: " + hits.Count);
-
-            for (int i = 0; i < hits.Count; i++)
-            {
-                if (hits[i].hitType != TrackableType.PlaneWithinInfinity)
-                {
-                    debugRaycast(hits[i], Color.red);
-                    Debug.Log("first hit (red) ");
-                    break;
-                }
-            }
-        }*/
-
-
-
-        // check 
-        //float num = 500f;
-        //if (raycastManager.Raycast(new Vector2(0, 0), hits, TrackableType.Planes))
-        //{
-        //    Debug.Log("COUNT: " + hits.Count);
-
-        //    for (int i = 0; i < hits.Count; i++)
-        //    {
-        //        if (hits[i].hitType != TrackableType.PlaneWithinInfinity)
-        //        {
-        //            drawLine(hits[i], Color.red);
-        //            Debug.Log("first hit (red) ");
-        //            break;
-        //        }
-        //    }
-        //}
-
-        //if (raycastManager.Raycast(new Vector2(num, num), hits, TrackableType.Planes))
-        //{
-        //    Debug.Log("COUNT: " + hits.Count);
-
-        //    for (int i = 0; i < hits.Count; i++)
-        //    {
-        //        if (hits[i].hitType != TrackableType.PlaneWithinInfinity)
-        //        {
-        //            drawLine(hits[i], Color.green);
-        //            Debug.Log("first hit (green) ");
-        //            break;
-        //        }
-        //    }
-        //}
-
-        //if (raycastManager.Raycast(new Vector2(num, -num), hits, TrackableType.Planes))
-        //{
-        //    Debug.Log("COUNT: " + hits.Count);
-
-        //    for (int i = 0; i < hits.Count; i++)
-        //    {
-        //        if (hits[i].hitType != TrackableType.PlaneWithinInfinity)
-        //        {
-        //            drawLine(hits[i], Color.blue);
-        //            Debug.Log("first hit (blue) ");
-        //            break;
-        //        }
-        //    }
-        //}
-
-        //if (raycastManager.Raycast(new Vector2(-num, num), hits, TrackableType.Planes))
-        //{
-        //    Debug.Log("COUNT: " + hits.Count);
-
-        //    for (int i = 0; i < hits.Count; i++)
-        //    {
-        //        if (hits[i].hitType != TrackableType.PlaneWithinInfinity)
-        //        {
-        //            drawLine(hits[i], Color.yellow);
-        //            Debug.Log("first hit (yellow) ");
-        //            break;
-        //        }
-        //    }
-        //}
-
-
-        //if (raycastManager.Raycast(new Vector2(-num, -num), hits, TrackableType.Planes))
-        //{
-        //    Debug.Log("COUNT: " + hits.Count);
-
-        //    for (int i = 0; i < hits.Count; i++)
-        //    {
-        //        if (hits[i].hitType != TrackableType.PlaneWithinInfinity)
-        //        {
-        //            drawLine(hits[i], Color.magenta);
-        //            Debug.Log("first hit (magenta) ");
-        //            break;
-        //        }
-        //    }
-        //}
 }
