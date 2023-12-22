@@ -9,7 +9,6 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
     public ARRaycastManager raycastManager;
     public ARPlaneManager planeManager;
     public GameObject inventoryObject;
-    public GameObject testObject;
     public InventoryController inventoryController;
     public GameObject qrCodesManager;
     public GameObject infoObject;

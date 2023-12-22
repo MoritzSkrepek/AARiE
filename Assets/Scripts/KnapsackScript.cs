@@ -32,7 +32,7 @@ public class KnapsackScript : MonoBehaviour
 
     void CalculateKnapsack()
     {
-        int maxValue = KnapsackMaxValue(out usedItems, out int coveredCapacity);
+        int maxValue = KnapsackMaxValue(out usedItems);
         int inventoryValue = -1;
         maxMesh.text = "Maximal erreichbarer Wert: " + maxValue.ToString();
         try
@@ -60,7 +60,7 @@ public class KnapsackScript : MonoBehaviour
         }
     }
 
-    int KnapsackMaxValue(out int[,] usedItems, out int coveredCapacity)
+    int KnapsackMaxValue(out int[,] usedItems)
     {
         int n = items.Count;
         int[,] dp = new int[n + 1, capacity + 1];
@@ -136,9 +136,6 @@ public class KnapsackScript : MonoBehaviour
                 usedItems[i, j] = tempUsedItems[i][j];
             }
         }
-
-        coveredCapacity = capacity - col; // Calculate covered capacity
-
         return dp[n, capacity];
     }
 
@@ -148,9 +145,7 @@ public class KnapsackScript : MonoBehaviour
         {
             throw new System.Exception("Inventory is null");
         }
-
         int totalValue = 0;
-
         foreach (var item in items.Values)
         {
             int itemId = item.id;
@@ -167,12 +162,17 @@ public class KnapsackScript : MonoBehaviour
                 }
             }
         }
-
         return totalValue;
     }
 
     public void SetInventory(int[,] newInventory)
     {
         inventory = newInventory;
+    }
+
+    public void UpdateInfoMesh(string input)
+    {
+        infoMesh.color = Color.red;
+        infoMesh.text = input;
     }
 }
