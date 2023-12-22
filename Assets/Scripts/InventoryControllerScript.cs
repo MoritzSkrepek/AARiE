@@ -2,6 +2,7 @@ using QRTracking;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class InventoryController : MonoBehaviour
@@ -17,16 +18,13 @@ public class InventoryController : MonoBehaviour
     private int numRows = 3;
     private int numColumns = 3;
     private int[,] idGrid;
-    private KnapsackScript knapsackScript;
     private int cap = 120;
     private int currWeight = 0;
 
     void Start()
     {
         activeQRObjects = QRCodeManager.GetComponent<QRCodesVisualizer>().qrCodesObjectsList;
-        knapsackScript = knapsackSolverGameObject.GetComponent<KnapsackScript>();
-        //cap = knapsackScript.capacity;
-                
+        
         UpdateInventoryBounds();
         InitializeIDGrid();
     }
@@ -56,9 +54,7 @@ public class InventoryController : MonoBehaviour
                     Vector2 startGridPosition = CalculateGridPosition(worldPosition);
                     idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = qRCode.item.qrData.id;
 
-                    KnapsackScript knapsackScript = knapsackSolverGameObject.GetComponent<KnapsackScript>();
-                    knapsackScript?.SetInventory(idGrid);
-                    PrintGrid();
+                    EventManager.GridUpdate(idGrid);
                 }
             }
         }
