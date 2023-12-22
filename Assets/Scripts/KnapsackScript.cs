@@ -173,4 +173,10 @@ public class KnapsackScript : MonoBehaviour
         inventory = newInventory;
         CalculateKnapsack();
     }
+
+    public void UpdateInfoMesh(string input)
+    {
+        infoMesh.color = Color.red;
+        infoMesh.text = input;
+    }
 }
