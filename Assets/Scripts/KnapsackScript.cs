@@ -21,13 +21,9 @@ public class KnapsackScript : MonoBehaviour
 
     void Start()
     {
-        Initialize();
-        CalculateKnapsack();
-    }
-
-    void Initialize()
-    {
         items = new QRItem(0).items;
+        EventManager.OnGridUpdate += SetInventory;
+        Debug.Log("KnapsackScript started");
     }
 
     void CalculateKnapsack()
@@ -173,6 +169,8 @@ public class KnapsackScript : MonoBehaviour
 
     public void SetInventory(int[,] newInventory)
     {
+        Debug.Log("Inventory updated");
         inventory = newInventory;
+        CalculateKnapsack();
     }
 }
