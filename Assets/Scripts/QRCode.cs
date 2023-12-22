@@ -90,7 +90,7 @@ namespace QRTracking
                 labels.transform.localScale = new Vector3(PhysicalSize * 0.02f, PhysicalSize * 0.02f, 0.005f);
 
                 model.transform.localPosition = item.qrData.position;
-                model.transform.localScale = new Vector3(PhysicalSize, PhysicalSize, PhysicalSize);
+                //model.transform.localScale = new Vector3(PhysicalSize, PhysicalSize, PhysicalSize);
 
                 lastTimeStamp = qrCode.SystemRelativeLastDetectedTime.Ticks;
             }

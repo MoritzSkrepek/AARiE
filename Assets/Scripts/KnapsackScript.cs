@@ -19,7 +19,7 @@ public class KnapsackScript : MonoBehaviour
     private int[,] usedItems;
     private int[,] inventory;
 
-    void Awake()
+    void Start()
     {
         Initialize();
         CalculateKnapsack();
