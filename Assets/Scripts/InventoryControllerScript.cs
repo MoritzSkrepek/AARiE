@@ -1,8 +1,5 @@
 using QRTracking;
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
 
 public class InventoryController : MonoBehaviour
@@ -18,20 +15,20 @@ public class InventoryController : MonoBehaviour
     private int numRows = 3;
     private int numColumns = 3;
     private int[,] idGrid;
-    private int cap = 120;
+    private KnapsackScript knapsackScript;
+    private int cap;
     private int currWeight = 0;
+    private string message;
+    private HashSet<int> processedItems;
 
     void Start()
     {
         activeQRObjects = QRCodeManager.GetComponent<QRCodesVisualizer>().qrCodesObjectsList;
-        
+        knapsackScript = knapsackSolverGameObject.GetComponent<KnapsackScript>();
+        cap = knapsackScript.capacity;
+        processedItems = new HashSet<int>();
         UpdateInventoryBounds();
         InitializeIDGrid();
-    }
-
-    public void SetInventoryObject(GameObject obj)
-    {
-        inventoryObject = obj;
     }
 
     void Update()
@@ -50,15 +47,29 @@ public class InventoryController : MonoBehaviour
 
                 if (item != null && inventoryBounds.Contains(worldPosition))
                 {
-                    Debug.Log("Item " + qRCode.item.qrData.id + " is in the inventory.");
-                    Vector2 startGridPosition = CalculateGridPosition(worldPosition);
-                    idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = qRCode.item.qrData.id;
+                    int itemId = qRCode.item.qrData.id;
 
-                    EventManager.GridUpdate(idGrid);
+                    if (currWeight + qRCode.item.qrData.weight > cap)
+                    {
+                        message = "Item hat zu viel Gewicht!";
+                        knapsackScript?.UpdateInfoMesh(message);
+                    }
+                    else if (!processedItems.Contains(itemId) && currWeight + qRCode.item.qrData.weight <= cap)
+                    {
+                        processedItems.Add(itemId); // Mark the item as processed
+                        message = " ";
+                        Vector2 startGridPosition = CalculateGridPosition(worldPosition);
+                        idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = itemId;
+                        knapsackScript?.UpdateInfoMesh(message);
+                        currWeight += qRCode.item.qrData.weight;
+                        EventManager.GridUpdate(idGrid);
+                    }
                 }
             }
+            PrintGrid();
         }
     }
+
 
     void PrintGrid()
     {
@@ -84,7 +95,6 @@ public class InventoryController : MonoBehaviour
         float cellHeight = inventoryBounds.size.z / numRows;
         int col = Mathf.FloorToInt((objectPosition.x - inventoryBounds.min.x) / cellWidth);
         int row = Mathf.FloorToInt((inventoryBounds.max.z - objectPosition.z) / cellHeight);
-
         return new Vector2(row, col);
     }
 
@@ -108,5 +118,10 @@ public class InventoryController : MonoBehaviour
     {
         bounds.center = new Vector3(bounds.center.x, bounds.center.y + offset / 2, bounds.center.z);
         bounds.extents = new Vector3(bounds.extents.x, bounds.extents.y + offset / 2, bounds.extents.z);
+    }
+
+    public void SetInventoryObject(GameObject obj)
+    {
+        inventoryObject = obj;
     }
 }
