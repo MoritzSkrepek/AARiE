@@ -49,33 +49,32 @@ public class InventoryController : MonoBehaviour
                 {
                     int itemId = qRCode.item.qrData.id;
 
-                    if (currWeight + qRCode.item.qrData.weight > cap)
+                    if (!processedItems.Contains(itemId))
                     {
-                        message = "Item hat zu viel Gewicht!";
-                        knapsackScript?.UpdateInfoMesh(message);
-                    }
-                    else if (!processedItems.Contains(itemId) && currWeight + qRCode.item.qrData.weight <= cap)
-                    {
-                        Debug.Log("Gewicht vorher:" + currWeight);
-                        processedItems.Add(itemId);
-                        message = " ";
-                        Vector2 startGridPosition = CalculateGridPosition(worldPosition);
-                        idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = itemId;
-                        knapsackScript?.UpdateInfoMesh(message);
-                        currWeight += qRCode.item.qrData.weight;
-                        EventManager.GridUpdate(idGrid);
-                        Debug.Log("Gewicht nachher: " + currWeight);
+                        if (currWeight + qRCode.item.qrData.weight <= cap)
+                        {
+                            processedItems.Add(itemId);
+                            message = " ";
+                            Vector2 startGridPosition = CalculateGridPosition(worldPosition);
+                            idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = itemId;
+                            knapsackScript?.UpdateInfoMesh(message);
+                            currWeight += qRCode.item.qrData.weight;
+                            EventManager.GridUpdate(idGrid);
+                        }
+                        else
+                        {
+                            message = "Item hat zu viel Gewicht!";
+                            knapsackScript?.UpdateInfoMesh(message);
+                        }
                     }
                 }
                 else if (!inventoryBounds.Contains(worldPosition) && processedItems.Contains(qRCode.item.qrData.id) && ContainsId(qRCode.item.qrData.id))
                 {
-                    Debug.Log("Gewicht vor entfernen: " + currWeight);
                     int itemId = qRCode.item.qrData.id;
                     processedItems.Remove(itemId);
                     RemoveItem(itemId);
                     currWeight -= qRCode.item.qrData.weight;
                     EventManager.GridUpdate(idGrid);
-                    Debug.Log("Gewicht nach entfernen: " + currWeight);
                 }
             }
             PrintGrid();
@@ -136,7 +135,6 @@ public class InventoryController : MonoBehaviour
     {
         inventoryObject = obj;
     }
-
     private void RemoveItem(int id)
     {
         for (int i = 0; i < 3; i++)
