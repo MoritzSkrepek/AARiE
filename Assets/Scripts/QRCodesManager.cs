@@ -94,7 +94,6 @@ namespace QRTracking
                 qrTracker.Added += QRCodeWatcher_Added;
                 qrTracker.Updated += QRCodeWatcher_Updated;
                 qrTracker.Removed += QRCodeWatcher_Removed;
-                qrTracker.EnumerationCompleted += QRCodeWatcher_EnumerationCompleted;
             }
             catch (Exception ex)
             {
@@ -111,7 +110,6 @@ namespace QRTracking
         {
             if (qrTracker != null && !IsTrackerRunning)
             {
-                Debug.Log("QRCodesManager starting QRCodeWatcher");
                 try
                 {
                     qrTracker.Start();
@@ -146,8 +144,6 @@ namespace QRTracking
 
         private void QRCodeWatcher_Removed(object sender, QRCodeRemovedEventArgs args)
         {
-            Debug.Log("QRCodesManager QRCodeWatcher_Removed");
-
             bool found = false;
             lock (qrCodesList)
             {
@@ -169,8 +165,6 @@ namespace QRTracking
 
         private void QRCodeWatcher_Updated(object sender, QRCodeUpdatedEventArgs args)
         {
-            Debug.Log("QRCodesManager QRCodeWatcher_Updated");
-
             bool found = false;
             lock (qrCodesList)
             {
@@ -192,8 +186,6 @@ namespace QRTracking
 
         private void QRCodeWatcher_Added(object sender, QRCodeAddedEventArgs args)
         {
-            Debug.Log("QRCodesManager QRCodeWatcher_Added");
-
             lock (qrCodesList)
             {
                 qrCodesList[args.Code.Id] = args.Code;
@@ -205,11 +197,6 @@ namespace QRTracking
             }
         }
 
-        private void QRCodeWatcher_EnumerationCompleted(object sender, object e)
-        {
-            Debug.Log("QRCodesManager QrTracker_EnumerationCompleted");
-        }
-
         private void Update()
         {
             if (qrTracker == null && capabilityInitialized && IsSupported)
@@ -217,10 +204,6 @@ namespace QRTracking
                 if (accessStatus == QRCodeWatcherAccessStatus.Allowed)
                 {
                     SetupQRTracking();
-                }
-                else
-                {  
-                    Debug.Log("Capability access status : " + accessStatus);
                 }
             }
         }

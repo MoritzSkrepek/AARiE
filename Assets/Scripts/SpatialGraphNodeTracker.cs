@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEditor;
 //using Microsoft.MixedReality.Toolkit.Utilities;
 
 #if MIXED_REALITY_OPENXR
@@ -43,21 +44,18 @@ namespace QRTracking
             {
                 if (node.TryLocate(FrameTime.OnUpdate, out Pose pose))
                 {
-                    // If there is a parent to the camera that means we are using teleport and we should not apply the teleport
-                    // to these objects so apply the inverse
-                    /*
-                    if (CameraCache.Main.transform.parent != null)
+                 
+                    if(Camera.main == null)
                     {
-                        pose = pose.GetTransformedBy(CameraCache.Main.transform.parent);
+                        throw new System.Exception("No Camera has been tagged as 'MainCamera'");
                     }
-                    */
 
+                    if (Camera.main.transform.parent != null)
+                    {
+                        pose = pose.GetTransformedBy(Camera.main.transform.parent);
+                    }
+                    
                     gameObject.transform.SetPositionAndRotation(pose.position, pose.rotation);
-                    Debug.Log("Id= " + Id + " QRPose = " + pose.position.ToString("F7") + " QRRot = " + pose.rotation.ToString("F7"));
-                }
-                else
-                {
-                    Debug.LogWarning("Cannot locate " + Id);
                 }
             }
         }
@@ -67,7 +65,6 @@ namespace QRTracking
             if (node == null || force)
             {
                 node = (Id != System.Guid.Empty) ? SpatialGraphNode.FromStaticNodeId(Id) : null;
-                Debug.Log("Initialize SpatialGraphNode Id= " + Id);
             }
         }
     }
