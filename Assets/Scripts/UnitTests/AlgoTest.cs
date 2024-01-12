@@ -9,6 +9,7 @@ using static QRTracking.QRItem;
 
 public class AlgoTest
 {
+    GameObject testObject;
     KnapsackScript knapsackScript;
     int[,] usedItems;
     int capacity = 120;
@@ -16,15 +17,24 @@ public class AlgoTest
     [SetUp]
     public void Setup()
     {
+
         // Create an instance of KnapsackScript before each test
-        knapsackScript = new KnapsackScript();
+        testObject = new GameObject();
+        knapsackScript = testObject.AddComponent<KnapsackScript>();
+    }
+
+    [TearDown]
+    public void Teardown()
+    {
+        // Destroy the test GameObject after each test
+        GameObject.DestroyImmediate(testObject);
     }
 
     // A Test behaves as an ordinary method
     [Test]
     public void KnapsackMaxValue_ReturnsCorrectValue()
     {
-        
+
         Dictionary<int, QRData> items = new Dictionary<int, QRData>() {
             {1, new QRData { id = 1, weight = 50, value = 100 }},
             {2, new QRData { id = 2, weight = 25, value = 50 }},
