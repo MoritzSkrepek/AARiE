@@ -12,11 +12,11 @@ public class KnapsackScript : MonoBehaviour
     public TextMeshPro maxMesh;
     public TextMeshPro infoMesh;
 
-    private Dictionary<int, QRData> items;
-
+    public int[,] usedItems;
     public int capacity = 120;
+    
+    private Dictionary<int, QRData> items;
     private int maxItems = 9;
-    private int[,] usedItems;
     private int[,] inventory;
 
     void Start()
@@ -177,10 +177,5 @@ public class KnapsackScript : MonoBehaviour
     {
         infoMesh.color = Color.red;
         infoMesh.text = input;
-    }
-
-    public void ShowBestSolution()
-    {
-
     }
 }
