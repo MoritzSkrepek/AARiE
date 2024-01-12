@@ -66,7 +66,7 @@ public class InventoryController : MonoBehaviour
                     }
                 }
             }
-            PrintGrid();
+            //PrintGrid();
         }
     }
 
