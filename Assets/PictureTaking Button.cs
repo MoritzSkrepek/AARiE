@@ -54,7 +54,6 @@ public class PictureTakingButton : MonoBehaviour
         {
             redPixelCoordinates.Clear();
             takingNewPicture = true;
-            Debug.Log("Start taking Picture");
 
             PhotoCapture.CreateAsync(false, delegate (PhotoCapture captureObject)
             {
@@ -71,12 +70,8 @@ public class PictureTakingButton : MonoBehaviour
 
                         photoCaptureObject.StartPhotoModeAsync(cameraParameters, delegate (PhotoCapture.PhotoCaptureResult result)
                         {
-                            Debug.Log("Camera Activated");
                             photoCaptureObject.TakePhotoAsync(onCapturedPhotoToMemory);
                         });
-
-                        //GameObject g2 = Instantiate(virtualObject, Camera.main.transform.position, Quaternion.identity);
-                        //g2.GetComponent<Renderer>().material.SetColor("_Color", Color.black);
 
                     }
                     catch (Exception e)
@@ -117,7 +112,6 @@ public class PictureTakingButton : MonoBehaviour
             {
                 if(PositionVirtualObject(redPixle, targetTexture))
                 {
-                    Debug.Log("Activate buttons");
                     sendPackageButton.SetActive(true);
                     scanningButton.SetActive(false);
                     showInformationButton.SetActive(true);
@@ -147,10 +141,14 @@ public class PictureTakingButton : MonoBehaviour
         if (instantiatedObject == null)
         {
             instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
+            informationSimple.transform.position = new Vector3(cablePositinos[0].x - 0.2f, cablePositinos[0].y, cablePositinos[0].z);
+            informationTechnical.transform.position = new Vector3(cablePositinos[0].x + 0.2f, cablePositinos[0].y, cablePositinos[0].z);
+
         }
 
-        isLeft = !isLeft;
-        shouldMove = true;
+        //isLeft = !isLeft;
+        //shouldMove = true;
+        shouldMove = !shouldMove;
     }
 
     Texture2D editTextureV2(Texture2D textureToEdit)
@@ -208,22 +206,23 @@ public class PictureTakingButton : MonoBehaviour
     Vector2 getSideCoordinate(List<int> list,bool min, int averageY)
     {
         list.Sort();
-        int tmp = 0;
+        int sumOfSelectedValues = 0;
         if (min)
         {
             for (int i = 0; i < list.Count/10; i++) 
             {
-                tmp += list[i];
+                sumOfSelectedValues += list[i];
             }
-        } else
+        } 
+        else
         {
             int cal = list.Count - (list.Count / 10);
             for (int i = 0; i < list.Count / 10; i++)
             {
-                tmp += list[cal + i];
+                sumOfSelectedValues += list[cal + i];
             }
         }
-        return new Vector2(tmp / (list.Count / 10), averageY);
+        return new Vector2(sumOfSelectedValues / (list.Count / 10), averageY);
     }
 
     int getCenterCoordinate(List<int> list)
@@ -244,7 +243,7 @@ public class PictureTakingButton : MonoBehaviour
 
                 if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[2]) < 0.01f)
                 {
-                    shouldMove = false;
+                    isLeft = false;
                 }
             }
             else
@@ -253,7 +252,7 @@ public class PictureTakingButton : MonoBehaviour
 
                 if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[0]) < 0.01f)
                 {
-                    shouldMove = false;
+                    isLeft = true;
                 }
             }
         }
