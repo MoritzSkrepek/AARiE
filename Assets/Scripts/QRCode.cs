@@ -14,8 +14,8 @@ namespace QRTracking
         public Microsoft.MixedReality.QR.QRCode qrCode;
 
         public QRItem item;
-        
-        
+
+
         public float PhysicalSize { get; private set; }
 
         private GameObject model;
@@ -27,7 +27,7 @@ namespace QRTracking
         void Start()
         {
             PhysicalSize = 0.1f;
-           
+
             if (qrCode == null)
             {
                 throw new System.Exception("QR Code Empty");
@@ -42,11 +42,12 @@ namespace QRTracking
                 item = new QRItem(int.Parse(qrCode.Data));
                 model = gameObject.transform.Find(item.qrData.id.ToString()).gameObject;
                 model.SetActive(model != null);
-            } catch (System.Exception e)
+            }
+            catch (System.Exception e)
             {
                 Debug.LogError("Error parsing QR Code data: " + e.Message);
             }
-            
+
             setLabels();
         }
 
@@ -60,9 +61,9 @@ namespace QRTracking
                 TextMeshProUGUI nameLabel = canvas.Find("nameLabel").gameObject.GetComponent<TextMeshProUGUI>();
                 TextMeshProUGUI valueLabel = canvas.Find("valueLabel").gameObject.GetComponent<TextMeshProUGUI>();
                 TextMeshProUGUI weightLabel = canvas.Find("weightLabel").gameObject.GetComponent<TextMeshProUGUI>();
-                nameLabel.text = "Name: " + item.qrData.name;
-                valueLabel.text = "Wert: " + item.qrData.value.ToString();
-                weightLabel.text = "Gewicht: " + item.qrData.weight.ToString();
+                nameLabel.text = "Distance in cm: " + CalculateDistance();
+                valueLabel.text = "";
+                weightLabel.text = "";
                 nameLabel.color = Color.white;
                 valueLabel.color = Color.yellow;
                 weightLabel.color = Color.cyan;
@@ -72,7 +73,7 @@ namespace QRTracking
             catch (System.Exception e)
             {
                 Debug.LogError("Error setting labels: " + e.Message);
-            }            
+            }
         }
 
         void UpdatePropertiesDisplay()
@@ -96,10 +97,39 @@ namespace QRTracking
             }
         }
 
+        private float CalculateDistance()
+        {
+
+            //stays at 44.4444 cm => WRONG CALC
+            float focalLength = Camera.main.focalLength;
+            float imageWidthInPixels = Camera.main.pixelWidth;
+
+            // Calculate the apparent size of the QR code in pixels
+            float apparentSizeInPixels = PhysicalSize * imageWidthInPixels / Screen.width;
+
+
+            // Calculate the distance using the formula
+            float distance = (focalLength * PhysicalSize) / apparentSizeInPixels;
+
+            return distance;
+        }
+
         // Update is called once per frame
         void Update()
         {
             UpdatePropertiesDisplay();
+
+
+            try
+            {
+                Transform canvas = labels.transform.Find("Canvas");
+                TextMeshProUGUI nameLabel = canvas.Find("nameLabel").gameObject.GetComponent<TextMeshProUGUI>();
+                nameLabel.text = "Distance in cm: " + CalculateDistance();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Error setting labels: " + e.Message);
+            }
         }
     }
 }
