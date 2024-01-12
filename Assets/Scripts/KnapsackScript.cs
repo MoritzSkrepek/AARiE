@@ -12,10 +12,10 @@ public class KnapsackScript : MonoBehaviour
     public TextMeshPro maxMesh;
     public TextMeshPro infoMesh;
 
-    private Dictionary<int, QRData> items;
+    public Dictionary<int, QRData> items;
 
     public int capacity = 120;
-    private int maxItems = 9;
+    public int maxItems = 9;
     private int[,] usedItems;
     private int[,] inventory;
 
@@ -28,7 +28,7 @@ public class KnapsackScript : MonoBehaviour
 
     void CalculateKnapsack()
     {
-        int maxValue = KnapsackMaxValue(out usedItems, out int coveredCapacity);
+        int maxValue = KnapsackMaxValue(out usedItems);
         int inventoryValue = -1;
         maxMesh.text = "Maximal erreichbarer Wert: " + maxValue.ToString();
         try
@@ -56,7 +56,7 @@ public class KnapsackScript : MonoBehaviour
         }
     }
 
-    int KnapsackMaxValue(out int[,] usedItems, out int coveredCapacity)
+    public int KnapsackMaxValue(out int[,] usedItems)
     {
         int n = items.Count;
         int[,] dp = new int[n + 1, capacity + 1];
@@ -132,9 +132,6 @@ public class KnapsackScript : MonoBehaviour
                 usedItems[i, j] = tempUsedItems[i][j];
             }
         }
-
-        coveredCapacity = capacity - col; // Calculate covered capacity
-
         return dp[n, capacity];
     }
 
