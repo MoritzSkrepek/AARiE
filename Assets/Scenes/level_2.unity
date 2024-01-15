@@ -1939,6 +1939,54 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 619487922830315265, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 619487922830315265, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 619487922830315265, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1051737792466650192, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1051737792466650192, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1051737792466650192, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 2942666481814829678, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 2942666481814829678, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 2942666481814829678, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 3016308673707207966, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 3016308673707207966, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 3016308673707207966, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 3643935594723700388, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -1979,6 +2027,38 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4044172068529527578, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 4044172068529527578, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 4044172068529527578, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 4044172068529527578, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4500013969542494651, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4500013969542494651, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4500013969542494651, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4500013969542494651, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4530217326637089765, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
       propertyPath: m_Name
       value: bestSolutionPrefab
@@ -1986,6 +2066,54 @@ PrefabInstance:
     - target: {fileID: 4530217326637089765, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5248647863521718175, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 5248647863521718175, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 5248647863521718175, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 5662167504776382360, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 5662167504776382360, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 5662167504776382360, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 6251160446432082600, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 6251160446432082600, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 6251160446432082600, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 9106519982011970316, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 9106519982011970316, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 9106519982011970316, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.05
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2329,15 +2457,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5092507606405556714, guid: c25d8f2d22117bd40ad824684551fbde, type: 3}
       propertyPath: m_text
-      value: SOLVE
+      value: "Perfekte L\xF6sung anzeigen"
       objectReference: {fileID: 0}
     - target: {fileID: 5092507606858315802, guid: c25d8f2d22117bd40ad824684551fbde, type: 3}
       propertyPath: m_Name
-      value: SolveButton
+      value: BestSolutionButton
       objectReference: {fileID: 0}
     - target: {fileID: 5092507606858315802, guid: c25d8f2d22117bd40ad824684551fbde, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5572466351762964349, guid: c25d8f2d22117bd40ad824684551fbde, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.size
@@ -2350,7 +2478,7 @@ PrefabInstance:
     - target: {fileID: 5572466351762964349, guid: c25d8f2d22117bd40ad824684551fbde, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 472987674}
+      objectReference: {fileID: 1477922845}
     - target: {fileID: 5572466351762964349, guid: c25d8f2d22117bd40ad824684551fbde, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -2361,7 +2489,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5572466351762964349, guid: c25d8f2d22117bd40ad824684551fbde, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: KnapsackScript, Assembly-CSharp
+      value: PerfectSolutionVisualizer, QRCodeTracking
       objectReference: {fileID: 0}
     - target: {fileID: 5572466351762964349, guid: c25d8f2d22117bd40ad824684551fbde, type: 3}
       propertyPath: <OnClicked>k__BackingField.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
