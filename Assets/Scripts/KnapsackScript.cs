@@ -12,18 +12,17 @@ public class KnapsackScript : MonoBehaviour
     public TextMeshPro maxMesh;
     public TextMeshPro infoMesh;
 
-    public Dictionary<int, QRData> items;
-
+    public int[,] usedItems;
     public int capacity = 120;
+    public Dictionary<int, QRData> items;
     public int maxItems = 9;
-    private int[,] usedItems;
+    
     private int[,] inventory;
 
     void Start()
     {
         items = new QRItem(0).items;
         EventManager.OnGridUpdate += SetInventory;
-        Debug.Log("KnapsackScript started");
     }
 
     void CalculateKnapsack()
@@ -45,12 +44,8 @@ public class KnapsackScript : MonoBehaviour
             }
             ownMesh.text = "Erreichter Wert: " + inventoryValue.ToString();
 
-        } catch (NullReferenceException)
-        {
-            infoMesh.color = Color.red;
-            infoMesh.text = "Inventar leer";
-        } 
-        catch (System.Exception e)
+        }
+        catch (Exception e)
         {
             Debug.LogError("Error calculating inventory value: " + e.Message);
         }
@@ -68,7 +63,7 @@ public class KnapsackScript : MonoBehaviour
             {
                 if (i == 0 || w == 0)
                     dp[i, w] = 0;
-                else if (items[i].weight <= w && i <= maxItems)
+                else if (i <= maxItems && items[i].weight <= w)
                 {
                     int newValue = items[i].value + dp[i - 1, w - items[i].weight];
                     if (newValue > dp[i - 1, w])
@@ -91,53 +86,41 @@ public class KnapsackScript : MonoBehaviour
         }
 
         // Backtrack to find selected items
-        List<List<int>> tempUsedItems = new List<List<int>>();
+        int[,] tempUsedItems = new int[3, 3];
         int row = n;
         int col = capacity;
-        while (row > 0 && col > 0)
+        int rowIndex = 0;
+        int colIndex = 0;
+
+        while (row > 0 && col > 0 && rowIndex < 3 && colIndex < 3)
         {
-            List<int> group = new List<int>();
-            while (row > 0 && col > 0 && selected[row, col])
+            if (selected[row, col] && colIndex < maxItems)
             {
-                group.Add(items[row].id);
+                tempUsedItems[rowIndex, colIndex] = items[row].id;
                 col -= items[row].weight;
                 row--;
-            }
 
-            if (group.Count > 0)
-            {
-                tempUsedItems.Add(group);
+                colIndex++;
+                if (colIndex >= 3)
+                {
+                    colIndex = 0;
+                    rowIndex++;
+                }
             }
-
-            if (row > 0 && col > 0)
+            else
             {
                 row--;
             }
         }
 
-        // Find the maximum count manually
-        int maxGroupSize = 0;
-        foreach (var group in tempUsedItems)
-        {
-            if (group.Count > maxGroupSize)
-                maxGroupSize = group.Count;
-        }
+        usedItems = tempUsedItems;
 
-        // Convert List<List<int>> to int[,]
-        usedItems = new int[tempUsedItems.Count, maxGroupSize];
-        for (int i = 0; i < tempUsedItems.Count; i++)
-        {
-            for (int j = 0; j < tempUsedItems[i].Count; j++)
-            {
-                usedItems[i, j] = tempUsedItems[i][j];
-            }
-        }
         return dp[n, capacity];
     }
 
-    int KnapsackInventoryValue(int[,] inventory)
+    public int KnapsackInventoryValue(int[,] inventory)
     {
-        if(inventory == null)
+        if (inventory == null)
         {
             throw new System.Exception("Inventory is null");
         }
@@ -166,7 +149,6 @@ public class KnapsackScript : MonoBehaviour
 
     public void SetInventory(int[,] newInventory)
     {
-        Debug.Log("Inventory updated");
         inventory = newInventory;
         CalculateKnapsack();
     }

@@ -12,24 +12,25 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
     public InventoryController inventoryController;
     public GameObject qrCodesManager;
     public GameObject infoObject;
-    public float requiredLookTime = 5.0f; // Time in seconds for desk confirmation.
+    public float requiredLookTime = 5.0f; 
+    public Vector3 objectPosition;
 
     private ARPlane selectedDeskPlane;
     private float lookStartTime = -1f;
     private bool objectPlaced = false;
-    private float heightOffset = 0.05f;
+    private float heightOffset = 0.001f;
 
     private bool canStartScript = false;
+
+    private IEnumerator DelayedStart()
+    {
+        yield return new WaitForSeconds(3.0f);
+        canStartScript = true;
+    }
 
     void Start()
     {
         StartCoroutine(DelayedStart());
-    }
-
-    IEnumerator DelayedStart()
-    {
-        yield return new WaitForSeconds(3.0f); // Adjust the delay time as needed.
-        canStartScript = true;
     }
 
     void Update()
@@ -67,7 +68,7 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
         }
     }
 
-    ARPlane FindClosestPlane(List<ARRaycastHit> hits)
+    private ARPlane FindClosestPlane(List<ARRaycastHit> hits)
     {
         ARPlane closestPlane = null;
         float closestDistance = float.MaxValue;
@@ -87,11 +88,11 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
         return closestPlane;
     }
 
-    void PlaceObjectOnDesk(ARPlane deskPlane)
+    private void PlaceObjectOnDesk(ARPlane deskPlane)
     {
         qrCodesManager.SetActive(true);
         // Calculate the object's position above the center of the plane.
-        Vector3 objectPosition = deskPlane.center + Vector3.up * heightOffset;
+        objectPosition = deskPlane.center + Vector3.up * heightOffset;
         // Calculate the rotation to rotate the object -90 degrees around the x-axis.
         Quaternion objectRotation = Quaternion.Euler(-90f, 0f, 0f);
         // Instantiate the object with rotation.

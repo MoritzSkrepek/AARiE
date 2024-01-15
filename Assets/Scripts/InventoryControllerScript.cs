@@ -49,29 +49,40 @@ public class InventoryController : MonoBehaviour
                 {
                     int itemId = qRCode.item.qrData.id;
 
-                    if (currWeight + qRCode.item.qrData.weight > cap)
+                    if (!processedItems.Contains(itemId))
                     {
-                        message = "Item hat zu viel Gewicht!";
-                        knapsackScript?.UpdateInfoMesh(message);
-                    }
-                    else if (!processedItems.Contains(itemId) && currWeight + qRCode.item.qrData.weight <= cap)
-                    {
-                        processedItems.Add(itemId); // Mark the item as processed
-                        message = " ";
-                        Vector2 startGridPosition = CalculateGridPosition(worldPosition);
-                        idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = itemId;
-                        knapsackScript?.UpdateInfoMesh(message);
-                        currWeight += qRCode.item.qrData.weight;
-                        EventManager.GridUpdate(idGrid);
+                        if (currWeight + qRCode.item.qrData.weight <= cap)
+                        {
+                            processedItems.Add(itemId);
+                            message = " ";
+                            Vector2 startGridPosition = CalculateGridPosition(worldPosition);
+                            idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = itemId;
+                            knapsackScript?.UpdateInfoMesh(message);
+                            currWeight += qRCode.item.qrData.weight;
+                            EventManager.GridUpdate(idGrid);
+                        }
+                        else
+                        {
+                            message = "Item hat zu viel Gewicht!";
+                            knapsackScript?.UpdateInfoMesh(message);
+                        }
                     }
                 }
+                else if (!inventoryBounds.Contains(worldPosition) && processedItems.Contains(qRCode.item.qrData.id) && ContainsId(qRCode.item.qrData.id))
+                {
+                    int itemId = qRCode.item.qrData.id;
+                    processedItems.Remove(itemId);
+                    RemoveItem(itemId);
+                    currWeight -= qRCode.item.qrData.weight;
+                    EventManager.GridUpdate(idGrid);
+                }
             }
-            //PrintGrid();
+            PrintGrid();
         }
     }
 
 
-    void PrintGrid()
+    private void PrintGrid()
     {
         for (int row = 0; row < numRows; row++)
         {
@@ -84,12 +95,12 @@ public class InventoryController : MonoBehaviour
         }
     }
 
-    void InitializeIDGrid()
+    private void InitializeIDGrid()
     {
         idGrid = new int[numRows, numColumns];
     }
 
-    Vector2 CalculateGridPosition(Vector3 objectPosition)
+    private Vector2 CalculateGridPosition(Vector3 objectPosition)
     {
         float cellWidth = inventoryBounds.size.x / numColumns;
         float cellHeight = inventoryBounds.size.z / numRows;
@@ -98,7 +109,7 @@ public class InventoryController : MonoBehaviour
         return new Vector2(row, col);
     }
 
-    void UpdateInventoryBounds()
+    private void UpdateInventoryBounds()
     {
         if (inventoryObject != null)
         {
@@ -108,13 +119,13 @@ public class InventoryController : MonoBehaviour
         }
     }
 
-    Bounds GetBounds(GameObject obj)
+    private Bounds GetBounds(GameObject obj)
     {
         Renderer renderer = obj.GetComponent<Renderer>();
         return renderer != null ? renderer.bounds : new Bounds(obj.transform.position, Vector3.one);
     }
 
-    void ExtendBounds(ref Bounds bounds, float offset)
+    private void ExtendBounds(ref Bounds bounds, float offset)
     {
         bounds.center = new Vector3(bounds.center.x, bounds.center.y + offset / 2, bounds.center.z);
         bounds.extents = new Vector3(bounds.extents.x, bounds.extents.y + offset / 2, bounds.extents.z);
@@ -123,5 +134,34 @@ public class InventoryController : MonoBehaviour
     public void SetInventoryObject(GameObject obj)
     {
         inventoryObject = obj;
+    }
+    private void RemoveItem(int id)
+    {
+        for (int i = 0; i < numRows; i++)
+        {
+            for (int j = 0; j < numColumns; j++)
+            {
+                if (idGrid[i, j] == id)
+                {
+                    idGrid[i, j] = 0;
+                    return;
+                }
+            }
+        }
+    }
+
+    private bool ContainsId(int id)
+    {
+        for (int i = 0; i < numRows; i++)
+        {
+            for (int j = 0; j < numColumns; j++)
+            {
+                if (idGrid[i, j] == id)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
