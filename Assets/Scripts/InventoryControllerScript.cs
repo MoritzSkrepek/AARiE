@@ -137,9 +137,9 @@ public class InventoryController : MonoBehaviour
     }
     private void RemoveItem(int id)
     {
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < numRows; i++)
         {
-            for (int j = 0; j < 3; j++)
+            for (int j = 0; j < numColumns; j++)
             {
                 if (idGrid[i, j] == id)
                 {
@@ -152,9 +152,9 @@ public class InventoryController : MonoBehaviour
 
     private bool ContainsId(int id)
     {
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < numRows; i++)
         {
-            for (int j = 0; j < 3; j++)
+            for (int j = 0; j < numColumns; j++)
             {
                 if (idGrid[i, j] == id)
                 {

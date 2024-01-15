@@ -23,7 +23,6 @@ public class KnapsackScript : MonoBehaviour
     {
         items = new QRItem(0).items;
         EventManager.OnGridUpdate += SetInventory;
-        Debug.Log("KnapsackScript started");
     }
 
     void CalculateKnapsack()
@@ -46,17 +45,83 @@ public class KnapsackScript : MonoBehaviour
             ownMesh.text = "Erreichter Wert: " + inventoryValue.ToString();
 
         } 
-        catch (NullReferenceException)
-        {
-            infoMesh.color = Color.red;
-            infoMesh.text = "Inventar leer";
-        } 
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Debug.LogError("Error calculating inventory value: " + e.Message);
         }
     }
 
+    //New Version!!
+    int KnapsackMaxValue(out int[,] usedItems)
+    {
+        int n = items.Count;
+        int[,] dp = new int[n + 1, capacity + 1];
+        bool[,] selected = new bool[n + 1, capacity + 1];
+
+        for (int i = 0; i <= n; i++)
+        {
+            for (int w = 0; w <= capacity; w++)
+            {
+                if (i == 0 || w == 0)
+                    dp[i, w] = 0;
+                else if (i <= maxItems && items[i].weight <= w)
+                {
+                    int newValue = items[i].value + dp[i - 1, w - items[i].weight];
+                    if (newValue > dp[i - 1, w])
+                    {
+                        dp[i, w] = newValue;
+                        selected[i, w] = true;
+                    }
+                    else
+                    {
+                        dp[i, w] = dp[i - 1, w];
+                        selected[i, w] = false;
+                    }
+                }
+                else
+                {
+                    dp[i, w] = dp[i - 1, w];
+                    selected[i, w] = false;
+                }
+            }
+        }
+
+        // Backtrack to find selected items
+        int[,] tempUsedItems = new int[3, 3];
+        int row = n;
+        int col = capacity;
+        int rowIndex = 0;
+        int colIndex = 0;
+
+        while (row > 0 && col > 0 && rowIndex < 3 && colIndex < 3)
+        {
+            if (selected[row, col] && colIndex < maxItems)
+            {
+                tempUsedItems[rowIndex, colIndex] = items[row].id;
+                col -= items[row].weight;
+                row--;
+
+                colIndex++;
+                if (colIndex >= 3)
+                {
+                    colIndex = 0;
+                    rowIndex++;
+                }
+            }
+            else
+            {
+                row--;
+            }
+        }
+
+        usedItems = tempUsedItems;
+
+        return dp[n, capacity];
+    }
+
+
+
+    /* Old Version!!
     int KnapsackMaxValue(out int[,] usedItems)
     {
         int n = items.Count;
@@ -136,6 +201,7 @@ public class KnapsackScript : MonoBehaviour
 
         return dp[n, capacity];
     }
+    */
 
     int KnapsackInventoryValue(int[,] inventory)
     {
@@ -167,8 +233,7 @@ public class KnapsackScript : MonoBehaviour
     }
 
     public void SetInventory(int[,] newInventory)
-    {
-        Debug.Log("Inventory updated");
+    {  
         inventory = newInventory;
         CalculateKnapsack();
     }

@@ -750,6 +750,7 @@ MonoBehaviour:
   inventoryObject: {fileID: 742143186}
   inventoryPlacementObject: {fileID: 367659235}
   KnapsackAlgoObject: {fileID: 472987673}
+  inventory: {fileID: 1682087629}
 --- !u!1 &800086817
 GameObject:
   m_ObjectHideFlags: 0
@@ -2693,6 +2694,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 742143187}
   m_SourcePrefab: {fileID: 100100000, guid: 04bbe506f28a76c4ebe4853f224ee2d0, type: 3}
+--- !u!4 &1682087629 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4775333892646996972, guid: 04bbe506f28a76c4ebe4853f224ee2d0, type: 3}
+  m_PrefabInstance: {fileID: 1682087628}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1691502021
 PrefabInstance:
   m_ObjectHideFlags: 0
