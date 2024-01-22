@@ -86,7 +86,8 @@ namespace QRTracking
                 //qrCodeCube.transform.localPosition = item.qrData.position;
                 //qrCodeCube.transform.localScale = new Vector3(PhysicalSize, PhysicalSize, 0.005f);
 
-                labels.transform.localPosition = item.qrData.position;
+                labels.transform.localPosition = new Vector3(item.qrData.position.x + 0.05f, item.qrData.position.y, item.qrData.position.z);
+                
                 labels.transform.localScale = new Vector3(PhysicalSize * 0.02f, PhysicalSize * 0.02f, 0.005f);
 
                 model.transform.localPosition = item.qrData.position;
