@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Windows.WebCam;
 using UnityEngine.XR.ARFoundation;
@@ -10,21 +11,20 @@ using UnityEngine.XR.ARSubsystems;
 public class PictureTakingButton : MonoBehaviour
 {
 
-    // Start is called before the first frame update
+    
     bool takingNewPicture = false;
     PhotoCapture photoCaptureObject = null;
     Texture2D targetTexture = null;
     Resolution cameraResolution;
-    public float redComponentThreshold = 0.7f;
+    private float redComponentThreshold = 0.7f;
     public ARPlaneManager arPlaneManager;
     private List<Vector3> cablePositinos = new List<Vector3>();
     List<Vector2> redPixelCoordinates = new List<Vector2>();
     GameObject instantiatedObject;
-    GameObject instantiatedObjectInformationT;
-    GameObject instantiatedObjectInformationS;
-    bool isLeft = true;
+    bool isObjectInstantiated = false;
     bool shouldMove = false;
     bool showInformation = false;
+    private Transform camera;
 
     public ARRaycastManager raycastManager;
 
@@ -35,17 +35,14 @@ public class PictureTakingButton : MonoBehaviour
 
     public GameObject scanningButton;
 
-    public GameObject showInformationButton;
-
-    public GameObject informationTechnical;
-
-    public GameObject informationSimple;
+    public GameObject infoObject;
 
     // Use this for initialization
     void Start()
     {
         cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
         targetTexture = new Texture2D(cameraResolution.width, cameraResolution.height);
+        camera = Camera.main.transform;
     }
     public void takingPicture()
     {
@@ -114,7 +111,6 @@ public class PictureTakingButton : MonoBehaviour
                 {
                     sendPackageButton.SetActive(true);
                     scanningButton.SetActive(false);
-                    showInformationButton.SetActive(true);
                 }
             }
         }
@@ -123,31 +119,22 @@ public class PictureTakingButton : MonoBehaviour
 
     public void ShowInformation()
     {
-        if (showInformation)
-        {
-            informationTechnical.SetActive(false);
-            informationSimple.SetActive(false);
-        }
-        else
-        {
-            informationTechnical.SetActive(true);
-            informationSimple.SetActive(true);
-        }
         showInformation = !showInformation;
+        infoObject.SetActive(showInformation);
+        infoObject.transform.position = cablePositinos[1] + new Vector3(0,0.10f,0.1f);
     }
 
     public void ShowAndSendPackage()
     {
-        if (instantiatedObject == null)
+        if (isObjectInstantiated == false)
         {
             instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
-            informationSimple.transform.position = new Vector3(cablePositinos[0].x - 0.2f, cablePositinos[0].y, cablePositinos[0].z);
-            informationTechnical.transform.position = new Vector3(cablePositinos[0].x + 0.2f, cablePositinos[0].y, cablePositinos[0].z);
-
+            isObjectInstantiated = true;
+        } else
+        {
+            Destroy(instantiatedObject);
+            instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
         }
-
-        //isLeft = !isLeft;
-        //shouldMove = true;
         shouldMove = !shouldMove;
     }
 
@@ -237,24 +224,17 @@ public class PictureTakingButton : MonoBehaviour
     {
         if (shouldMove)
         {
-            if (isLeft)
-            {
-                instantiatedObject.transform.Translate((cablePositinos[2] - cablePositinos[0]) * 0.01f);
-
-                if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[2]) < 0.01f)
+            instantiatedObject.transform.Translate((cablePositinos[2] - cablePositinos[0]) * 0.02f);
+            if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[2]) < 0.01f)
                 {
-                    isLeft = false;
-                }
-            }
-            else
-            {
-                instantiatedObject.transform.Translate((cablePositinos[0] - cablePositinos[2]) * 0.01f);
+                instantiatedObject.transform.position = cablePositinos[2];
 
-                if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[0]) < 0.01f)
-                {
-                    isLeft = true;
-                }
+                shouldMove = !shouldMove;
             }
+        }
+        if (!shouldMove && isObjectInstantiated == true)
+        {
+            instantiatedObject.transform.LookAt(camera);
         }
     }
 
