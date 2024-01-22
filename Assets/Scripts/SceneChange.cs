@@ -5,9 +5,12 @@ public class SceneChanger : MonoBehaviour
 {
     public string sceneToLoad;
 
-    // Assign this method to the button's onClick event in the Unity Editor.
     public void ChangeScene()
     {
-        SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
+        if(SceneManager.GetActiveScene().name != sceneToLoad)
+        {
+            PlayerPrefs.DeleteAll();
+            SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
+        }
     }
 }

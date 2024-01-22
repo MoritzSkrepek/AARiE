@@ -46,6 +46,11 @@ namespace QRTracking
             }
         }
 
+        public static void ResetShuttingDown()
+        {
+            m_ShuttingDown = false;
+        }
+
 
         private void OnApplicationQuit()
         {
