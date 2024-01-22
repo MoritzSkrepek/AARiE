@@ -35,8 +35,6 @@ public class PictureTakingButton : MonoBehaviour
 
     public GameObject scanningButton;
 
-    public GameObject showInformationButton;
-
     public GameObject infoObject;
 
     // Use this for initialization
@@ -113,7 +111,6 @@ public class PictureTakingButton : MonoBehaviour
                 {
                     sendPackageButton.SetActive(true);
                     scanningButton.SetActive(false);
-                    showInformationButton.SetActive(true);
                 }
             }
         }
@@ -135,8 +132,7 @@ public class PictureTakingButton : MonoBehaviour
             isObjectInstantiated = true;
         } else
         {
-            instantiatedObject.transform.position = cablePositinos[0];
-            shouldMove = !shouldMove;
+            Destroy(instantiatedObject);
         }
         shouldMove = !shouldMove;
     }
