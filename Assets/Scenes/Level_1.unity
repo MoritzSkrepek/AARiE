@@ -754,6 +754,10 @@ PrefabInstance:
       propertyPath: managedReferences[1].tintables.Array.data[1]
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 4058959291818943063, guid: b1223a2002817f2448ea1d7d1af5e884, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4682067214973143594, guid: b1223a2002817f2448ea1d7d1af5e884, type: 3}
       propertyPath: pulse
       value: 

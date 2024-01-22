@@ -133,6 +133,7 @@ public class PictureTakingButton : MonoBehaviour
         } else
         {
             Destroy(instantiatedObject);
+            instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
         }
         shouldMove = !shouldMove;
     }
