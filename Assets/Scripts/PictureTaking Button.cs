@@ -16,14 +16,13 @@ public class PictureTakingButton : MonoBehaviour
     PhotoCapture photoCaptureObject = null;
     Texture2D targetTexture = null;
     Resolution cameraResolution;
-    private float redComponentThreshold = 0.7f;
     public ARPlaneManager arPlaneManager;
     private List<Vector3> cablePositinos = new List<Vector3>();
     List<Vector2> redPixelCoordinates = new List<Vector2>();
     GameObject instantiatedObject;
     bool isObjectInstantiated = false;
     bool shouldMove = false;
-    bool showInformation = false;
+    int showInformation = 0;
     private Transform camera;
 
     public ARRaycastManager raycastManager;
@@ -35,7 +34,9 @@ public class PictureTakingButton : MonoBehaviour
 
     public GameObject scanningButton;
 
-    public GameObject infoObject;
+    public GameObject infoTextT;
+
+    public GameObject infoTextS;
 
     // Use this for initialization
     void Start()
@@ -48,7 +49,6 @@ public class PictureTakingButton : MonoBehaviour
     {
         if (!takingNewPicture)
         {
-            Debug.Log("Taking");
             redPixelCoordinates.Clear();
             takingNewPicture = true;
 
@@ -119,9 +119,27 @@ public class PictureTakingButton : MonoBehaviour
 
     public void ShowInformation()
     {
-        showInformation = !showInformation;
-        infoObject.SetActive(showInformation);
-        infoObject.transform.position = cablePositinos[1] + new Vector3(0,0.10f,0.1f);
+        if (showInformation == 0)
+        {
+            infoTextT.SetActive(true);
+            infoTextT.transform.position = cablePositinos[1] + new Vector3(0, 0.10f, 0.1f);
+            Debug.Log("Show Information T " + showInformation);
+            showInformation = 1;
+        }
+        else if (showInformation == 1)
+        {
+            infoTextT.SetActive(false);
+            infoTextS.SetActive(true);
+            infoTextS.transform.position = cablePositinos[1] + new Vector3(0, 0.10f, 0.1f);
+            Debug.Log("Show Information S " + showInformation);
+            showInformation = 2;
+        } else if (showInformation == 2)
+        {
+            infoTextT.SetActive(false);
+            infoTextS.SetActive(false);
+            Debug.Log("Show Information None " + showInformation);
+            showInformation = 0;
+        }
     }
 
     public void ShowAndSendPackage()
@@ -155,7 +173,7 @@ public class PictureTakingButton : MonoBehaviour
                 int index = y * textureWidth + x;
 
                 // Check if the pixel is predominantly red (you can adjust the threshold)
-                if (pixels[index].r > redComponentThreshold && pixels[index].g < 0.5f && pixels[index].b < 0.5f)
+                if (pixels[index].r > 0.55f && pixels[index].g < 0.5f && pixels[index].b < 0.5f)
                 {
                     pixels[index] = Color.red;
 
@@ -171,6 +189,7 @@ public class PictureTakingButton : MonoBehaviour
 
         if ( yCoordinates.Count == 0 || xCoordinates.Count == 0 )
         {
+            Debug.Log("No Red Pixel detected.");
             return textureToEdit;
         }
         // Calculate average X coordinate
@@ -196,15 +215,15 @@ public class PictureTakingButton : MonoBehaviour
         int sumOfSelectedValues = 0;
         if (min)
         {
-            for (int i = 0; i < list.Count/10; i++) 
+            for (int i = 0; i < list.Count/5; i++) 
             {
                 sumOfSelectedValues += list[i];
             }
         } 
         else
         {
-            int cal = list.Count - (list.Count / 10);
-            for (int i = 0; i < list.Count / 10; i++)
+            int cal = list.Count - (list.Count / 5);
+            for (int i = 0; i < list.Count / 5; i++)
             {
                 sumOfSelectedValues += list[cal + i];
             }
@@ -232,7 +251,7 @@ public class PictureTakingButton : MonoBehaviour
                 shouldMove = !shouldMove;
             }
         }
-        if (!shouldMove && isObjectInstantiated == true)
+        if (!shouldMove && isObjectInstantiated)
         {
             instantiatedObject.transform.LookAt(camera);
         }
@@ -281,7 +300,7 @@ public class PictureTakingButton : MonoBehaviour
                     {
                         if (hits[i] != null)
                         {
-                            cablePositinos.Add(new Vector3(hits[i].pose.position.x, hits[i].pose.position.y + 0.25f, hits[i].pose.position.z));
+                            cablePositinos.Add(new Vector3(hits[i].pose.position.x, hits[i].pose.position.y + 0.05f, hits[i].pose.position.z));
                             //debugRaycast(hits[i], Color.red);
                         break;
                         } else
