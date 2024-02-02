@@ -106,9 +106,11 @@ public class InventoryPlacementController : MonoBehaviour
                     if (selectedDeskPlane == null || selectedDeskPlane != currentPlane)
                     {
                         Debug.Log("User is looking at plane");
+                        SetPlaneColor(currentPlane, Color.red); // Change plane color to red
                         selectedDeskPlane = currentPlane;
-                        lookStartTime = Time.time; 
+                        lookStartTime = Time.time;
                     }
+
                     float timeLookedAtPlane = Time.time - lookStartTime;
                     if (timeLookedAtPlane >= requiredLookTime)
                     {
@@ -118,11 +120,19 @@ public class InventoryPlacementController : MonoBehaviour
                 }
                 else
                 {
+                    if (selectedDeskPlane != null)
+                    {
+                        SetPlaneColor(selectedDeskPlane, Color.blue); // Reset previous plane color
+                    }
                     selectedDeskPlane = null;
                 }
             }
             else
             {
+                if (selectedDeskPlane != null)
+                {
+                    SetPlaneColor(selectedDeskPlane, Color.blue); // Reset previous plane color
+                }
                 selectedDeskPlane = null;
             }
         }
@@ -154,6 +164,17 @@ public class InventoryPlacementController : MonoBehaviour
         }
 
         return null;
+    }
+
+    //For Debugging purposes
+    void SetPlaneColor(ARPlane plane, Color color)
+    {
+        // Assuming ARPlane visualizer is a child GameObject with a MeshRenderer component
+        MeshRenderer planeRenderer = plane.GetComponentInChildren<MeshRenderer>();
+        if (planeRenderer != null)
+        {
+            planeRenderer.material.color = color;
+        }
     }
 
     private void PlaceObjectOnDesk(ARPlane deskPlane)
