@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,12 +14,13 @@ public class RequestManager : MonoBehaviour
 {
     private HttpListener listener;
     private string[] laptops = new string[2];
+    private int port = 9090;
 
     void Start()
     {
+        Debug.Log("Starting listener");
         listener = new HttpListener();
-        listener.Prefixes.Add("http://" + getIp() + ":9090/");
-        listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
+        listener.Prefixes.Add($"http://*:{this.port}/");
 
         EventManager.OnMessageSend += sendMsg;
 
@@ -35,6 +37,7 @@ public class RequestManager : MonoBehaviour
 
     private void listen()
     {
+        Debug.Log("Listening...");
         while (true)
         {
             HttpListenerContext context = listener.GetContext();
@@ -44,6 +47,7 @@ public class RequestManager : MonoBehaviour
 
     private void HandleRequest(HttpListenerContext context)
     {
+        Debug.Log("Handling request");
         try
         {
             string requestMethod = context.Request.HttpMethod;
@@ -120,12 +124,13 @@ public class RequestManager : MonoBehaviour
     {
         StartCoroutine(sendMessage(idx, username, message));
     }
+
     private IEnumerator sendMessage(int idx, string username, string message)
     {
         string jsonPayload = "{\"username\": \"" + username + "\", \"message\": \"" + message + "\"}";
 
         string ipAddress = laptops[idx];
-        string url = "http://" + ipAddress + ":3000/message";
+        string url = "http://" + ipAddress + ":9090/message";
 
         using (UnityWebRequest request = UnityWebRequest.PostWwwForm(url, jsonPayload))
         {
