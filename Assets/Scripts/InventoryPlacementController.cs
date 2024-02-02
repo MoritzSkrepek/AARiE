@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
-public class PlaceObjectOnLookedAtDesk : MonoBehaviour
+public class InventoryPlacementController : MonoBehaviour
 {
     public ARRaycastManager raycastManager;
     public ARPlaneManager planeManager;
@@ -33,6 +33,8 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
         StartCoroutine(DelayedStart());
     }
 
+    // The following commented functions are old versions of the code
+    /*
     void Update()
     {
         if (!objectPlaced && canStartScript)
@@ -67,7 +69,9 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
             }
         }
     }
+    */
 
+    /*
     private ARPlane FindClosestPlane(List<ARRaycastHit> hits)
     {
         ARPlane closestPlane = null;
@@ -87,29 +91,84 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
         }
         return closestPlane;
     }
+    */
+
+    void Update()
+    {
+        if (!objectPlaced && canStartScript)
+        {
+            if (IsPointerOverPlane())
+            {
+                ARPlane currentPlane = GetCurrentPlaneUnderGaze();
+
+                if (currentPlane != null)
+                {
+                    if (selectedDeskPlane == null || selectedDeskPlane != currentPlane)
+                    {
+                        Debug.Log("User is looking at plane");
+                        selectedDeskPlane = currentPlane;
+                        lookStartTime = Time.time; 
+                    }
+                    float timeLookedAtPlane = Time.time - lookStartTime;
+                    if (timeLookedAtPlane >= requiredLookTime)
+                    {
+                        PlaceObjectOnDesk(selectedDeskPlane);
+                        objectPlaced = true;
+                    }
+                }
+                else
+                {
+                    selectedDeskPlane = null;
+                }
+            }
+            else
+            {
+                selectedDeskPlane = null;
+            }
+        }
+    }
+
+    bool IsPointerOverPlane()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            ARPlane plane = hit.collider.GetComponent<ARPlane>();
+            return (plane != null);
+        }
+
+        return false;
+    }
+
+    ARPlane GetCurrentPlaneUnderGaze()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            ARPlane plane = hit.collider.GetComponent<ARPlane>();
+            return plane;
+        }
+
+        return null;
+    }
 
     private void PlaceObjectOnDesk(ARPlane deskPlane)
     {
         qrCodesManager.SetActive(true);
-        // Calculate the object's position above the center of the plane.
         objectPosition = deskPlane.center + Vector3.up * heightOffset;
-        // Calculate the rotation to rotate the object -90 degrees around the x-axis.
         Quaternion objectRotation = Quaternion.Euler(-90f, 0f, 0f);
-        // Instantiate the object with rotation.
         GameObject instantiatedObject = Instantiate(inventoryObject, objectPosition, objectRotation);
-        // Set the scale of the instantiated object.
         instantiatedObject.transform.localScale = new Vector3(20f, 20f, 20f);
-        // Spawn infoGameObject (Two TextMeshes and button for Knapsack Algorithm)
         Vector3 infoObjectPosition = objectPosition - Vector3.forward * 4.415f + Vector3.right * 0.4f;
         infoObject.transform.position = infoObjectPosition;
         infoObject.SetActive(true);
-        // Set the inventoryObject in the InventoryController
         inventoryController.SetInventoryObject(instantiatedObject);
-        // Enable the InventoryController
         inventoryController.gameObject.SetActive(true);
-        // Set the visibility of the planes.
         planeManager.planePrefab.SetActive(false);
-        // Disable this script so it won't run again.
         gameObject.SetActive(false);
     }
 }

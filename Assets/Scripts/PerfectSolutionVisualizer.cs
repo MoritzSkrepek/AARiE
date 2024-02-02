@@ -8,8 +8,8 @@ public class PerfectSolutionVisualizer : MonoBehaviour
     public GameObject KnapsackAlgoObject;
     public Transform inventory;
 
-    private PlaceObjectOnLookedAtDesk anchorScript;
-    private KnapsackScript knapsackScript;
+    private InventoryPlacementController anchorScript;
+    private KnapsackSolver knapsackSolver;
     private Vector3 originalInventoryPosition;
     private int[,] perfectSolution;
     private bool isClicked = false;
@@ -21,10 +21,10 @@ public class PerfectSolutionVisualizer : MonoBehaviour
         isClicked = !isClicked;
         if (isClicked == true)
         {
-            anchorScript = inventoryPlacementObject.GetComponent<PlaceObjectOnLookedAtDesk>();
+            anchorScript = inventoryPlacementObject.GetComponent<InventoryPlacementController>();
             originalInventoryPosition = anchorScript.objectPosition;
-            knapsackScript = KnapsackAlgoObject.GetComponent<KnapsackScript>();
-            perfectSolution = knapsackScript.usedItems;
+            knapsackSolver = KnapsackAlgoObject.GetComponent<KnapsackSolver>();
+            perfectSolution = knapsackSolver.usedItems;
             printItems();
             setNewPosition();
             inventoryObject.SetActive(true);
