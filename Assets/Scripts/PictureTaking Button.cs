@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Windows.WebCam;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using static Codice.CM.Common.CmCallContext;
 
 public class PictureTakingButton : MonoBehaviour
 {
@@ -86,7 +88,7 @@ public class PictureTakingButton : MonoBehaviour
         photoCaptureFrame.UploadImageDataToTexture(targetTexture);
 
         // Edit the texture
-        Texture2D editedTexture = editTextureV2(targetTexture);
+        Texture2D editedTexture = editTextureV3(targetTexture);
 
         // Set the edited texture to the material of the Renderer
         Renderer rend = GetComponent<Renderer>();
@@ -123,7 +125,6 @@ public class PictureTakingButton : MonoBehaviour
         {
             infoTextT.SetActive(true);
             infoTextT.transform.position = cablePositinos[1] + new Vector3(0, 0.10f, 0.1f);
-            Debug.Log("Show Information T " + showInformation);
             showInformation = 1;
         }
         else if (showInformation == 1)
@@ -131,15 +132,13 @@ public class PictureTakingButton : MonoBehaviour
             infoTextT.SetActive(false);
             infoTextS.SetActive(true);
             infoTextS.transform.position = cablePositinos[1] + new Vector3(0, 0.10f, 0.1f);
-            Debug.Log("Show Information S " + showInformation);
             showInformation = 2;
         } else if (showInformation == 2)
         {
             infoTextT.SetActive(false);
             infoTextS.SetActive(false);
-            Debug.Log("Show Information None " + showInformation);
             showInformation = 0;
-        }
+        }  
     }
 
     public void ShowAndSendPackage()
@@ -156,8 +155,174 @@ public class PictureTakingButton : MonoBehaviour
         shouldMove = !shouldMove;
     }
 
+    Texture2D editTextureV3(Texture2D textureToEdit)
+    {
+
+        List<Vector2> redPixels = new List<Vector2>();
+        Color[] pixels = textureToEdit.GetPixels();
+        for (int x = 0; x < textureToEdit.width; x++)
+        {
+            ThreadPool.QueueUserWorkItem((state) => checkForRedPixel(pixels, redPixels, x, textureToEdit.width, textureToEdit.height));
+        }
+            if (redPixels.Count > 0)
+            {
+                List<Vector2> longestRedLine = new List<Vector2>();
+                List<Vector2> currentRedLine = new List<Vector2>();
+                currentRedLine.Add(redPixels[0]);
+                redPixels.RemoveAt(0);
+                while (redPixels.Count > 0)
+                {
+                    Vector2 lastPoint = currentRedLine[currentRedLine.Count - 1];
+                    Vector2 nextPoint = redPixels[0];
+                    if (lastPoint.x == nextPoint.x && (lastPoint.y + 1 == nextPoint.y || lastPoint.y - 1 == nextPoint.y))
+                    {
+                        currentRedLine.Add(nextPoint);
+                        redPixels.RemoveAt(0);
+                    }
+                    else
+                    {
+                        if (currentRedLine.Count > longestRedLine.Count)
+                        {
+                            longestRedLine = new List<Vector2>(currentRedLine);
+                        }
+                        currentRedLine.Clear();
+                        currentRedLine.Add(redPixels[0]);
+                        redPixels.RemoveAt(0);
+                    }
+                }
+                if (currentRedLine.Count > longestRedLine.Count)
+                {
+                    longestRedLine = new List<Vector2>(currentRedLine);
+                }
+                if (longestRedLine.Count > 0)
+                {
+                    cablePositinos.Add(new Vector3(longestRedLine[0].x, longestRedLine[0].y, 0));
+                    cablePositinos.Add(new Vector3(longestRedLine[longestRedLine.Count - 1].x, longestRedLine[longestRedLine.Count - 1].y, 0));
+                }
+        }
+        return textureToEdit;
+    }
+
+    void checkForRedPixel(Color[] pixels, List<Vector2> redPixels, int x, int textureWidth, int textureHeight)
+    {
+        for (int y = 0; y < textureHeight; y++)
+        {
+            int index = y * textureWidth + x;
+            if (pixels[index].r > 0.55f && pixels[index].g < 0.5f && pixels[index].b < 0.5f)
+            {
+                redPixels.Add(new Vector2(x, y));
+            }
+        }
+    }
+
+        Texture2D editTextureV2(Texture2D textureToEdit)
+    {
+        Debug.Log("Width " + textureToEdit.width);
+        Debug.Log("Hight " + textureToEdit.height);
+
+        // Get the pixel data from the texture
+        Color[] pixels = textureToEdit.GetPixels();
+
+        int textureWidth = textureToEdit.width;
+        int textureHeight = textureToEdit.height;
+
+        List<Vector2> longestRedLine = new List<Vector2>();
+
+        float redThreshold = 0.55f; 
+
+        int longestLineLength = 0;
+        List<Vector2> currentRedLine = new List<Vector2>();
+
+        for (int y = 0; y < textureHeight; y++)
+        {
+            for (int x = 0; x < textureWidth; x++)
+            {
+                int index = y + x;
+
+
+                if (pixels[index].r > redThreshold && pixels[index].g < 0.5f && pixels[index].b < 0.5f)
+                {
+                    currentRedLine.Add(new Vector2(x, y));
+                    int currentX = x;
+                    while (currentX < textureWidth - 1)
+                    {
+                        currentX++;
+                        int newIndex = y + currentX;
+                        if (pixels[newIndex].r > redThreshold && pixels[newIndex].g < 0.5f && pixels[newIndex].b < 0.5f)
+                        {
+                            currentRedLine.Add(new Vector2(currentX, y));
+                        }
+                        else
+                        {
+                            if(!checkForBlackThreshold(50,currentX, y, redThreshold, textureWidth, pixels))
+                            {
+                                break;// TODO Check if line below or above has red in same y
+                            }
+                        }
+                    }                    
+
+                    // Update longest line if current is longer
+                    if (currentRedLine.Count > longestLineLength)
+                    {
+                        longestLineLength = currentRedLine.Count;
+                        longestRedLine = new List<Vector2>(currentRedLine);
+                    }
+
+                    // Reset current line tracking
+                    currentRedLine.Clear();
+                }
+                else
+                {
+                    pixels[index] = Color.black; // Set non-red pixels to black
+                }
+            }
+        }
+
+        if (longestRedLine.Count == 0)
+        {
+            Debug.Log("No Red Pixel detected.");
+            return textureToEdit;
+        }
+
+
+        
+        Debug.Log("longestRedLine: " + longestRedLine.Count);
+        Debug.Log("longestRedLine[0] " + longestRedLine[0].y + " " + longestRedLine[0].x);
+        redPixelCoordinates.Add(longestRedLine[0]);
+        Debug.Log("longestRedLine[longestRedLine.Count / 2 " + longestRedLine[longestRedLine.Count / 2].y + " " + longestRedLine[longestRedLine.Count / 2].x);
+        redPixelCoordinates.Add(longestRedLine[longestRedLine.Count / 2]);
+        Debug.Log("longestRedLine[longestRedLine.Count / 2 " + longestRedLine[longestRedLine.Count - 1].y + " " + longestRedLine[longestRedLine.Count - 1].x);
+        redPixelCoordinates.Add(longestRedLine[longestRedLine.Count - 1]);
+        Debug.Log("Lenght Red: " + redPixelCoordinates.Count);
+        // Apply the edited pixels back to the texture
+        textureToEdit.SetPixels(pixels);
+        textureToEdit.Apply();
+        return textureToEdit;
+    }
+
+    bool checkForBlackThreshold(int nonRedThreshold, int currentX,int currenty, float redThreshold,int textureWidth, Color[] pixels)
+    {
+        int nonRedCount = 0;
+        while (nonRedCount < nonRedThreshold && currentX < textureWidth - 1)
+        {
+            currentX++;
+            int newNewIndex = currenty + currentX;
+            if (!(pixels[newNewIndex].r > redThreshold && pixels[newNewIndex].g < 0.5f && pixels[newNewIndex].b < 0.5f))
+            {
+                nonRedCount++;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
     Texture2D editTextureV2(Texture2D textureToEdit)
     {
+        Debug.Log("Time beginning: " + Time.time);
         // Get the pixel data from the texture
         Color[] pixels = textureToEdit.GetPixels();
 
@@ -206,8 +371,9 @@ public class PictureTakingButton : MonoBehaviour
         textureToEdit.SetPixels(pixels);
         textureToEdit.Apply();
 
+        Debug.Log("Time End: " + Time.time);
         return textureToEdit;
-    }
+    }*/
 
     Vector2 getSideCoordinate(List<int> list,bool min, int averageY)
     {
@@ -282,6 +448,7 @@ public class PictureTakingButton : MonoBehaviour
             redPixel.x * Camera.main.pixelWidth / image.width,
             redPixel.y * Camera.main.pixelHeight / image.height
         );
+        Debug.Log("Jo bin da");
 
 
         //(Debug) For comparison of the screen coordinates and the red pixel coordinates    
@@ -301,7 +468,7 @@ public class PictureTakingButton : MonoBehaviour
                         if (hits[i] != null)
                         {
                             cablePositinos.Add(new Vector3(hits[i].pose.position.x, hits[i].pose.position.y + 0.05f, hits[i].pose.position.z));
-                            //debugRaycast(hits[i], Color.red);
+                            debugRaycast(hits[i], Color.red);
                         break;
                         } else
                         {
@@ -318,9 +485,6 @@ public class PictureTakingButton : MonoBehaviour
         }
 
     }
-
-
-
     private List<GameObject> instantiatedObjects = new List<GameObject>();
 
     void debugRaycast(ARRaycastHit hit, Color color)
@@ -329,17 +493,6 @@ public class PictureTakingButton : MonoBehaviour
         Debug.Log("Ray hit position: " + hit.pose.position);
 
         GameObject instantiatedObject = Instantiate(virtualObject, hit.pose.position, Quaternion.identity);
-
-        // Keep track of the instantiated objects
-        instantiatedObjects.Add(instantiatedObject);
-    }
-
-    void debugRaycast(Vector3 hit, Color color)
-    {
-
-        Debug.Log("Ray hit position: " + hit);
-
-        GameObject instantiatedObject = Instantiate(virtualObject, hit, Quaternion.identity);
 
         // Keep track of the instantiated objects
         instantiatedObjects.Add(instantiatedObject);
