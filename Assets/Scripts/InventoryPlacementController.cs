@@ -97,29 +97,35 @@ public class InventoryPlacementController : MonoBehaviour
     {
         if (!objectPlaced && canStartScript)
         {
+            Debug.Log("In Update! 1");
             if (IsPointerOverPlane())
             {
+                Debug.Log("In Update! 2");
                 ARPlane currentPlane = GetCurrentPlaneUnderGaze();
 
                 if (currentPlane != null)
                 {
+                    Debug.Log("In Update! 3");
                     if (selectedDeskPlane == null || selectedDeskPlane != currentPlane)
                     {
-                        Debug.Log("User is looking at plane");
+                        Debug.Log("In Update! 4");
                         SetPlaneColor(currentPlane, Color.red); // Change plane color to red
                         selectedDeskPlane = currentPlane;
                         lookStartTime = Time.time;
+                        Debug.Log("Looked at plane for: " + lookStartTime.ToString());
                     }
-
+                    Debug.Log("In Update! 5");
                     float timeLookedAtPlane = Time.time - lookStartTime;
                     if (timeLookedAtPlane >= requiredLookTime)
                     {
+                        Debug.Log("In Update! 6");
                         PlaceObjectOnDesk(selectedDeskPlane);
                         objectPlaced = true;
                     }
                 }
                 else
                 {
+                    Debug.Log("In Update! 7");
                     if (selectedDeskPlane != null)
                     {
                         SetPlaneColor(selectedDeskPlane, Color.blue); // Reset previous plane color
@@ -129,6 +135,7 @@ public class InventoryPlacementController : MonoBehaviour
             }
             else
             {
+                Debug.Log("In Update! 8");
                 if (selectedDeskPlane != null)
                 {
                     SetPlaneColor(selectedDeskPlane, Color.blue); // Reset previous plane color
@@ -146,6 +153,7 @@ public class InventoryPlacementController : MonoBehaviour
         if (Physics.Raycast(ray, out hit))
         {
             ARPlane plane = hit.collider.GetComponent<ARPlane>();
+            Debug.Log("Plane info in isPointerOverPlane: " + plane.trackableId.ToString() + " " + plane.alignment.ToString() + " " + plane.center.ToString() + " " + plane.extents.ToString());  
             return (plane != null);
         }
 
@@ -160,6 +168,7 @@ public class InventoryPlacementController : MonoBehaviour
         if (Physics.Raycast(ray, out hit))
         {
             ARPlane plane = hit.collider.GetComponent<ARPlane>();
+            Debug.Log("Plane info in GetCurrentPlaneUnderGaze: " + plane.trackableId.ToString() + " " + plane.alignment.ToString() + " " + plane.center.ToString() + " " + plane.extents.ToString());
             return plane;
         }
 
@@ -179,6 +188,8 @@ public class InventoryPlacementController : MonoBehaviour
 
     private void PlaceObjectOnDesk(ARPlane deskPlane)
     {
+        Debug.Log("Inside PlaceObjectOnDesk!");
+
         qrCodesManager.SetActive(true);
         objectPosition = deskPlane.center + Vector3.up * heightOffset;
         Quaternion objectRotation = Quaternion.Euler(-90f, 0f, 0f);
