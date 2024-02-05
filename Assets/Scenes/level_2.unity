@@ -494,7 +494,7 @@ GameObject:
   - component: {fileID: 367659237}
   - component: {fileID: 367659236}
   m_Layer: 31
-  m_Name: InventoryPlacement
+  m_Name: InventoryPlacementController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -690,32 +690,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 472987675}
-  - component: {fileID: 472987674}
+  - component: {fileID: 472987676}
   m_Layer: 0
-  m_Name: KnapsackAlgo
+  m_Name: KnappsackSolver
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &472987674
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 472987673}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0946775cf4d410647bd07c9fe267e2f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  QRCodeManager: {fileID: 960734452}
-  ownMesh: {fileID: 462283048}
-  maxMesh: {fileID: 1155574618}
-  infoMesh: {fileID: 1691502023}
-  capacity: 120
-  maxItems: 9
 --- !u!4 &472987675
 Transform:
   m_ObjectHideFlags: 0
@@ -731,6 +713,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &472987676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 472987673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c370a88f1228044da93317e793f38f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  QRCodeManager: {fileID: 960734452}
+  ownMesh: {fileID: 462283048}
+  maxMesh: {fileID: 1155574618}
+  infoMesh: {fileID: 1691502023}
+  capacity: 120
+  maxItems: 9
 --- !u!1 &800086817
 GameObject:
   m_ObjectHideFlags: 0
