@@ -1,14 +1,21 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Threading;
 using TMPro;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Windows.WebCam;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using static Codice.CM.Common.CmCallContext;
+using static UnityEngine.GraphicsBuffer;
+using Debug = UnityEngine.Debug;
+
 
 public class PictureTakingButton : MonoBehaviour
 {
@@ -40,19 +47,19 @@ public class PictureTakingButton : MonoBehaviour
 
     public GameObject infoTextS;
 
-    // Use this for initialization
     void Start()
     {
-        cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
+        Debug.Log("Start Script");
+        cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).FirstOrDefault();
         targetTexture = new Texture2D(cameraResolution.width, cameraResolution.height);
         camera = Camera.main.transform;
     }
-    public void takingPicture()
+    
+public void takingPicture()
     {
         if (!takingNewPicture)
         {
             redPixelCoordinates.Clear();
-            takingNewPicture = true;
 
             PhotoCapture.CreateAsync(false, delegate (PhotoCapture captureObject)
             {
@@ -68,14 +75,14 @@ public class PictureTakingButton : MonoBehaviour
                     {
 
                         photoCaptureObject.StartPhotoModeAsync(cameraParameters, delegate (PhotoCapture.PhotoCaptureResult result)
-                        {
-                            photoCaptureObject.TakePhotoAsync(onCapturedPhotoToMemory);
-                        });
+                    {
+                                photoCaptureObject.TakePhotoAsync(onCapturedPhotoToMemory);
+                            });
 
                     }
                     catch (Exception e)
                     {
-                        Debug.LogWarning(e);
+                        Debug.LogWarning("Error at StartPhotoModeAsync \n" + e);
                     }
                 }
             });
@@ -84,9 +91,9 @@ public class PictureTakingButton : MonoBehaviour
 
     void onCapturedPhotoToMemory(PhotoCapture.PhotoCaptureResult result, PhotoCaptureFrame photoCaptureFrame)
     {
+        Stopwatch timer6 = Stopwatch.StartNew();
         // Copy the raw image data into the target texture
         photoCaptureFrame.UploadImageDataToTexture(targetTexture);
-
         // Edit the texture
         Texture2D editedTexture = editTextureV3(targetTexture);
 
@@ -96,6 +103,10 @@ public class PictureTakingButton : MonoBehaviour
 
         // Deactivate the camera
         photoCaptureObject.StopPhotoModeAsync(onStoppedPhotoMode);
+
+        timer6.Stop();
+        Debug.Log("Time for everything togheder: " + timer6.ElapsedMilliseconds);
+
     }
 
     void onStoppedPhotoMode(PhotoCapture.PhotoCaptureResult result)
@@ -107,6 +118,7 @@ public class PictureTakingButton : MonoBehaviour
         if (redPixelCoordinates.Count != 0)
         {
 
+            Stopwatch timer = Stopwatch.StartNew();
             foreach (Vector2 redPixle in redPixelCoordinates)
             {
                 if(PositionVirtualObject(redPixle, targetTexture))
@@ -115,6 +127,9 @@ public class PictureTakingButton : MonoBehaviour
                     scanningButton.SetActive(false);
                 }
             }
+
+            timer.Stop();
+            Debug.Log("Time to for Raycast " + timer.ElapsedMilliseconds);
         }
         takingNewPicture = false;
     }
@@ -124,14 +139,14 @@ public class PictureTakingButton : MonoBehaviour
         if (showInformation == 0)
         {
             infoTextT.SetActive(true);
-            infoTextT.transform.position = cablePositinos[1] + new Vector3(0, 0.10f, 0.1f);
+            infoTextT.transform.position = cablePositinos[(cablePositinos.Count - 1) / 2] + new Vector3(0, 0.10f, 0.1f);
             showInformation = 1;
         }
         else if (showInformation == 1)
         {
             infoTextT.SetActive(false);
             infoTextS.SetActive(true);
-            infoTextS.transform.position = cablePositinos[1] + new Vector3(0, 0.10f, 0.1f);
+            infoTextS.transform.position = cablePositinos[(cablePositinos.Count-1)/2] + new Vector3(0, 0.10f, 0.1f);
             showInformation = 2;
         } else if (showInformation == 2)
         {
@@ -155,52 +170,189 @@ public class PictureTakingButton : MonoBehaviour
         shouldMove = !shouldMove;
     }
 
+    public NativeArray<float> result;
+    private List<Vector2> redPixels = new List<Vector2>();
+    Color[] pixels;
     Texture2D editTextureV3(Texture2D textureToEdit)
     {
-
-        List<Vector2> redPixels = new List<Vector2>();
-        Color[] pixels = textureToEdit.GetPixels();
-        for (int x = 0; x < textureToEdit.width; x++)
+        Stopwatch timer2 = Stopwatch.StartNew();
+        Debug.Log("start search for red Pixel");
+        pixels = textureToEdit.GetPixels();
+        for (int x = 0; x < targetTexture.width; x ++)
         {
-            ThreadPool.QueueUserWorkItem((state) => checkForRedPixel(pixels, redPixels, x, textureToEdit.width, textureToEdit.height));
-        }
-            if (redPixels.Count > 0)
+            for (int y = 0; y < targetTexture.height; y++)
             {
-                List<Vector2> longestRedLine = new List<Vector2>();
-                List<Vector2> currentRedLine = new List<Vector2>();
-                currentRedLine.Add(redPixels[0]);
-                redPixels.RemoveAt(0);
-                while (redPixels.Count > 0)
+                int index = y * targetTexture.width + x;
+                if (pixels[index].r > 0.7f && pixels[index].g < 0.5f && pixels[index].b < 0.5f)
                 {
-                    Vector2 lastPoint = currentRedLine[currentRedLine.Count - 1];
-                    Vector2 nextPoint = redPixels[0];
-                    if (lastPoint.x == nextPoint.x && (lastPoint.y + 1 == nextPoint.y || lastPoint.y - 1 == nextPoint.y))
+                    pixels[index] = Color.red;
+                    redPixels.Add(new Vector2(x, y));
+                } else
+                {
+                    pixels[index] = Color.black;
+                }
+            }
+        }
+        timer2.Stop();
+        Debug.Log("Time finding redPixles: " + timer2.ElapsedMilliseconds);
+        Stopwatch timer = Stopwatch.StartNew();
+        Debug.Log("Red Pixle Count " + redPixels.Count);
+        List<Vector2> longestRedLine = new List<Vector2>();
+        if (redPixels.Count > 0)
+            { 
+            for (int targetY = 0; targetY < cameraResolution.height; targetY++)
+            {
+                if (redPixels.Any(v => v.y == targetY))
+                {
+                    List<Vector2> currentRedLine = new List<Vector2>();
+                    Vector2 redPixelWithTargetY = redPixels.FirstOrDefault(v => v.y == targetY);
+                    currentRedLine = SearchForRedPixels(redPixelWithTargetY, currentRedLine);
+                    Debug.Log("Line done" + currentRedLine.Count());
+                    if (currentRedLine.Count > longestRedLine.Count)
                     {
-                        currentRedLine.Add(nextPoint);
-                        redPixels.RemoveAt(0);
-                    }
-                    else
-                    {
-                        if (currentRedLine.Count > longestRedLine.Count)
-                        {
-                            longestRedLine = new List<Vector2>(currentRedLine);
-                        }
-                        currentRedLine.Clear();
-                        currentRedLine.Add(redPixels[0]);
-                        redPixels.RemoveAt(0);
+                        longestRedLine = currentRedLine;
                     }
                 }
-                if (currentRedLine.Count > longestRedLine.Count)
-                {
-                    longestRedLine = new List<Vector2>(currentRedLine);
-                }
+            }
                 if (longestRedLine.Count > 0)
                 {
-                    cablePositinos.Add(new Vector3(longestRedLine[0].x, longestRedLine[0].y, 0));
-                    cablePositinos.Add(new Vector3(longestRedLine[longestRedLine.Count - 1].x, longestRedLine[longestRedLine.Count - 1].y, 0));
+                redPixelCoordinates.Add(new Vector2(longestRedLine[0].x, longestRedLine[0].y));
+                Vector2 maxyCoordinate = redPixels.OrderByDescending(v => v.y).First();
+                redPixelCoordinates.Add(new Vector2(maxyCoordinate.x, maxyCoordinate.y));
+                redPixelCoordinates.Add(new Vector2(longestRedLine[(longestRedLine.Count - 1)/2].x, longestRedLine[(longestRedLine.Count - 1) / 2].y));
+                Vector2 minyCoordinate = redPixels.OrderBy(v => v.y).First();
+                redPixelCoordinates.Add(new Vector2(minyCoordinate.x, minyCoordinate.y));
+                redPixelCoordinates.Add(new Vector2(longestRedLine[longestRedLine.Count - 1].x, longestRedLine[longestRedLine.Count - 1].y));
                 }
+                else
+                {
+                    Debug.Log("No red pixel found");
+                }
+            } else
+            {
+                Debug.Log("No red pixel found");
+            }
+
+        Debug.Log("count longest" + longestRedLine.Count);
+        timer.Stop();
+        Debug.Log("Time editing Texture: " + timer.ElapsedMilliseconds);
+        for (int i = 0; i < longestRedLine.Count; i++)
+        {
+            pixels[(int)(longestRedLine[i].y * targetTexture.width + longestRedLine[i].x)] = Color.magenta;
         }
+        textureToEdit.SetPixels(pixels);
+        textureToEdit.Apply();
         return textureToEdit;
+    }
+
+    List<Vector2> SearchForRedPixels(Vector2 startPoint, List<Vector2> currentLine)
+    {
+        bool isChecked = false;
+        redPixels.Remove(startPoint);
+        currentLine.Add(startPoint);
+
+        Vector2 foundPixel = new Vector2();
+
+        for (int i = 1; i < 50 && !isChecked; i++) // Job System
+        {
+            foundPixel = new Vector2(startPoint.x + i, startPoint.y);
+            isChecked = redPixels.Contains(foundPixel) && !currentLine.Contains(foundPixel);
+        }
+
+        for (int i = 1; i < 50 && !isChecked; i++)
+        {
+            foundPixel = new Vector2(startPoint.x, startPoint.y - i);
+            isChecked = redPixels.Contains(foundPixel) && !currentLine.Contains(foundPixel);
+        }
+
+        for (int i = 1; i < 50 && !isChecked; i++)
+        {
+            foundPixel = new Vector2(startPoint.x, startPoint.y +i);
+            isChecked = redPixels.Contains(foundPixel) && !currentLine.Contains(foundPixel);
+        }
+
+        if ( isChecked )
+        { 
+            SearchForRedPixels(foundPixel, currentLine);
+        }
+
+        
+        return currentLine;
+    }
+
+
+    /*    List<Vector2> SearchForRedPixels(Vector2 startPoint, List<Vector2> currentLine)
+    {
+
+        redPixels.Remove(startPoint);
+        currentLine.Add(startPoint);
+
+        Vector2 pixelNeighboring = new Vector2(startPoint.x + 1, startPoint.y);
+        if (redPixels.Contains(pixelNeighboring) && !currentLine.Contains(pixelNeighboring))
+        {
+            SearchForRedPixels(pixelNeighboring, currentLine);
+        }
+        else
+        {
+            
+            Vector2 pixelAbove = new Vector2(startPoint.x, startPoint.y - 1);
+            if (redPixels.Contains(pixelAbove) && !currentLine.Contains(pixelAbove))
+            {
+                SearchForRedPixels(pixelAbove, currentLine);
+            }
+            Vector2 pixelBelow = new Vector2(startPoint.x, startPoint.y + 1);
+            if (redPixels.Contains(pixelBelow) && !currentLine.Contains(pixelBelow))
+            {
+                SearchForRedPixels(pixelBelow, currentLine);
+            }
+        }
+        return currentLine;
+    }*/
+
+
+    private void ProcessTexture()
+    {
+        Debug.Log("Start processing texture");
+
+
+        int threadCount = Mathf.Min(SystemInfo.processorCount, targetTexture.width);
+        ManualResetEvent[] doneEvents = new ManualResetEvent[threadCount];
+
+        for (int i = 0; i < threadCount; i++)
+        {
+            doneEvents[i] = new ManualResetEvent(false);
+
+            ThreadPool.QueueUserWorkItem((state) =>
+            {
+                CheckForRedPixels(i, threadCount);
+                doneEvents[i].Set();
+            });
+        }
+
+        // Wait for all threads to finish
+        WaitHandle.WaitAll(doneEvents);
+
+        Debug.Log("Texture processing complete");
+    }
+
+
+    private void CheckForRedPixels(int startIndex, int step)
+    {
+        Debug.Log("c1"); // Here is the problem
+        for (int x = startIndex; x < targetTexture.width; x += step)
+        {
+            for (int y = 0; y < targetTexture.height; y++)
+            {
+                int index = y * targetTexture.width + x;
+                if (pixels[index].r > 0.55f && pixels[index].g < 0.5f && pixels[index].b < 0.5f)
+                {
+                    lock (redPixels)
+                    {
+                        redPixels.Add(new Vector2(x, y));
+                    }
+                }
+            }
+        }
     }
 
     void checkForRedPixel(Color[] pixels, List<Vector2> redPixels, int x, int textureWidth, int textureHeight)
@@ -215,7 +367,7 @@ public class PictureTakingButton : MonoBehaviour
         }
     }
 
-        Texture2D editTextureV2(Texture2D textureToEdit)
+    Texture2D editTextureV2(Texture2D textureToEdit)
     {
         Debug.Log("Width " + textureToEdit.width);
         Debug.Log("Hight " + textureToEdit.height);
@@ -284,16 +436,6 @@ public class PictureTakingButton : MonoBehaviour
             return textureToEdit;
         }
 
-
-        
-        Debug.Log("longestRedLine: " + longestRedLine.Count);
-        Debug.Log("longestRedLine[0] " + longestRedLine[0].y + " " + longestRedLine[0].x);
-        redPixelCoordinates.Add(longestRedLine[0]);
-        Debug.Log("longestRedLine[longestRedLine.Count / 2 " + longestRedLine[longestRedLine.Count / 2].y + " " + longestRedLine[longestRedLine.Count / 2].x);
-        redPixelCoordinates.Add(longestRedLine[longestRedLine.Count / 2]);
-        Debug.Log("longestRedLine[longestRedLine.Count / 2 " + longestRedLine[longestRedLine.Count - 1].y + " " + longestRedLine[longestRedLine.Count - 1].x);
-        redPixelCoordinates.Add(longestRedLine[longestRedLine.Count - 1]);
-        Debug.Log("Lenght Red: " + redPixelCoordinates.Count);
         // Apply the edited pixels back to the texture
         textureToEdit.SetPixels(pixels);
         textureToEdit.Apply();
@@ -403,18 +545,22 @@ public class PictureTakingButton : MonoBehaviour
         int max = list.Max();
         return Mathf.RoundToInt((min+max) / 2);
     }
-
+    
     // Update is called once per frame
     void Update()
     {
         if (shouldMove)
         {
-            instantiatedObject.transform.Translate((cablePositinos[2] - cablePositinos[0]) * 0.02f);
+            instantiatedObject.transform.Translate((cablePositinos[cablePositinos.Count - 1] - cablePositinos[0]) * 0.02f);
             if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[2]) < 0.01f)
-                {
+            {
                 instantiatedObject.transform.position = cablePositinos[2];
 
-                shouldMove = !shouldMove;
+
+                if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[cablePositinos.Count - 1]) < 0.01f)
+                {
+                    shouldMove = !shouldMove;
+                }
             }
         }
         if (!shouldMove && isObjectInstantiated)
@@ -422,6 +568,45 @@ public class PictureTakingButton : MonoBehaviour
             instantiatedObject.transform.LookAt(camera);
         }
     }
+
+    /*
+     * 
+     * 
+        if (shouldMove) // Add Movement to every position
+        {
+            shouldMove = false;
+            movePackage();
+        }
+     * 
+     * void movePackage()
+    {
+        int timesMoved = 0;
+        Debug.Log("1 timesMoved: " + timesMoved + " cablePos Count: " + (cablePositinos.Count - 1));
+        if (timesMoved < cablePositinos.Count - 2)
+        {
+            Debug.Log("2");
+            moveToPostition(cablePositinos[timesMoved], cablePositinos[timesMoved + 1]);
+            Debug.Log("3");
+            timesMoved++;
+        }
+    }
+    void moveToPostition(Vector3 startpoint, Vector3 endPoint)
+    {
+        instantiatedObject.transform.Translate((endPoint - startpoint) * 0.02f);
+        bool isOnMove = true;
+            while(isOnMove) {
+                if (Vector3.Distance(instantiatedObject.transform.position, endPoint) < 0.01f)
+                {
+                    isOnMove = false;
+                    instantiatedObject.transform.position = endPoint;
+                }
+        }
+            
+    }
+    */
+
+
+
 
     ARPlane FindClosestPlane(List<ARRaycastHit> hits)
     {
@@ -496,5 +681,32 @@ public class PictureTakingButton : MonoBehaviour
 
         // Keep track of the instantiated objects
         instantiatedObjects.Add(instantiatedObject);
+    }
+    void DebugCameraReselution()
+    {
+        Debug.Log("Start Script");
+
+        // Check if WebCamTexture is available
+        if (WebCamTexture.devices.Length > 0)
+        {
+            WebCamDevice frontCamera = WebCamTexture.devices[0]; // Assuming the first camera is the desired one
+            WebCamTexture webcamTexture = new WebCamTexture(frontCamera.name);
+            webcamTexture.Play();
+
+            // Check if the webcam texture is ready and has valid dimensions
+            if (webcamTexture.width > 0 && webcamTexture.height > 0)
+            {
+                Debug.Log("Selected Resolution: " + webcamTexture.width + "x" + webcamTexture.height);
+                // Do something with the resolution, e.g., set up a texture or camera
+            }
+            else
+            {
+                Debug.LogError("Failed to get a valid camera resolution.");
+            }
+        }
+        else
+        {
+            Debug.LogError("No camera devices found.");
+        }
     }
 }
