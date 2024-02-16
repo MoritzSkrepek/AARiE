@@ -18,7 +18,6 @@ public class RequestManager : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("Starting listener");
         listener = new HttpListener();
         listener.Prefixes.Add($"http://*:{this.port}/");
 
@@ -37,7 +36,6 @@ public class RequestManager : MonoBehaviour
 
     private void listen()
     {
-        Debug.Log("Listening...");
         while (true)
         {
             HttpListenerContext context = listener.GetContext();
@@ -47,7 +45,6 @@ public class RequestManager : MonoBehaviour
 
     private void HandleRequest(HttpListenerContext context)
     {
-        Debug.Log("Handling request");
         try
         {
             string requestMethod = context.Request.HttpMethod;
@@ -68,21 +65,16 @@ public class RequestManager : MonoBehaviour
                         if (laptops[0] == null)
                         {
                             laptops[0] = requestBody;
-                            Debug.Log("Registered Ip Address: " + requestBody);
                         }
                         else if (laptops[1] == null)
                         {
                             laptops[1] = requestBody;
-                            Debug.Log("Registered Ip Address: " + requestBody);
                         }
                         else
                         {
                             throw new Exception("Too many IP addresses registered");
                         }
                     }
-                    Debug.Log("Laptop0: " + laptops[0]);
-                    Debug.Log("Laptop1: " + laptops[1]);
-
                 }
                 else if (url == "/message")
                 {
