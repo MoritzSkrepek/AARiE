@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using TMPro;
 
 public class InventoryPlacementController : MonoBehaviour
 {
-    public ARRaycastManager raycastManager;
     public ARPlaneManager planeManager;
     public GameObject inventoryObject;
     public InventoryController inventoryController;
     public GameObject qrCodesManager;
     public GameObject infoObject;
+    public TextMeshPro userInfo;
     public float requiredLookTime = 5.0f; 
     public Vector3 objectPosition;
 
@@ -30,6 +31,7 @@ public class InventoryPlacementController : MonoBehaviour
 
     void Start()
     {
+        userInfo.text = "Schauen Sie auf einen Tisch";
         StartCoroutine(DelayedStart());
     }
 
@@ -45,38 +47,33 @@ public class InventoryPlacementController : MonoBehaviour
                 {
                     if (selectedDeskPlane == null || selectedDeskPlane != currentPlane)
                     {
-                        SetPlaneColor(currentPlane, Color.red); // Change plane color to red
                         selectedDeskPlane = currentPlane;
                         lookStartTime = Time.time;
                     }
                     float timeLookedAtPlane = Time.time - lookStartTime;
+                    userInfo.text = ((int)requiredLookTime - (int)timeLookedAtPlane).ToString();
                     if (timeLookedAtPlane >= requiredLookTime)
                     {
                         PlaceObjectOnDesk(selectedDeskPlane);
                         objectPlaced = true;
+                        userInfo.text = "";
                     }
                 }
                 else
                 {
-                    if (selectedDeskPlane != null)
-                    {
-                        SetPlaneColor(selectedDeskPlane, Color.blue); // Reset previous plane color
-                    }
                     selectedDeskPlane = null;
+                    userInfo.text = "Schauen Sie auf einen Tisch";
                 }
             }
             else
             {
-                if (selectedDeskPlane != null)
-                {
-                    SetPlaneColor(selectedDeskPlane, Color.blue); // Reset previous plane color
-                }
                 selectedDeskPlane = null;
+                userInfo.text = "Schauen Sie auf einen Tisch";
             }
         }
     }
 
-    bool IsPointerOverPlane()
+    private bool IsPointerOverPlane()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -88,7 +85,7 @@ public class InventoryPlacementController : MonoBehaviour
         return false;
     }
 
-    ARPlane GetCurrentPlaneUnderGaze()
+    private ARPlane GetCurrentPlaneUnderGaze()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -98,17 +95,6 @@ public class InventoryPlacementController : MonoBehaviour
             return plane;
         }
         return null;
-    }
-
-    //For Debugging purposes
-    void SetPlaneColor(ARPlane plane, Color color)
-    {
-        // Assuming ARPlane visualizer is a child GameObject with a MeshRenderer component
-        MeshRenderer planeRenderer = plane.GetComponentInChildren<MeshRenderer>();
-        if (planeRenderer != null)
-        {
-            planeRenderer.material.color = color;
-        }
     }
 
     private void PlaceObjectOnDesk(ARPlane deskPlane)
