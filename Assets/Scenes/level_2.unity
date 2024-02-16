@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -764,6 +764,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   QRCodeManager: {fileID: 960734452}
   knapsackSolverGameObject: {fileID: 472987673}
+  userInfo: {fileID: 0}
   verticalOffset: 0.1
 --- !u!4 &800086819
 Transform:
@@ -3599,6 +3600,10 @@ PrefabInstance:
     - target: {fileID: 11400000, guid: fdad9d952ae84cafb74c63f2e694d042, type: 3}
       propertyPath: m_TextStyleHashCode
       value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: fdad9d952ae84cafb74c63f2e694d042, type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 512
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: fdad9d952ae84cafb74c63f2e694d042, type: 3}
       propertyPath: m_HorizontalAlignment
