@@ -68,16 +68,20 @@ public class RequestManager : MonoBehaviour
                         if (laptops[0] == null)
                         {
                             laptops[0] = requestBody;
+                            Debug.Log("Registered Ip Address: " + requestBody);
                         }
                         else if (laptops[1] == null)
                         {
                             laptops[1] = requestBody;
+                            Debug.Log("Registered Ip Address: " + requestBody);
                         }
                         else
                         {
                             throw new Exception("Too many IP addresses registered");
                         }
                     }
+                    Debug.Log("Laptop0: " + laptops[0]);
+                    Debug.Log("Laptop1: " + laptops[1]);
 
                 }
                 else if (url == "/message")
