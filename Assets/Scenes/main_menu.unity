@@ -307,7 +307,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1303336362}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &505049186
 MonoBehaviour:
@@ -2040,9 +2040,6 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 2351505567455720332, guid: 4d7e2f87fefe0ba468719b15288b46e7, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 505049185}
-    - targetCorrespondingSourceObject: {fileID: 2351505567455720332, guid: 4d7e2f87fefe0ba468719b15288b46e7, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1450341739}
     - targetCorrespondingSourceObject: {fileID: 2351505566903569412, guid: 4d7e2f87fefe0ba468719b15288b46e7, type: 3}
       insertIndex: -1
@@ -2704,4 +2701,5 @@ SceneRoots:
   - {fileID: 1401592387}
   - {fileID: 1687149438}
   - {fileID: 1109561883}
+  - {fileID: 505049185}
   - {fileID: 1869089809}
