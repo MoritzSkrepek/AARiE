@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -764,7 +764,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   QRCodeManager: {fileID: 960734452}
   knapsackSolverGameObject: {fileID: 472987673}
-  userInfo: {fileID: 0}
+  userInfo: {fileID: 1893848947}
   verticalOffset: 0.1
 --- !u!4 &800086819
 Transform:
