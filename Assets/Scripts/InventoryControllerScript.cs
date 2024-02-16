@@ -1,11 +1,13 @@
 using QRTracking;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class InventoryController : MonoBehaviour
 {
     public GameObject QRCodeManager;
     public GameObject knapsackSolverGameObject;
+    public TextMeshPro userInfo;
 
     private SortedDictionary<System.Guid, GameObject> activeQRObjects;
 
@@ -23,6 +25,7 @@ public class InventoryController : MonoBehaviour
 
     void Start()
     {
+        userInfo.text = "Platzieren Sie nun Gegenstände im Inventar";
         activeQRObjects = QRCodeManager.GetComponent<QRCodesVisualizer>().qrCodesObjectsList;
         knapsackSolver = knapsackSolverGameObject.GetComponent<KnapsackSolver>();
         cap = knapsackSolver.capacity;
@@ -53,8 +56,9 @@ public class InventoryController : MonoBehaviour
                     {
                         if (currWeight + qRCode.item.qrData.weight <= cap)
                         {
+                            userInfo.text = "";
                             processedItems.Add(itemId);
-                            message = " ";
+                            message = "";
                             Vector2 startGridPosition = CalculateGridPosition(worldPosition);
                             idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = itemId;
                             knapsackSolver?.UpdateInfoMesh(message);
