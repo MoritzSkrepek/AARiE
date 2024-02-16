@@ -170,31 +170,19 @@ public void takingPicture()
         shouldMove = !shouldMove;
     }
 
-    public NativeArray<float> result;
+
+
     private List<Vector2> redPixels = new List<Vector2>();
-    Color[] pixels;
     Texture2D editTextureV3(Texture2D textureToEdit)
     {
         Stopwatch timer2 = Stopwatch.StartNew();
+        PixelColorJob pixelColorJobInstance = new PixelColorJob();
         Debug.Log("start search for red Pixel");
-        pixels = textureToEdit.GetPixels();
-        for (int x = 0; x < targetTexture.width; x ++)
-        {
-            for (int y = 0; y < targetTexture.height; y++)
-            {
-                int index = y * targetTexture.width + x;
-                if (pixels[index].r > 0.7f && pixels[index].g < 0.5f && pixels[index].b < 0.5f)
-                {
-                    pixels[index] = Color.red;
-                    redPixels.Add(new Vector2(x, y));
-                } else
-                {
-                    pixels[index] = Color.black;
-                }
-            }
-        }
+        pixelColorJobInstance.RedPixelSearch(textureToEdit);
+        redPixels = pixelColorJobInstance.redPixelList;
         timer2.Stop();
         Debug.Log("Time finding redPixles: " + timer2.ElapsedMilliseconds);
+        /*
         Stopwatch timer = Stopwatch.StartNew();
         Debug.Log("Red Pixle Count " + redPixels.Count);
         List<Vector2> longestRedLine = new List<Vector2>();
@@ -240,10 +228,12 @@ public void takingPicture()
         {
             pixels[(int)(longestRedLine[i].y * targetTexture.width + longestRedLine[i].x)] = Color.magenta;
         }
-        textureToEdit.SetPixels(pixels);
-        textureToEdit.Apply();
+        */
+        
+       
         return textureToEdit;
     }
+
 
     List<Vector2> SearchForRedPixels(Vector2 startPoint, List<Vector2> currentLine)
     {
@@ -309,51 +299,6 @@ public void takingPicture()
         return currentLine;
     }*/
 
-
-    private void ProcessTexture()
-    {
-        Debug.Log("Start processing texture");
-
-
-        int threadCount = Mathf.Min(SystemInfo.processorCount, targetTexture.width);
-        ManualResetEvent[] doneEvents = new ManualResetEvent[threadCount];
-
-        for (int i = 0; i < threadCount; i++)
-        {
-            doneEvents[i] = new ManualResetEvent(false);
-
-            ThreadPool.QueueUserWorkItem((state) =>
-            {
-                CheckForRedPixels(i, threadCount);
-                doneEvents[i].Set();
-            });
-        }
-
-        // Wait for all threads to finish
-        WaitHandle.WaitAll(doneEvents);
-
-        Debug.Log("Texture processing complete");
-    }
-
-
-    private void CheckForRedPixels(int startIndex, int step)
-    {
-        Debug.Log("c1"); // Here is the problem
-        for (int x = startIndex; x < targetTexture.width; x += step)
-        {
-            for (int y = 0; y < targetTexture.height; y++)
-            {
-                int index = y * targetTexture.width + x;
-                if (pixels[index].r > 0.55f && pixels[index].g < 0.5f && pixels[index].b < 0.5f)
-                {
-                    lock (redPixels)
-                    {
-                        redPixels.Add(new Vector2(x, y));
-                    }
-                }
-            }
-        }
-    }
 
     void checkForRedPixel(Color[] pixels, List<Vector2> redPixels, int x, int textureWidth, int textureHeight)
     {
@@ -552,9 +497,9 @@ public void takingPicture()
         if (shouldMove)
         {
             instantiatedObject.transform.Translate((cablePositinos[cablePositinos.Count - 1] - cablePositinos[0]) * 0.02f);
-            if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[2]) < 0.01f)
+            if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[cablePositinos.Count - 1]) < 0.01f)
             {
-                instantiatedObject.transform.position = cablePositinos[2];
+                instantiatedObject.transform.position = cablePositinos[cablePositinos.Count - 1];
 
 
                 if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[cablePositinos.Count - 1]) < 0.01f)
