@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using static QRTracking.QRItem;
 
-public class KnapsackScript : MonoBehaviour
+public class KnapsackSolver : MonoBehaviour
 {
     public GameObject QRCodeManager;
     public TextMeshPro ownMesh;
