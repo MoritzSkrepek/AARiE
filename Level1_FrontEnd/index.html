@@ -243,106 +243,138 @@
 			return true;
 		}
 
-		// Function to validate if both username and message entered are valid -> not empty
-		async function validateAndSendMessage() {
-			// Get the values from the input fields
-			var username = document.getElementById("username").value.trim();
-			var message = document.getElementById("message").value.trim();
 
-			// Check if both input fields have content
-			if (username !== '' && message !== '') {
-				// If both fields have content, proceed to send the message
-				const messageSent = await sendMessage(username, message);
-				if (messageSent) {
-					showMessage(username, message);
-				}
-			} else {
-				// If any field is empty, show an alert or handle it accordingly
-				alert("Bitte füllen Sie beide Felder aus!");
-			}
-		}
-		async function connect() {
-			getLocalIPs(function (error, ips) {
-				if (error) {
-					console.error('Error getting local IP address:', error);
-					return;
-				}
+// Function to validate if both username and message entered are valid -> not empty
+async function validateAndSendMessage() {
+    // Get the values from the input fields
+    var username = document.getElementById("username").value.trim();
+    var message = document.getElementById("message").value.trim();
 
-				ipAddress = document.getElementById("numericInput").value.trim();
-				const url = `http://${ipAddress}:9090/register`;
+    // Check if both input fields have content
+    if (username !== '' && message !== '') {
+        // If both fields have content, proceed to send the message
+        const messageSent = await sendMessage(username, message);
 
-				const requestBody = { localIPs: ips };
+        if (!messageSent) {
+            alert("Nachricht konnte nicht versendet werden.");
+        }
+    } else {
+        // If any field is empty, show an alert or handle it accordingly
+        alert("Bitte füllen Sie beide Felder aus!");
+    }
+}
 
-				fetch(url, {
-					method: 'POST',
-					body: JSON.stringify(requestBody)
-				})
-					.then(response => {
-						if (!response.ok) {
-							throw new Error('Failed to register laptop.');
-						}
-						console.log('Laptop registered successfully.');
-					})
-					.catch(error => {
-						console.error('Error registering laptop:', error.message);
-					});
-			});
-		}
+async function connect() {
+    getLocalIPs(function (error, ips) {
+        if (error) {
+            console.error('Error getting local IP address:', error);
+            return;
+        }
+        let ipAddress = document.getElementById("numericInput").value.trim();
+        const url = `http://${ipAddress}:9090/register`;
 
-		async function sendMessage(username, message) {
-			const url = `http://${ipAddress}:9090/message`;
-			const requestBody = JSON.stringify({ username, message });
+        const requestBody = { localIPs: ips };
 
-			try {
-				const response = await fetch(url, {
-					method: 'POST',
-					body: requestBody,
-					headers: {
-						'Content-Type': 'application/json'
-					}
-				});
+        fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(requestBody)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to register laptop.');
+                }
+                console.log('Laptop registered successfully.');
+            })
+            .catch(error => {
+                console.error('Error registering laptop:', error.message);
+            });
+    });
+}
 
-				if (!response.ok) {
-					throw new Error('Failed to send message.');
-				}
+async function getMessages() {
+    let ipAddress = document.getElementById("numericInput").value.trim();
+    const url = `http://${ipAddress}:9090/get-messages`;
 
-				console.log('Message sent successfully.');
-				return true;
-			} catch (error) {
-				console.error('Error sending message:', error.message);
-				return false;
-			}
-		}
+    try {
+        const response = await fetch(url);
 
-		function getLocalIPs(callback) {
-			var ips = [];
+        if (!response.ok) {
+            throw new Error('Failed to get messages.');
+        }
 
-			var RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+        const messages = await response.json();
 
-			if (!RTCPeerConnection) {
-				return callback('WebRTC not supported');
-			}
+        const messageOutput = document.querySelector(".message-output");
+        messageOutput.innerHTML = '';
 
-			var pc = new RTCPeerConnection({ iceServers: [] });
+        messages.forEach(message => {
+            showMessage(message.username, message.message);
+        });
+    } catch (error) {
+        console.error('Error getting messages:', error.message);
+    }
+}
 
-			pc.createDataChannel('');
+async function sendMessage(username, message) {
+    let ipAddress = document.getElementById("numericInput").value.trim();
+    if (ipAddress == '') {
+        alert('Please connect to the HoloLens first.');
+        return false;
+    }
 
-			pc.onicecandidate = function (e) {
-				if (!e.candidate) {
-					pc.close();
-					return callback(null, ips);
-				}
+    const url = `http://${ipAddress}:9090/message`;
+    const requestBody = JSON.stringify({ username, message });
 
-				var ip = /^candidate:.+ (\S+) \d+ typ/.exec(e.candidate.candidate)[1];
-				if (ips.indexOf(ip) === -1) {
-					ips.push(ip);
-				}
-			};
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: requestBody,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
-			pc.createOffer(function (sdp) {
-				pc.setLocalDescription(sdp);
-			}, function (error) {
-				callback(error);
-			});
-		}
+        if (!response.ok) {
+            throw new Error('Failed to send message.');
+        }
+
+        console.log('Message sent successfully.');
+        return true;
+    } catch (error) {
+        console.error('Error sending message:', error.message);
+        return false;
+    }
+}
+
+function getLocalIPs(callback) {
+    var ips = [];
+
+    var RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+
+    if (!RTCPeerConnection) {
+        return callback('WebRTC not supported');
+    }
+
+    var pc = new RTCPeerConnection({ iceServers: [] });
+
+    pc.createDataChannel('');
+
+    pc.onicecandidate = function (e) {
+        if (!e.candidate) {
+            pc.close();
+            return callback(null, ips);
+        }
+
+        var ip = /^candidate:.+ (\S+) \d+ typ/.exec(e.candidate.candidate)[1];
+        if (ips.indexOf(ip) === -1) {
+            ips.push(ip);
+        }
+    };
+
+    pc.createOffer(function (sdp) {
+        pc.setLocalDescription(sdp);
+    }, function onerror() { });
+}
+
+		setInterval(getMessages, 5000);
 	</script>
