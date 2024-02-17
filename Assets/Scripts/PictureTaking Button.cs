@@ -1,19 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Threading;
-using TMPro;
-using Unity.Collections;
-using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Windows.WebCam;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using static UnityEngine.GraphicsBuffer;
 using Debug = UnityEngine.Debug;
 
 
@@ -175,6 +167,7 @@ public void takingPicture()
     private List<Vector2> redPixels = new List<Vector2>();
     Texture2D editTextureV3(Texture2D textureToEdit)
     {
+        List<Vector2> longestRedLine = new List<Vector2>();
         Stopwatch timer2 = Stopwatch.StartNew();
         PixelColorJob pixelColorJobInstance = new PixelColorJob();
         Debug.Log("start search for red Pixel");
@@ -182,6 +175,60 @@ public void takingPicture()
         redPixels = pixelColorJobInstance.redPixelList;
         timer2.Stop();
         Debug.Log("Time finding redPixles: " + timer2.ElapsedMilliseconds);
+        Stopwatch timer3 = Stopwatch.StartNew();
+
+        redPixels.OrderByDescending(v => v.y).ThenBy(v => v.x);
+        float lastY = redPixels[0].y;
+
+        Debug.Log("lastY " + lastY);
+        for ( int i = 0; i < redPixels.Count; i++)
+        {
+            if ( lastY > redPixels[i].y)
+            {
+                Debug.Log("Y " + redPixels[i].y);
+                List<Vector2> currentRedLine = new List<Vector2>();
+                currentRedLine = SearchForRedPixels(redPixels[i], currentRedLine);
+                Debug.Log("Line done" + currentRedLine.Count());
+                if (currentRedLine.Count > longestRedLine.Count)
+                {
+                    longestRedLine = currentRedLine;
+                }
+                lastY = redPixels[i].y;
+            }
+        }
+
+        /* SearchForneighbouringPixelsJob searchForneighbouringPixelsJobInstance = new SearchForneighbouringPixelsJob(redPixels);
+         if (redPixels.Count > 0)
+         {
+             for (int targetY = 0; targetY < cameraResolution.height; targetY++)
+             {
+                 if (redPixels.Any(v => v.y == targetY))
+                 {
+                     Stopwatch timer4 = Stopwatch.StartNew();
+                     List<Vector2> currentRedLine = new List<Vector2>();
+                     currentRedLine.Add(redPixels[targetY]);
+                     Vector2 redPixelWithTargetY = redPixels.FirstOrDefault(v => v.y == targetY);
+                     Vector2 tmp = searchForneighbouringPixelsJobInstance.SearchForRedPixels(redPixelWithTargetY);
+                     Debug.Log("added tmp outside: " + tmp);
+                     while (!tmp.Equals(new Vector2(0, 0)))
+                     {
+                         Debug.Log("added tmp inside: " + tmp);
+                         currentRedLine.Add(tmp);
+                         tmp = searchForneighbouringPixelsJobInstance.SearchForRedPixels(tmp);
+                     }
+                     timer4.Stop();
+                     Debug.Log("Time calculating one run: " + timer4.ElapsedMilliseconds);
+                     Debug.Log("Line done" + currentRedLine.Count());
+                     if (currentRedLine.Count > longestRedLine.Count)
+                     {
+                         longestRedLine = currentRedLine;
+                     }
+                 }
+             }
+         }*/
+        Debug.Log("Longest line done" + longestRedLine.Count());
+        timer3.Stop();
+        Debug.Log("Time calculating longest: " + timer3.ElapsedMilliseconds);
         /*
         Stopwatch timer = Stopwatch.StartNew();
         Debug.Log("Red Pixle Count " + redPixels.Count);
@@ -229,8 +276,8 @@ public void takingPicture()
             pixels[(int)(longestRedLine[i].y * targetTexture.width + longestRedLine[i].x)] = Color.magenta;
         }
         */
-        
-       
+
+
         return textureToEdit;
     }
 
@@ -243,7 +290,7 @@ public void takingPicture()
 
         Vector2 foundPixel = new Vector2();
 
-        for (int i = 1; i < 50 && !isChecked; i++) // Job System
+        for (int i = 1; i < 50 && !isChecked; i++) 
         {
             foundPixel = new Vector2(startPoint.x + i, startPoint.y);
             isChecked = redPixels.Contains(foundPixel) && !currentLine.Contains(foundPixel);

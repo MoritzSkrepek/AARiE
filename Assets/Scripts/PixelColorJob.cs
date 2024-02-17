@@ -6,14 +6,15 @@ using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 public class PixelColorJob : MonoBehaviour
 {
     private NativeArray<Color> pixels;
     private NativeArray<Vector2> redPixelPositions;
 
-    public List<Vector2> redPixelList = new List<Vector2>();
     public Color[] pixelsArray;
+    public List<Vector2> redPixelList = new List<Vector2>();
 
     private int batchSize; // Adjust the batch size as needed
 
@@ -22,7 +23,7 @@ public class PixelColorJob : MonoBehaviour
         int maxParallelJobs = Environment.ProcessorCount;
         batchSize = (textureToEdit.width * textureToEdit.height) / maxParallelJobs;
         pixels = new NativeArray<Color>(textureToEdit.GetPixels(), Allocator.TempJob);
-        redPixelPositions = new NativeArray<Vector2>(textureToEdit.width * textureToEdit.height, Allocator.TempJob);
+        redPixelPositions = new NativeArray<Vector2>(0, Allocator.TempJob);
         PixelJob job = new PixelJob
         {
             pixels = pixels,
@@ -31,19 +32,21 @@ public class PixelColorJob : MonoBehaviour
             batchSize = batchSize
         };
         JobHandle handle = job.Schedule(maxParallelJobs, 1);
-
-        handle.Complete();
         for (int i = 0; i < redPixelPositions.Length - 1; i++)
+            {
+                redPixelList.Add(redPixelPositions[i]);
+            }
+        for (int i = 0; i < 50; i++)
         {
-            redPixelList.Add(redPixelPositions[i]);
+            Debug.Log("Red pixel position: " + redPixelList[i].y + " " + redPixelList[i].x);
         }
+        Debug.Log("textureToEdit.width " + textureToEdit.width +" textureToEdit.height " + textureToEdit.height + " :" + textureToEdit.width * textureToEdit.height);
+        Debug.Log("redPixelList count: " + redPixelList.Count);
         redPixelPositions.Dispose();
 
         textureToEdit.SetPixels(pixels.ToArray());
         pixels.Dispose();
         textureToEdit.Apply();
-
-
     }
 
     struct PixelJob : IJobParallelFor
@@ -55,7 +58,6 @@ public class PixelColorJob : MonoBehaviour
 
         public void Execute(int batchIndex)
         {
-            Debug.Log("PixelJob started");
             int startPixelIndex = batchIndex * batchSize;
             int endPixelIndex = Mathf.Min((batchIndex + 1) * batchSize, pixels.Length);
 
@@ -67,15 +69,13 @@ public class PixelColorJob : MonoBehaviour
                 if (pixels[pixelIndex].r > 0.7f && pixels[pixelIndex].g < 0.5f && pixels[pixelIndex].b < 0.5f)
                 {
                     pixels[pixelIndex] = Color.red;
-                    redPixelPositions[pixelIndex] = new Vector2Int(x, y);
+                    redPixelPositions.Append(new Vector2Int(x, y));
                 }
                 else
                 {
                     pixels[pixelIndex] = Color.black;
                 }
             }
-
-            Debug.Log("PixelJob endet");
         }
     }
 }
