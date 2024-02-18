@@ -97,7 +97,6 @@ public void takingPicture()
         photoCaptureObject.StopPhotoModeAsync(onStoppedPhotoMode);
 
         timer6.Stop();
-        Debug.Log("Time for everything togheder: " + timer6.ElapsedMilliseconds);
 
     }
 
@@ -121,7 +120,6 @@ public void takingPicture()
             }
 
             timer.Stop();
-            Debug.Log("Time to for Raycast " + timer.ElapsedMilliseconds);
         }
         takingNewPicture = false;
     }
@@ -162,73 +160,94 @@ public void takingPicture()
         shouldMove = !shouldMove;
     }
 
-
-
-    private List<Vector2> redPixels = new List<Vector2>();
+    private bool[,] redPixels;
+    private Color[] color;
     Texture2D editTextureV3(Texture2D textureToEdit)
-    {
+    {        
         List<Vector2> longestRedLine = new List<Vector2>();
-        Stopwatch timer2 = Stopwatch.StartNew();
         PixelColorJob pixelColorJobInstance = new PixelColorJob();
-        Debug.Log("start search for red Pixel");
         pixelColorJobInstance.RedPixelSearch(textureToEdit);
-        redPixels = pixelColorJobInstance.redPixelList;
-        timer2.Stop();
-        Debug.Log("Time finding redPixles: " + timer2.ElapsedMilliseconds);
-        Stopwatch timer3 = Stopwatch.StartNew();
-
-        redPixels.OrderByDescending(v => v.y).ThenBy(v => v.x);
-        float lastY = redPixels[0].y;
-
-        Debug.Log("lastY " + lastY);
-        for ( int i = 0; i < redPixels.Count; i++)
+        redPixels = pixelColorJobInstance.redPixleList;
+        float lastY = float.MaxValue;
+        for (int x = 0; x < redPixels.GetLength(0); x++)
         {
-            if ( lastY > redPixels[i].y)
+
+            for (int y = 0; y < redPixels.GetLength(1); y++)
             {
-                Debug.Log("Y " + redPixels[i].y);
-                List<Vector2> currentRedLine = new List<Vector2>();
-                currentRedLine = SearchForRedPixels(redPixels[i], currentRedLine);
-                Debug.Log("Line done" + currentRedLine.Count());
-                if (currentRedLine.Count > longestRedLine.Count)
+                if (redPixels[x,y])
                 {
-                    longestRedLine = currentRedLine;
+                    List<Vector2> currentRedLine = new List<Vector2>();
+                    Stopwatch timere1 = Stopwatch.StartNew();
+                    currentRedLine = SearchForRedPixels(x, y);
+                    timere1.Stop(); 
+                    if (currentRedLine.Count > longestRedLine.Count)
+                    {
+                        longestRedLine = currentRedLine;
+                    }
+                    break;
                 }
-                lastY = redPixels[i].y;
             }
         }
+        if (longestRedLine.Count() > 0) 
+        {
+            redPixelCoordinates.Add(new Vector2(longestRedLine[0].x, longestRedLine[0].y));
+            redPixelCoordinates.Add(new Vector2(longestRedLine[(longestRedLine.Count - 1) / 2].x, longestRedLine[(longestRedLine.Count - 1) / 2].y));
+            redPixelCoordinates.Add(new Vector2(longestRedLine[longestRedLine.Count - 1].x, longestRedLine[longestRedLine.Count - 1].y));
+        }
+            /*
+            for ( int i = redPixels.Count-1; i >= 0; i--)
+            {
+                if (!redPixels[i].Equals(new Vector2(0,0)))
+                {
+                    float currentY = redPixels[i].y;
+                    Debug.Log("redPixels[i] Y " + currentY + "lastY " + lastY);
+                    if (lastY > currentY)
+                    {
+                        Debug.Log("Y " + currentY);
+                        List<Vector2> currentRedLine = new List<Vector2>();
+                        Stopwatch timere1 = Stopwatch.StartNew();
+                        currentRedLine = SearchForRedPixels(redPixels[i]);
+                        timere1.Stop();
+                        Debug.Log("Line done " + currentRedLine.Count() + " time: " + timere1.ElapsedMilliseconds);
+                        if (currentRedLine.Count > longestRedLine.Count)
+                        {
+                            longestRedLine = currentRedLine;
+                        }
+                        lastY = currentY;
+                    }
+                }
+            }
+            */
 
-        /* SearchForneighbouringPixelsJob searchForneighbouringPixelsJobInstance = new SearchForneighbouringPixelsJob(redPixels);
-         if (redPixels.Count > 0)
-         {
-             for (int targetY = 0; targetY < cameraResolution.height; targetY++)
+            /* SearchForneighbouringPixelsJob searchForneighbouringPixelsJobInstance = new SearchForneighbouringPixelsJob(redPixels);
+             if (redPixels.Count > 0)
              {
-                 if (redPixels.Any(v => v.y == targetY))
+                 for (int targetY = 0; targetY < cameraResolution.height; targetY++)
                  {
-                     Stopwatch timer4 = Stopwatch.StartNew();
-                     List<Vector2> currentRedLine = new List<Vector2>();
-                     currentRedLine.Add(redPixels[targetY]);
-                     Vector2 redPixelWithTargetY = redPixels.FirstOrDefault(v => v.y == targetY);
-                     Vector2 tmp = searchForneighbouringPixelsJobInstance.SearchForRedPixels(redPixelWithTargetY);
-                     Debug.Log("added tmp outside: " + tmp);
-                     while (!tmp.Equals(new Vector2(0, 0)))
+                     if (redPixels.Any(v => v.y == targetY))
                      {
-                         Debug.Log("added tmp inside: " + tmp);
-                         currentRedLine.Add(tmp);
-                         tmp = searchForneighbouringPixelsJobInstance.SearchForRedPixels(tmp);
-                     }
-                     timer4.Stop();
-                     Debug.Log("Time calculating one run: " + timer4.ElapsedMilliseconds);
-                     Debug.Log("Line done" + currentRedLine.Count());
-                     if (currentRedLine.Count > longestRedLine.Count)
-                     {
-                         longestRedLine = currentRedLine;
+                         Stopwatch timer4 = Stopwatch.StartNew();
+                         List<Vector2> currentRedLine = new List<Vector2>();
+                         currentRedLine.Add(redPixels[targetY]);
+                         Vector2 redPixelWithTargetY = redPixels.FirstOrDefault(v => v.y == targetY);
+                         Vector2 tmp = searchForneighbouringPixelsJobInstance.SearchForRedPixels(redPixelWithTargetY);
+                         Debug.Log("added tmp outside: " + tmp);
+                         while (!tmp.Equals(new Vector2(0, 0)))
+                         {
+                             Debug.Log("added tmp inside: " + tmp);
+                             currentRedLine.Add(tmp);
+                             tmp = searchForneighbouringPixelsJobInstance.SearchForRedPixels(tmp);
+                         }
+                         timer4.Stop();
+                         Debug.Log("Time calculating one run: " + timer4.ElapsedMilliseconds);
+                         Debug.Log("Line done" + currentRedLine.Count());
+                         if (currentRedLine.Count > longestRedLine.Count)
+                         {
+                             longestRedLine = currentRedLine;
+                         }
                      }
                  }
-             }
-         }*/
-        Debug.Log("Longest line done" + longestRedLine.Count());
-        timer3.Stop();
-        Debug.Log("Time calculating longest: " + timer3.ElapsedMilliseconds);
+             }*/
         /*
         Stopwatch timer = Stopwatch.StartNew();
         Debug.Log("Red Pixle Count " + redPixels.Count);
@@ -281,42 +300,155 @@ public void takingPicture()
         return textureToEdit;
     }
 
+    List<Vector2> SearchForRedPixels(int startX, int startY)
+    {
+        List<Vector2> currentLine = new List<Vector2>();
 
+        bool hasFound = false;
+
+        int foundX = startX, foundY = startY;
+        int heightY = redPixels.GetLength(1);
+        int withX = redPixels.GetLength(0);
+
+        do
+        {
+            hasFound = false;
+            redPixels[foundX, foundY] = false;
+            currentLine.Add(new Vector2(foundX, foundY));
+
+            for (int i = 1; i < 25 && foundX + i < withX; i++)
+            {
+
+                if (redPixels[foundX + i, foundY])
+                {
+                    foundX = foundX + i;
+                    hasFound = true;
+                }
+            }
+
+            for (int i = 1; i < 10 && !hasFound && foundY - i > 0; i++)
+            {
+                hasFound = redPixels[foundX, foundY - i];
+
+                if (hasFound)
+                {
+                    foundY = foundY - i;
+                }
+            }
+
+            for (int i = 1; i < 10 && !hasFound && foundY + i < heightY; i++)
+            {
+                hasFound = redPixels[foundX, foundY + i];
+
+                if (hasFound)
+                {
+                    foundY = foundY + i;
+                }
+            }
+        } while (hasFound);
+
+        return currentLine;
+    }
+    /*List<Vector2> SearchForRedPixels(Vector2 startPoint)
+    {
+        List<Vector2> currentLine = new List<Vector2>();
+
+        bool hasFound = false;
+        Vector2 foundPixel = startPoint;
+
+        do
+        {
+            hasFound = false;
+            redPixels[redPixels.IndexOf(foundPixel)] = Vector2.zero;
+            currentLine.Add(foundPixel);
+
+            for (int i = 1; i < 25; i++)
+            {
+                Debug.Log("search left " + i);
+                Vector2 tmp = new Vector2(foundPixel.x - i, foundPixel.y);
+
+                if (redPixels.Contains(tmp) && !currentLine.Contains(tmp))
+                {
+                    foundPixel = tmp;
+                    hasFound = true;
+                }
+            }
+
+            for (int i = 1; i < 10 && !hasFound; i++)
+            {
+                Debug.Log("search down " + i);
+                Vector2 tmp = new Vector2(foundPixel.x, foundPixel.y - i);
+                hasFound = redPixels.Contains(tmp) && !currentLine.Contains(tmp);
+
+                if ( hasFound )
+                {
+                    foundPixel = tmp;
+                }
+            }
+
+            for (int i = 1; i < 10 && !hasFound; i++)
+            {
+                Debug.Log("search up " + i);
+                Vector2 tmp = new Vector2(foundPixel.x, foundPixel.y + i);
+                hasFound = redPixels.Contains(tmp) && !currentLine.Contains(tmp);
+
+                if (hasFound)
+                {
+                    foundPixel = tmp;
+                }
+            }
+        } while (hasFound);
+
+        return currentLine;
+    }
+    */
+
+
+    /*
     List<Vector2> SearchForRedPixels(Vector2 startPoint, List<Vector2> currentLine)
     {
-        bool isChecked = false;
-        redPixels.Remove(startPoint);
+        bool hasFound = false;
+
+        redPixels[redPixels.IndexOf(startPoint)] = Vector2.zero;
         currentLine.Add(startPoint);
 
-        Vector2 foundPixel = new Vector2();
+        Vector2 foundPixel = Vector2.zero;
 
-        for (int i = 1; i < 50 && !isChecked; i++) 
+        for (int i = 1; i < 25; i++) 
         {
-            foundPixel = new Vector2(startPoint.x + i, startPoint.y);
-            isChecked = redPixels.Contains(foundPixel) && !currentLine.Contains(foundPixel);
+            Debug.Log("search left " + i);
+            Vector2 tmp = new Vector2(startPoint.x - i, startPoint.y);
+
+            if ( redPixels.Contains(tmp) && !currentLine.Contains(tmp) )
+            {
+                foundPixel = tmp;
+                hasFound = true;
+            }
         }
 
-        for (int i = 1; i < 50 && !isChecked; i++)
+        for (int i = 1; i < 10 && !hasFound; i++)
         {
+            Debug.Log("search down " + i);
             foundPixel = new Vector2(startPoint.x, startPoint.y - i);
-            isChecked = redPixels.Contains(foundPixel) && !currentLine.Contains(foundPixel);
+            hasFound = redPixels.Contains(foundPixel) && !currentLine.Contains(foundPixel);
         }
 
-        for (int i = 1; i < 50 && !isChecked; i++)
+        for (int i = 1; i < 10 && !hasFound; i++)
         {
-            foundPixel = new Vector2(startPoint.x, startPoint.y +i);
-            isChecked = redPixels.Contains(foundPixel) && !currentLine.Contains(foundPixel);
+            Debug.Log("search up " + i);
+            foundPixel = new Vector2(startPoint.x, startPoint.y + i);
+            hasFound = redPixels.Contains(foundPixel) && !currentLine.Contains(foundPixel);
         }
 
-        if ( isChecked )
-        { 
+        if (hasFound)
+        {
+            Debug.Log("found pixel");
             SearchForRedPixels(foundPixel, currentLine);
         }
 
-        
         return currentLine;
     }
-
+    */
 
     /*    List<Vector2> SearchForRedPixels(Vector2 startPoint, List<Vector2> currentLine)
     {

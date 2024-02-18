@@ -7,15 +7,14 @@ using Debug = UnityEngine.Debug;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using Unity.VisualScripting.YamlDotNet.Serialization;
 
 public class PixelColorJob : MonoBehaviour
 {
     private NativeArray<Color> pixels;
     private NativeArray<Vector2> redPixelPositions;
 
-    public Color[] pixelsArray;
-    public List<Vector2> redPixelList = new List<Vector2>();
-
+    public bool[,] redPixleList;
     private int batchSize; // Adjust the batch size as needed
 
     public void RedPixelSearch(Texture2D textureToEdit)
@@ -23,7 +22,7 @@ public class PixelColorJob : MonoBehaviour
         int maxParallelJobs = Environment.ProcessorCount;
         batchSize = (textureToEdit.width * textureToEdit.height) / maxParallelJobs;
         pixels = new NativeArray<Color>(textureToEdit.GetPixels(), Allocator.TempJob);
-        redPixelPositions = new NativeArray<Vector2>(0, Allocator.TempJob);
+        redPixelPositions = new NativeArray<Vector2>(textureToEdit.width * textureToEdit.height, Allocator.TempJob);
         PixelJob job = new PixelJob
         {
             pixels = pixels,
@@ -32,19 +31,19 @@ public class PixelColorJob : MonoBehaviour
             batchSize = batchSize
         };
         JobHandle handle = job.Schedule(maxParallelJobs, 1);
-        for (int i = 0; i < redPixelPositions.Length - 1; i++)
-            {
-                redPixelList.Add(redPixelPositions[i]);
-            }
-        for (int i = 0; i < 50; i++)
-        {
-            Debug.Log("Red pixel position: " + redPixelList[i].y + " " + redPixelList[i].x);
-        }
-        Debug.Log("textureToEdit.width " + textureToEdit.width +" textureToEdit.height " + textureToEdit.height + " :" + textureToEdit.width * textureToEdit.height);
-        Debug.Log("redPixelList count: " + redPixelList.Count);
-        redPixelPositions.Dispose();
 
+        redPixleList = new bool[textureToEdit.width,textureToEdit.height];
+
+        for (int i = 0; i < pixels.Length - 1; i++)
+        {
+            int x = i % textureToEdit.width;
+            int y = i / textureToEdit.width;
+
+            redPixleList[x,y] = (pixels[i] == Color.red);
+        }
+        redPixelPositions.Dispose();
         textureToEdit.SetPixels(pixels.ToArray());
+
         pixels.Dispose();
         textureToEdit.Apply();
     }
@@ -69,7 +68,7 @@ public class PixelColorJob : MonoBehaviour
                 if (pixels[pixelIndex].r > 0.7f && pixels[pixelIndex].g < 0.5f && pixels[pixelIndex].b < 0.5f)
                 {
                     pixels[pixelIndex] = Color.red;
-                    redPixelPositions.Append(new Vector2Int(x, y));
+                    redPixelPositions[pixelIndex] = new Vector2Int(x, y);
                 }
                 else
                 {
