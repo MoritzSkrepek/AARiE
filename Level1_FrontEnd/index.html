@@ -298,36 +298,31 @@ async function validateAndSendMessage() {
         }
     }
 
-    async function sendMessage(username, message) {
-        let ipAddress = document.getElementById("numericInput").value.trim();
-        if (ipAddress == '') {
-            alert('Please connect to the HoloLens first.');
-            return false;
-        }
+		 async function sendMessage() {
+			const username = document.getElementById("username").value.trim();
+			const message = document.getElementById("message").value.trim();
+			let ipAddress = document.getElementById("numericInput").value.trim(); // Get the IP address from the input field
+			const url = `http://${ipAddress}:9090/message`;
 
-        const url = `http://${ipAddress}:9090/message`;
-        const requestBody = JSON.stringify({ username, message });
+			if (username !== '' && message !== '') {
+					const response = await fetch(url, {
+							method: 'POST',
+							headers: {
+									'Content-Type': 'application/json'
+							},
+							body: JSON.stringify({ username, message })
+					});
 
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                body: requestBody,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+					if (response.ok) {
+							console.log('Message sent successfully.');
+					} else {
+							console.error('Failed to send message.');
+					}
+			} else {
+					console.error('Please fill in both username and message.');
+			}
+	}
 
-            if (!response.ok) {
-                throw new Error('Failed to send message.');
-            }
-
-            console.log('Message sent successfully.');
-            return true;
-        } catch (error) {
-            console.error('Error sending message:', error.message);
-            return false;
-        }
-    }
 
     setInterval(getMessages, 5000);
 	</script>

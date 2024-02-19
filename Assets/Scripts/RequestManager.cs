@@ -108,7 +108,7 @@ public class RequestManager : MonoBehaviour
         if (!string.IsNullOrEmpty(requestBody))
         {
             MessageData messageData = JsonUtility.FromJson<MessageData>(requestBody);
-            
+
             EventManager.ReceiveMsg(messageData.username, messageData.message);
             Debug.Log($"Received message: {messageData.username} - {messageData.message}");
         }
