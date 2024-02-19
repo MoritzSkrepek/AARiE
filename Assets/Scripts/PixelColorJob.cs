@@ -1,13 +1,7 @@
 ﻿using UnityEngine;
 using Unity.Jobs;
 using Unity.Collections;
-using System.Diagnostics;
-
-using Debug = UnityEngine.Debug;
-using System.Collections.Generic;
 using System;
-using System.Linq;
-using Unity.VisualScripting.YamlDotNet.Serialization;
 
 public class PixelColorJob : MonoBehaviour
 {

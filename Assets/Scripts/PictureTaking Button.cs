@@ -126,17 +126,18 @@ public void takingPicture()
 
     public void ShowInformation()
     {
+        Vector3 awayFromCameraDirection = infoTextT.transform.position - camera.transform.position;
         if (showInformation == 0)
         {
             infoTextT.SetActive(true);
-            infoTextT.transform.position = cablePositinos[(cablePositinos.Count - 1) / 2] + new Vector3(0, 0.10f, 0.1f);
+            infoTextT.transform.position = cablePositinos[(cablePositinos.Count - 1) / 2] + new Vector3(0, 0.10f, 0.2f);
             showInformation = 1;
         }
         else if (showInformation == 1)
         {
             infoTextT.SetActive(false);
             infoTextS.SetActive(true);
-            infoTextS.transform.position = cablePositinos[(cablePositinos.Count-1)/2] + new Vector3(0, 0.10f, 0.1f);
+            infoTextS.transform.position = cablePositinos[(cablePositinos.Count-1)/2] + new Vector3(0, 0.10f, 0.2f);
             showInformation = 2;
         } else if (showInformation == 2)
         {
@@ -190,64 +191,62 @@ public void takingPicture()
         }
         if (longestRedLine.Count() > 0) 
         {
-            redPixelCoordinates.Add(new Vector2(longestRedLine[0].x, longestRedLine[0].y));
-            redPixelCoordinates.Add(new Vector2(longestRedLine[(longestRedLine.Count - 1) / 2].x, longestRedLine[(longestRedLine.Count - 1) / 2].y));
-            redPixelCoordinates.Add(new Vector2(longestRedLine[longestRedLine.Count - 1].x, longestRedLine[longestRedLine.Count - 1].y));
+            addPointsForRaycast(longestRedLine);
         }
-            /*
-            for ( int i = redPixels.Count-1; i >= 0; i--)
+        /*
+        for ( int i = redPixels.Count-1; i >= 0; i--)
+        {
+            if (!redPixels[i].Equals(new Vector2(0,0)))
             {
-                if (!redPixels[i].Equals(new Vector2(0,0)))
+                float currentY = redPixels[i].y;
+                Debug.Log("redPixels[i] Y " + currentY + "lastY " + lastY);
+                if (lastY > currentY)
                 {
-                    float currentY = redPixels[i].y;
-                    Debug.Log("redPixels[i] Y " + currentY + "lastY " + lastY);
-                    if (lastY > currentY)
+                    Debug.Log("Y " + currentY);
+                    List<Vector2> currentRedLine = new List<Vector2>();
+                    Stopwatch timere1 = Stopwatch.StartNew();
+                    currentRedLine = SearchForRedPixels(redPixels[i]);
+                    timere1.Stop();
+                    Debug.Log("Line done " + currentRedLine.Count() + " time: " + timere1.ElapsedMilliseconds);
+                    if (currentRedLine.Count > longestRedLine.Count)
                     {
-                        Debug.Log("Y " + currentY);
-                        List<Vector2> currentRedLine = new List<Vector2>();
-                        Stopwatch timere1 = Stopwatch.StartNew();
-                        currentRedLine = SearchForRedPixels(redPixels[i]);
-                        timere1.Stop();
-                        Debug.Log("Line done " + currentRedLine.Count() + " time: " + timere1.ElapsedMilliseconds);
-                        if (currentRedLine.Count > longestRedLine.Count)
-                        {
-                            longestRedLine = currentRedLine;
-                        }
-                        lastY = currentY;
+                        longestRedLine = currentRedLine;
                     }
+                    lastY = currentY;
                 }
             }
-            */
+        }
+        */
 
-            /* SearchForneighbouringPixelsJob searchForneighbouringPixelsJobInstance = new SearchForneighbouringPixelsJob(redPixels);
-             if (redPixels.Count > 0)
+        /* SearchForneighbouringPixelsJob searchForneighbouringPixelsJobInstance = new SearchForneighbouringPixelsJob(redPixels);
+         if (redPixels.Count > 0)
+         {
+             for (int targetY = 0; targetY < cameraResolution.height; targetY++)
              {
-                 for (int targetY = 0; targetY < cameraResolution.height; targetY++)
+                 if (redPixels.Any(v => v.y == targetY))
                  {
-                     if (redPixels.Any(v => v.y == targetY))
+                     Stopwatch timer4 = Stopwatch.StartNew();
+                     List<Vector2> currentRedLine = new List<Vector2>();
+                     currentRedLine.Add(redPixels[targetY]);
+                     Vector2 redPixelWithTargetY = redPixels.FirstOrDefault(v => v.y == targetY);
+                     Vector2 tmp = searchForneighbouringPixelsJobInstance.SearchForRedPixels(redPixelWithTargetY);
+                     Debug.Log("added tmp outside: " + tmp);
+                     while (!tmp.Equals(new Vector2(0, 0)))
                      {
-                         Stopwatch timer4 = Stopwatch.StartNew();
-                         List<Vector2> currentRedLine = new List<Vector2>();
-                         currentRedLine.Add(redPixels[targetY]);
-                         Vector2 redPixelWithTargetY = redPixels.FirstOrDefault(v => v.y == targetY);
-                         Vector2 tmp = searchForneighbouringPixelsJobInstance.SearchForRedPixels(redPixelWithTargetY);
-                         Debug.Log("added tmp outside: " + tmp);
-                         while (!tmp.Equals(new Vector2(0, 0)))
-                         {
-                             Debug.Log("added tmp inside: " + tmp);
-                             currentRedLine.Add(tmp);
-                             tmp = searchForneighbouringPixelsJobInstance.SearchForRedPixels(tmp);
-                         }
-                         timer4.Stop();
-                         Debug.Log("Time calculating one run: " + timer4.ElapsedMilliseconds);
-                         Debug.Log("Line done" + currentRedLine.Count());
-                         if (currentRedLine.Count > longestRedLine.Count)
-                         {
-                             longestRedLine = currentRedLine;
-                         }
+                         Debug.Log("added tmp inside: " + tmp);
+                         currentRedLine.Add(tmp);
+                         tmp = searchForneighbouringPixelsJobInstance.SearchForRedPixels(tmp);
+                     }
+                     timer4.Stop();
+                     Debug.Log("Time calculating one run: " + timer4.ElapsedMilliseconds);
+                     Debug.Log("Line done" + currentRedLine.Count());
+                     if (currentRedLine.Count > longestRedLine.Count)
+                     {
+                         longestRedLine = currentRedLine;
                      }
                  }
-             }*/
+             }
+         }*/
         /*
         Stopwatch timer = Stopwatch.StartNew();
         Debug.Log("Red Pixle Count " + redPixels.Count);
@@ -298,6 +297,30 @@ public void takingPicture()
 
 
         return textureToEdit;
+    }
+    void addPointsForRaycast(List<Vector2> longestRedLine)
+    {
+        redPixelCoordinates.Add(new Vector2(longestRedLine[0].x, longestRedLine[0].y));
+
+        List<Vector2> firstHalf = longestRedLine.GetRange(0, longestRedLine.Count / 2);
+        List<Vector2> secondHalf = longestRedLine.GetRange(longestRedLine.Count / 2, longestRedLine.Count / 2);
+
+        int firstHalfSegmentLength = firstHalf.Count / 5;
+        for (int i = 1; i < 5; i++)
+        {
+            Vector2 tmp = firstHalf[i * firstHalfSegmentLength];
+            redPixelCoordinates.Add(new Vector2(tmp.x, tmp.y));
+        }
+        redPixelCoordinates.Add(new Vector2(longestRedLine[(longestRedLine.Count - 1) / 2].x, longestRedLine[(longestRedLine.Count - 1) / 2].y));
+
+        int secondHalfSegmentLength = secondHalf.Count / 5;
+        for (int i = 1; i < 5; i++)
+        {
+            Vector2 tmp = secondHalf[i * secondHalfSegmentLength];
+            redPixelCoordinates.Add(new Vector2(tmp.x, tmp.y));
+        }
+
+        redPixelCoordinates.Add(new Vector2(longestRedLine[longestRedLine.Count - 1].x, longestRedLine[longestRedLine.Count - 1].y));
     }
 
     List<Vector2> SearchForRedPixels(int startX, int startY)
@@ -669,27 +692,26 @@ public void takingPicture()
         int max = list.Max();
         return Mathf.RoundToInt((min+max) / 2);
     }
-    
+    int moveToCounter = 1;
+    int moveFromCounter;
     // Update is called once per frame
     void Update()
     {
         if (shouldMove)
         {
-            instantiatedObject.transform.Translate((cablePositinos[cablePositinos.Count - 1] - cablePositinos[0]) * 0.02f);
-            if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[cablePositinos.Count - 1]) < 0.01f)
+            if (moveToCounter < cablePositinos.Count)
             {
-                instantiatedObject.transform.position = cablePositinos[cablePositinos.Count - 1];
-
-
-                if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[cablePositinos.Count - 1]) < 0.01f)
+                instantiatedObject.transform.Translate((cablePositinos[moveToCounter] - cablePositinos[moveFromCounter]) * 0.005f);
+                if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[moveToCounter]) < 0.0025f)
                 {
-                    shouldMove = !shouldMove;
+                    instantiatedObject.transform.position = cablePositinos[moveToCounter];
+                    moveToCounter++;
+                    moveFromCounter++;
                 }
+            } else
+            {
+                shouldMove = false;
             }
-        }
-        if (!shouldMove && isObjectInstantiated)
-        {
-            instantiatedObject.transform.LookAt(camera);
         }
     }
 
@@ -777,7 +799,7 @@ public void takingPicture()
                         if (hits[i] != null)
                         {
                             cablePositinos.Add(new Vector3(hits[i].pose.position.x, hits[i].pose.position.y + 0.05f, hits[i].pose.position.z));
-                            debugRaycast(hits[i], Color.red);
+                            //debugRaycast(hits[i], Color.red); DEBUG
                         break;
                         } else
                         {
