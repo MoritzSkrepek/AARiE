@@ -25,17 +25,16 @@ public class RequestManager : MonoBehaviour
         Thread listenerThread = new Thread(Listen);
         listenerThread.Start();
     }
-
     private void Listen()
     {
         EventManager.OnMessageSend += addMessage;
-
+        messageDataList.Add(new MessageData { username = "Server", message = "Server started" });
         while (true)
         {
             try
             {
                 HttpListenerContext context = listener.GetContext();
-                Task.Run(() => HandleRequest(context));
+                ProcessRequest(context);
             }
             catch (Exception e)
             {
@@ -44,118 +43,78 @@ public class RequestManager : MonoBehaviour
         }
     }
 
-    private async void HandleRequest(HttpListenerContext context)
+    private void ProcessRequest(HttpListenerContext context)
     {
-        try
-        {
-            string requestMethod = context.Request.HttpMethod;
-            string url = context.Request.Url.AbsolutePath;
+        string requestMethod = context.Request.HttpMethod;
+        string url = context.Request.Url.AbsolutePath;
 
-            if (requestMethod == "POST")
+        if (requestMethod == "OPTIONS")
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+            context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
+            context.Response.Close();
+            return;
+        }
+
+        if (requestMethod == "POST")
+        {
+            if (url == "/message")
             {
                 string requestBody;
                 using (StreamReader reader = new StreamReader(context.Request.InputStream))
                 {
-                    requestBody = await reader.ReadToEndAsync();
+                    requestBody = reader.ReadToEnd();
                 }
 
-                if (url == "/register")
-                {
-                    RegisterLaptop(requestBody, context);
-                }
-                else if (url == "/message")
-                {
-                    ProcessMessage(requestBody, context.Request.UserHostAddress);
-                }
-
+                ProcessMessage(requestBody);
                 Respond(context, HttpStatusCode.OK, "OK");
-            }
-            else if (requestMethod == "GET")
-            {
-                if (url == "/get-messages")
-                {
-                    lock (messageDataLock)
-                    {
-                        string jsonResponse = JsonUtility.ToJson(messageDataList);
-                        Respond(context, HttpStatusCode.OK, jsonResponse);
-                    }
-                }
-                else
-                {
-                    Respond(context, HttpStatusCode.NotFound, "Not Found");
-                }
             }
             else
             {
-                Respond(context, HttpStatusCode.MethodNotAllowed, "Method Not Allowed");
+                Respond(context, HttpStatusCode.NotFound, "Not Found");
             }
         }
-        catch (Exception e)
+        else if (requestMethod == "GET")
         {
-            Debug.LogError($"Error handling request: {e.Message}");
-            Respond(context, HttpStatusCode.InternalServerError, "Internal Server Error");
-        }
-        finally
-        {
-            context.Response.Close();
-        }
-    }
-
-    private void RegisterLaptop(string requestBody, HttpListenerContext context)
-    {
-        if (!string.IsNullOrEmpty(requestBody))
-        {
-            bool registered = false;
-            for (int i = 0; i < laptops.Length; i++)
+            if (url == "/get-messages")
             {
-                if (string.IsNullOrEmpty(laptops[i]))
+                lock (messageDataLock)
                 {
-                    laptops[i] = requestBody;
-                    registered = true;
-                    break;
+                    string jsonResponse = JsonUtility.ToJson(messageDataList);
+                    Respond(context, HttpStatusCode.OK, jsonResponse);
                 }
             }
-
-            if (!registered)
+            else if (url == "/connect")
             {
-                Respond(context, HttpStatusCode.BadRequest, "Maximum number of laptops reached.");
+                Respond(context, HttpStatusCode.OK, "OK");
+            }
+            else
+            {
+                Respond(context, HttpStatusCode.NotFound, "Not Found");
             }
         }
         else
         {
-            Respond(context, HttpStatusCode.BadRequest, "Request body is empty.");
+            Respond(context, HttpStatusCode.MethodNotAllowed, "Method Not Allowed");
         }
+
+        context.Response.Close();
     }
 
-    private void ProcessMessage(string requestBody, string senderIpAddress)
+    private void ProcessMessage(string requestBody)
     {
         if (!string.IsNullOrEmpty(requestBody))
         {
             MessageData messageData = JsonUtility.FromJson<MessageData>(requestBody);
-            string username = messageData.username;
-            string message = messageData.message;
-
-            lock (laptops)
-            {
-                for (int i = 0; i < laptops.Length; i++)
-                {
-                    if (laptops[i] == senderIpAddress)
-                    {
-                        Debug.Log($"Received message from {i}: {username} - {message}");
-
-                        lock (messageDataLock)
-                        {
-                            messageDataList.Add(new MessageData { username = username, message = message });
-                        }
-
-                        break;
-                    }
-                }
-            }
+            
+            EventManager.ReceiveMsg(messageData.username, messageData.message);
+            Debug.Log($"Received message: {messageData.username} - {messageData.message}");
         }
     }
 
-    private void addMessage(int idx, string username, string message)
+    private void addMessage(string username, string message)
     {
         lock (messageDataLock)
         {
@@ -170,14 +129,15 @@ public class RequestManager : MonoBehaviour
         context.Response.ContentType = "text/plain";
         context.Response.ContentLength64 = responseBytes.Length;
         context.Response.OutputStream.Write(responseBytes, 0, responseBytes.Length);
-        if (context.Request.HttpMethod == "OPTIONS")
-        {
-            context.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
-            context.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST");
-            context.Response.AddHeader("Access-Control-Max-Age", "1728000");
-        }
-        context.Response.AppendHeader("Access-Control-Allow-Origin", "*");
+
+
+        context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+        context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
+
+        context.Response.Close();
     }
+
 }
 
 [Serializable]
