@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using TMPro;
 
-public class PlaceObjectOnLookedAtDesk : MonoBehaviour
+public class InventoryPlacementController : MonoBehaviour
 {
-    public ARRaycastManager raycastManager;
     public ARPlaneManager planeManager;
     public GameObject inventoryObject;
     public InventoryController inventoryController;
     public GameObject qrCodesManager;
     public GameObject infoObject;
+    public TextMeshPro userInfo;
     public float requiredLookTime = 5.0f; 
     public Vector3 objectPosition;
 
@@ -30,6 +31,7 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
 
     void Start()
     {
+        userInfo.text = "Schauen Sie auf einen Tisch";
         StartCoroutine(DelayedStart());
     }
 
@@ -37,79 +39,77 @@ public class PlaceObjectOnLookedAtDesk : MonoBehaviour
     {
         if (!objectPlaced && canStartScript)
         {
-            List<ARRaycastHit> hits = new List<ARRaycastHit>();
-            // Use Camera.main.transform.forward as the ray direction
-            if (raycastManager.Raycast(new Ray(Camera.main.transform.position, Camera.main.transform.forward), hits, TrackableType.Planes))
+            if (IsPointerOverPlane())
             {
-                ARPlane closestPlane = FindClosestPlane(hits);
-                if (closestPlane != null)
+                ARPlane currentPlane = GetCurrentPlaneUnderGaze();
+
+                if (currentPlane != null)
                 {
-                    if (selectedDeskPlane == null || selectedDeskPlane != closestPlane)
+                    if (selectedDeskPlane == null || selectedDeskPlane != currentPlane)
                     {
-                        selectedDeskPlane = closestPlane;
-                        lookStartTime = Time.time; // Start the timer when a new plane is selected.
+                        selectedDeskPlane = currentPlane;
+                        lookStartTime = Time.time;
                     }
                     float timeLookedAtPlane = Time.time - lookStartTime;
+                    userInfo.text = ((int)requiredLookTime - (int)timeLookedAtPlane).ToString();
                     if (timeLookedAtPlane >= requiredLookTime)
                     {
                         PlaceObjectOnDesk(selectedDeskPlane);
                         objectPlaced = true;
+                        userInfo.text = "";
                     }
                 }
                 else
                 {
                     selectedDeskPlane = null;
+                    userInfo.text = "Schauen Sie auf einen Tisch";
                 }
             }
             else
             {
                 selectedDeskPlane = null;
+                userInfo.text = "Schauen Sie auf einen Tisch";
             }
         }
     }
 
-    private ARPlane FindClosestPlane(List<ARRaycastHit> hits)
+    private bool IsPointerOverPlane()
     {
-        ARPlane closestPlane = null;
-        float closestDistance = float.MaxValue;
-        foreach (var hit in hits)
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit))
         {
-            ARPlane plane = planeManager.GetPlane(hit.trackableId);
-            if (plane != null)
-            {
-                float distanceToPlane = Vector3.Distance(Camera.main.transform.position, hit.pose.position);
-                if (distanceToPlane < closestDistance)
-                {
-                    closestPlane = plane;
-                    closestDistance = distanceToPlane;
-                }
-            }
+            ARPlane plane = hit.collider.GetComponent<ARPlane>();
+            return (plane != null);
         }
-        return closestPlane;
+        return false;
+    }
+
+    private ARPlane GetCurrentPlaneUnderGaze()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit))
+        {
+            ARPlane plane = hit.collider.GetComponent<ARPlane>();
+            return plane;
+        }
+        return null;
     }
 
     private void PlaceObjectOnDesk(ARPlane deskPlane)
     {
         qrCodesManager.SetActive(true);
-        // Calculate the object's position above the center of the plane.
         objectPosition = deskPlane.center + Vector3.up * heightOffset;
-        // Calculate the rotation to rotate the object -90 degrees around the x-axis.
         Quaternion objectRotation = Quaternion.Euler(-90f, 0f, 0f);
-        // Instantiate the object with rotation.
         GameObject instantiatedObject = Instantiate(inventoryObject, objectPosition, objectRotation);
-        // Set the scale of the instantiated object.
         instantiatedObject.transform.localScale = new Vector3(20f, 20f, 20f);
-        // Spawn infoGameObject (Two TextMeshes and button for Knapsack Algorithm)
         Vector3 infoObjectPosition = objectPosition - Vector3.forward * 4.415f + Vector3.right * 0.4f;
         infoObject.transform.position = infoObjectPosition;
         infoObject.SetActive(true);
-        // Set the inventoryObject in the InventoryController
         inventoryController.SetInventoryObject(instantiatedObject);
-        // Enable the InventoryController
         inventoryController.gameObject.SetActive(true);
-        // Set the visibility of the planes.
         planeManager.planePrefab.SetActive(false);
-        // Disable this script so it won't run again.
         gameObject.SetActive(false);
     }
 }

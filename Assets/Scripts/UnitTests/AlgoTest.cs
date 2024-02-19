@@ -10,7 +10,7 @@ using static QRTracking.QRItem;
 public class AlgoTest
 {
     GameObject testObject;
-    KnapsackScript knapsackScript;
+    KnapsackSolver knapsackScript;
     int[,] usedItems;
     int capacity = 120;
 
@@ -18,9 +18,9 @@ public class AlgoTest
     public void Setup()
     {
 
-        // Create an instance of KnapsackScript before each test
+        // Create an instance of KnapsackSolver before each test
         testObject = new GameObject();
-        knapsackScript = testObject.AddComponent<KnapsackScript>();
+        knapsackScript = testObject.AddComponent<KnapsackSolver>();
     }
 
     [TearDown]

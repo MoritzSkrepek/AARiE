@@ -1,11 +1,13 @@
 using QRTracking;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class InventoryController : MonoBehaviour
 {
     public GameObject QRCodeManager;
     public GameObject knapsackSolverGameObject;
+    public TextMeshPro userInfo;
 
     private SortedDictionary<System.Guid, GameObject> activeQRObjects;
 
@@ -15,7 +17,7 @@ public class InventoryController : MonoBehaviour
     private int numRows = 3;
     private int numColumns = 3;
     private int[,] idGrid;
-    private KnapsackScript knapsackScript;
+    private KnapsackSolver knapsackSolver;
     private int cap;
     private int currWeight = 0;
     private string message;
@@ -23,9 +25,10 @@ public class InventoryController : MonoBehaviour
 
     void Start()
     {
+        userInfo.text = "Platzieren Sie nun Gegenstände im Inventar";
         activeQRObjects = QRCodeManager.GetComponent<QRCodesVisualizer>().qrCodesObjectsList;
-        knapsackScript = knapsackSolverGameObject.GetComponent<KnapsackScript>();
-        cap = knapsackScript.capacity;
+        knapsackSolver = knapsackSolverGameObject.GetComponent<KnapsackSolver>();
+        cap = knapsackSolver.capacity;
         processedItems = new HashSet<int>();
         UpdateInventoryBounds();
         InitializeIDGrid();
@@ -53,18 +56,19 @@ public class InventoryController : MonoBehaviour
                     {
                         if (currWeight + qRCode.item.qrData.weight <= cap)
                         {
+                            userInfo.text = "";
                             processedItems.Add(itemId);
-                            message = " ";
+                            message = "";
                             Vector2 startGridPosition = CalculateGridPosition(worldPosition);
                             idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = itemId;
-                            knapsackScript?.UpdateInfoMesh(message);
+                            knapsackSolver?.UpdateInfoMesh(message);
                             currWeight += qRCode.item.qrData.weight;
                             EventManager.GridUpdate(idGrid);
                         }
                         else
                         {
                             message = "Item hat zu viel Gewicht!";
-                            knapsackScript?.UpdateInfoMesh(message);
+                            knapsackSolver?.UpdateInfoMesh(message);
                         }
                     }
                 }
