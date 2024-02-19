@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -13,6 +13,8 @@ public class RequestManager : MonoBehaviour
     private HttpListener listener;
     private string[] laptops = new string[2];
     private int port = 9090;
+    private List<MessageData> messageDataList = new List<MessageData>();
+    private readonly object messageDataLock = new object();
 
     private void Start()
     {
@@ -26,6 +28,8 @@ public class RequestManager : MonoBehaviour
 
     private void Listen()
     {
+        EventManager.OnMessageSend += addMessage;
+
         while (true)
         {
             try
@@ -57,7 +61,7 @@ public class RequestManager : MonoBehaviour
 
                 if (url == "/register")
                 {
-                    RegisterLaptop(requestBody);
+                    RegisterLaptop(requestBody, context);
                 }
                 else if (url == "/message")
                 {
@@ -65,6 +69,25 @@ public class RequestManager : MonoBehaviour
                 }
 
                 Respond(context, HttpStatusCode.OK, "OK");
+            }
+            else if (requestMethod == "GET")
+            {
+                if (url == "/get-messages")
+                {
+                    lock (messageDataLock)
+                    {
+                        string jsonResponse = JsonUtility.ToJson(messageDataList);
+                        Respond(context, HttpStatusCode.OK, jsonResponse);
+                    }
+                }
+                else
+                {
+                    Respond(context, HttpStatusCode.NotFound, "Not Found");
+                }
+            }
+            else
+            {
+                Respond(context, HttpStatusCode.MethodNotAllowed, "Method Not Allowed");
             }
         }
         catch (Exception e)
@@ -78,18 +101,29 @@ public class RequestManager : MonoBehaviour
         }
     }
 
-    private void RegisterLaptop(string requestBody)
+    private void RegisterLaptop(string requestBody, HttpListenerContext context)
     {
         if (!string.IsNullOrEmpty(requestBody))
         {
+            bool registered = false;
             for (int i = 0; i < laptops.Length; i++)
             {
                 if (string.IsNullOrEmpty(laptops[i]))
                 {
                     laptops[i] = requestBody;
+                    registered = true;
                     break;
                 }
             }
+
+            if (!registered)
+            {
+                Respond(context, HttpStatusCode.BadRequest, "Maximum number of laptops reached.");
+            }
+        }
+        else
+        {
+            Respond(context, HttpStatusCode.BadRequest, "Request body is empty.");
         }
     }
 
@@ -101,23 +135,31 @@ public class RequestManager : MonoBehaviour
             string username = messageData.username;
             string message = messageData.message;
 
-            for (int i = 0; i < laptops.Length; i++)
+            lock (laptops)
             {
-                if (laptops[i] == senderIpAddress)
+                for (int i = 0; i < laptops.Length; i++)
                 {
-                    Debug.Log($"Received message from {i}: {username} - {message}");
-
-                    for (int j = 0; j < laptops.Length; j++)
+                    if (laptops[i] == senderIpAddress)
                     {
-                        if (laptops[j] != senderIpAddress && !string.IsNullOrEmpty(laptops[j]))
+                        Debug.Log($"Received message from {i}: {username} - {message}");
+
+                        lock (messageDataLock)
                         {
-                            SendMsg(j, username, message);
-                            break;
+                            messageDataList.Add(new MessageData { username = username, message = message });
                         }
+
+                        break;
                     }
-                    break;
                 }
             }
+        }
+    }
+
+    private void addMessage(int idx, string username, string message)
+    {
+        lock (messageDataLock)
+        {
+            messageDataList.Add(new MessageData { username = username, message = message });
         }
     }
 
@@ -135,59 +177,6 @@ public class RequestManager : MonoBehaviour
             context.Response.AddHeader("Access-Control-Max-Age", "1728000");
         }
         context.Response.AppendHeader("Access-Control-Allow-Origin", "*");
-    }
-
-    public void SendMsg(int idx, string username, string message)
-    {
-        StartCoroutine(SendMessage(idx, username, message));
-    }
-
-    private IEnumerator SendMessage(int idx, string username, string message)
-    {
-        string jsonPayload = JsonUtility.ToJson(new MessageData { username = username, message = message });
-
-        string ipAddress = laptops[idx];
-        string url = $"http://{ipAddress}:9090/message";
-
-        using (UnityWebRequest request = UnityWebRequest.PostWwwForm(url, jsonPayload))
-        {
-            request.SetRequestHeader("Content-Type", "application/json");
-
-            byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(jsonPayload);
-            request.uploadHandler = new UploadHandlerRaw(jsonBytes);
-            request.downloadHandler = new DownloadHandlerBuffer();
-
-            yield return request.SendWebRequest();
-
-            if (request.result != UnityWebRequest.Result.Success)
-            {
-                Debug.LogError($"Error sending message: {request.error}");
-            }
-        }
-    }
-
-
-    private string GetIp()
-    {
-        string ipv4Address = "";
-        string hostName = Dns.GetHostName();
-        IPAddress[] addresses = Dns.GetHostAddresses(hostName);
-
-        foreach (IPAddress address in addresses)
-        {
-            if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-            {
-                ipv4Address = address.ToString();
-                break;
-            }
-        }
-
-        return ipv4Address;
-    }
-
-    public void StopListener()
-    {
-        listener.Stop();
     }
 }
 
