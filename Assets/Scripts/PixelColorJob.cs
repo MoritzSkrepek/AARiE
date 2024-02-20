@@ -8,6 +8,7 @@ public class PixelColorJob : MonoBehaviour
     private NativeArray<Color> pixels;
     private NativeArray<Vector2> redPixelPositions;
 
+
     public bool[,] redPixleList;
     private int batchSize; // Adjust the batch size as needed
 
