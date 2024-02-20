@@ -315,11 +315,14 @@ async function validateAndSendMessage() {
 
 					if (response.ok) {
 							console.log('Message sent successfully.');
+							return true;
 					} else {
 							console.error('Failed to send message.');
+							return false;
 					}
 			} else {
-					console.error('Please fill in both username and message.');
+					alert('Please fill in both username and message.');
+					return false;
 			}
 	}
 

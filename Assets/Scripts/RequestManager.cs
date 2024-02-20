@@ -28,7 +28,6 @@ public class RequestManager : MonoBehaviour
     private void Listen()
     {
         EventManager.OnMessageSend += addMessage;
-        messageDataList.Add(new MessageData { username = "Server", message = "Server started" });
         while (true)
         {
             try
