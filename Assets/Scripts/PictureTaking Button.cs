@@ -45,6 +45,7 @@ public class PictureTakingButton : MonoBehaviour
 
     void Start()
     {
+        //EventManager.OnMessageReceived += SendMessage;
         cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).FirstOrDefault();
         targetTexture = new Texture2D(cameraResolution.width, cameraResolution.height);
         camera = Camera.main.transform;
@@ -54,9 +55,9 @@ public void takingPicture()
     {
         if (!takingNewPicture)
         {
-      //      loadingCircle.SetActive(true);
-      //      loadingCircleCanvas = loadingCircle.GetComponentInChildren<Canvas>();
-       //     loadingCircleCanvas.GetComponent<LoadingCircle>().StartLoading();
+            loadingCircle.SetActive(true);
+            loadingCircleCanvas = loadingCircle.GetComponentInChildren<Canvas>();
+            loadingCircleCanvas.GetComponent<LoadingCircle>().StartLoading();
             PhotoCapture.CreateAsync(false, delegate (PhotoCapture captureObject)
             {
                 if (captureObject != null)
@@ -124,13 +125,12 @@ public void takingPicture()
 
         }
         takingNewPicture = false;
-      //  loadingCircleCanvas.GetComponent<LoadingCircle>().StopLoading();
-       // loadingCircle.SetActive(true);
+        loadingCircleCanvas.GetComponent<LoadingCircle>().StopLoading();
+        loadingCircle.SetActive(false);
     }
 
     public void ShowInformation()
     {
-        Vector3 awayFromCameraDirection = infoTextT.transform.position - camera.transform.position;
         if (showInformation == 0)
         {
             infoTextT.SetActive(true);
@@ -151,8 +151,10 @@ public void takingPicture()
         }  
     }
 
-    public void ShowAndSendPackage()
+    public void ShowAndSendPackage()//string username, string message
     {
+        moveToCounter = 0;
+        //Debug.Log("username: " + username + " m: "+ message);
         if (isObjectInstantiated == false)
         {
             instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
@@ -166,7 +168,6 @@ public void takingPicture()
     }
 
     private bool[,] redPixels;
-    private Color[] color;
     Texture2D editTextureV3(Texture2D textureToEdit)
     {        
         List<Vector2> longestRedLine = new List<Vector2>();
@@ -437,34 +438,8 @@ public void takingPicture()
         return textureToEdit;
     }*/
 
-    Vector2 getSideCoordinate(List<int> list,bool min, int averageY)
-    {
-        list.Sort();
-        int sumOfSelectedValues = 0;
-        if (min)
-        {
-            for (int i = 0; i < list.Count/5; i++) 
-            {
-                sumOfSelectedValues += list[i];
-            }
-        } 
-        else
-        {
-            int cal = list.Count - (list.Count / 5);
-            for (int i = 0; i < list.Count / 5; i++)
-            {
-                sumOfSelectedValues += list[cal + i];
-            }
-        }
-        return new Vector2(sumOfSelectedValues / (list.Count / 10), averageY);
-    }
 
-    int getCenterCoordinate(List<int> list)
-    {
-        int min = list.Min();
-        int max = list.Max();
-        return Mathf.RoundToInt((min+max) / 2);
-    }
+
     int moveToCounter = 1;
     int moveFromCounter;
     // Update is called once per frame
@@ -480,6 +455,10 @@ public void takingPicture()
                     instantiatedObject.transform.position = cablePositinos[moveToCounter];
                     moveToCounter++;
                     moveFromCounter++;
+                    /*if (moveToCounter >= cablePositinos.Count - 1)
+                    {
+                        EventManager.SendMsg(username, message);
+                    }*/
                 }
             } else
             {
@@ -488,71 +467,14 @@ public void takingPicture()
         }
     }
 
-    /*
-     * 
-     * 
-        if (shouldMove) // Add Movement to every position
-        {
-            shouldMove = false;
-            movePackage();
-        }
-     * 
-     * void movePackage()
-    {
-        int timesMoved = 0;
-        Debug.Log("1 timesMoved: " + timesMoved + " cablePos Count: " + (cablePositinos.Count - 1));
-        if (timesMoved < cablePositinos.Count - 2)
-        {
-            Debug.Log("2");
-            moveToPostition(cablePositinos[timesMoved], cablePositinos[timesMoved + 1]);
-            Debug.Log("3");
-            timesMoved++;
-        }
-    }
-    void moveToPostition(Vector3 startpoint, Vector3 endPoint)
-    {
-        instantiatedObject.transform.Translate((endPoint - startpoint) * 0.02f);
-        bool isOnMove = true;
-            while(isOnMove) {
-                if (Vector3.Distance(instantiatedObject.transform.position, endPoint) < 0.01f)
-                {
-                    isOnMove = false;
-                    instantiatedObject.transform.position = endPoint;
-                }
-        }
-            
-    }
-    */
 
 
-
-
-    ARPlane FindClosestPlane(List<ARRaycastHit> hits)
-    {
-        ARPlane closestPlane = null;
-        float closestDistance = float.MaxValue;
-        foreach (var hit in hits)
-        {
-            ARPlane plane = arPlaneManager.GetPlane(hit.trackableId);
-            if (plane != null)
-            {
-                float distanceToPlane = Vector3.Distance(Camera.main.transform.position, hit.pose.position);
-                if (distanceToPlane < closestDistance)
-                {
-                    closestPlane = plane;
-                    closestDistance = distanceToPlane;
-                }
-            }
-        }
-        return closestPlane;
-    }
     bool PositionVirtualObject(Vector2 redPixel, Texture2D image)
     {
         Vector2 screenCoordinates = new Vector2(
             redPixel.x * Camera.main.pixelWidth / image.width,
             redPixel.y * Camera.main.pixelHeight / image.height
         );
-        Debug.Log("Jo bin da");
 
 
         //(Debug) For comparison of the screen coordinates and the red pixel coordinates    

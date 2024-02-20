@@ -7,8 +7,8 @@ public class LoadingCircle : MonoBehaviour
 {
     public GameObject border;
     private float runningTime = 0.0f;
-    private float fillSpeed = 0.05f;
-    private bool isRunning = false;
+    private float fillSpeed = 0.1f;
+    private bool isRunnig = false;
 
     private Image img;
 
@@ -26,18 +26,18 @@ public class LoadingCircle : MonoBehaviour
 
     public void StartLoading()
     {
+        isRunnig = true;
         img = border.GetComponent<Image>();
-        isRunning = true;
         StartCoroutine(LoadingCoroutine());
     }
     public void StopLoading()
     {
-        isRunning = false;
+        isRunnig = false;
         StopCoroutine(LoadingCoroutine());
     }
     IEnumerator LoadingCoroutine()
     {
-        while (true)
+        while (isRunnig)
         {
             if (img.fillAmount >= 1f)
             {
