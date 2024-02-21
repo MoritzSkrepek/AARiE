@@ -45,13 +45,13 @@ public class PictureTakingButton : MonoBehaviour
 
     void Start()
     {
-        //EventManager.OnMessageReceived += SendMessage;
+        EventManager.OnMessageReceived += ShowAndSendPackage;
         cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).FirstOrDefault();
         targetTexture = new Texture2D(cameraResolution.width, cameraResolution.height);
         camera = Camera.main.transform;
     }
-    
-public void takingPicture()
+
+    public void takingPicture()
     {
         if (!takingNewPicture)
         {
@@ -73,8 +73,8 @@ public void takingPicture()
 
                         photoCaptureObject.StartPhotoModeAsync(cameraParameters, delegate (PhotoCapture.PhotoCaptureResult result)
                     {
-                                photoCaptureObject.TakePhotoAsync(onCapturedPhotoToMemory);
-                            });
+                        photoCaptureObject.TakePhotoAsync(onCapturedPhotoToMemory);
+                    });
 
                     }
                     catch (Exception e)
@@ -116,7 +116,7 @@ public void takingPicture()
         {
             foreach (Vector2 redPixle in redPixelCoordinates)
             {
-                if(PositionVirtualObject(redPixle, targetTexture))
+                if (PositionVirtualObject(redPixle, targetTexture))
                 {
                     sendPackageButton.SetActive(true);
                     //scanningButton.SetActive(false);
@@ -141,42 +141,48 @@ public void takingPicture()
         {
             infoTextT.SetActive(false);
             infoTextS.SetActive(true);
-            infoTextS.transform.position = cablePositinos[(cablePositinos.Count-1)/2] + new Vector3(0, 0.10f, 0.2f);
+            infoTextS.transform.position = cablePositinos[(cablePositinos.Count - 1) / 2] + new Vector3(0, 0.10f, 0.2f);
             showInformation = 2;
-        } else if (showInformation == 2)
+        }
+        else if (showInformation == 2)
         {
             infoTextT.SetActive(false);
             infoTextS.SetActive(false);
             showInformation = 0;
-        }  
+        }
     }
 
-    public void ShowAndSendPackage()//string username, string message
+    public void ShowAndSendPackage(string username, string message)
     {
+        MainThreadDispatcher.Instance().Enqueue(() =>
+        {
 
-        if (isAtEnd)
-        {
-            isAtEnd = false;
-            moveToCounter = 1;
-            moveFromCounter = 0;
+            if (isAtEnd)
+            {
+                isAtEnd = false;
+                moveToCounter = 1;
+                moveFromCounter = 0;
 
-        }
-        //Debug.Log("username: " + username + " m: "+ message);
-        if (isObjectInstantiated == false)
-        {
-            instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
-            isObjectInstantiated = true;
-        } else
-        {
-            Destroy(instantiatedObject);
-            instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
-        }
-        shouldMove = !shouldMove;
+            }
+            Debug.Log("username: " + username + " m: " + message);
+            if (isObjectInstantiated == false)
+            {
+                instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
+                isObjectInstantiated = true;
+            }
+            else
+            {
+                Destroy(instantiatedObject);
+                instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
+            }
+            shouldMove = !shouldMove;
+            EventManager.SendMsg(username, message);
+        });
     }
 
     private bool[,] redPixels;
     Texture2D editTextureV3(Texture2D textureToEdit)
-    {        
+    {
         List<Vector2> longestRedLine = new List<Vector2>();
         PixelColorJob pixelColorJobInstance = new PixelColorJob();
         pixelColorJobInstance.RedPixelSearch(textureToEdit);
@@ -187,7 +193,7 @@ public void takingPicture()
 
             for (int y = 0; y < redPixels.GetLength(1); y++)
             {
-                if (redPixels[x,y])
+                if (redPixels[x, y])
                 {
                     List<Vector2> currentRedLine = new List<Vector2>();
                     currentRedLine = SearchForRedPixels(x, y);
@@ -201,7 +207,7 @@ public void takingPicture()
         }
 
         Debug.Log(longestRedLine.Count());
-        if (longestRedLine.Count() > 0) 
+        if (longestRedLine.Count() > 0)
         {
             addPointsForRaycast(longestRedLine);
         }
@@ -213,7 +219,7 @@ public void takingPicture()
         redPixelCoordinates.Add(new Vector2(longestRedLine[0].x, longestRedLine[0].y));
 
         List<Vector2> firstHalf = longestRedLine.GetRange(0, longestRedLine.Count / 2);
-        List<Vector2> secondHalf = longestRedLine.GetRange(longestRedLine.Count / 2, (longestRedLine.Count-1)- longestRedLine.Count/2);
+        List<Vector2> secondHalf = longestRedLine.GetRange(longestRedLine.Count / 2, (longestRedLine.Count - 1) - longestRedLine.Count / 2);
 
         int firstHalfSegmentLength = firstHalf.Count / 5;
         for (int i = 1; i < 5; i++)
@@ -308,7 +314,7 @@ public void takingPicture()
 
         List<Vector2> longestRedLine = new List<Vector2>();
 
-        float redThreshold = 0.55f; 
+        float redThreshold = 0.55f;
 
         int longestLineLength = 0;
         List<Vector2> currentRedLine = new List<Vector2>();
@@ -334,12 +340,12 @@ public void takingPicture()
                         }
                         else
                         {
-                            if(!checkForBlackThreshold(50,currentX, y, redThreshold, textureWidth, pixels))
+                            if (!checkForBlackThreshold(50, currentX, y, redThreshold, textureWidth, pixels))
                             {
                                 break;// TODO Check if line below or above has red in same y
                             }
                         }
-                    }                    
+                    }
 
                     // Update longest line if current is longer
                     if (currentRedLine.Count > longestLineLength)
@@ -370,7 +376,7 @@ public void takingPicture()
         return textureToEdit;
     }
 
-    bool checkForBlackThreshold(int nonRedThreshold, int currentX,int currenty, float redThreshold,int textureWidth, Color[] pixels)
+    bool checkForBlackThreshold(int nonRedThreshold, int currentX, int currenty, float redThreshold, int textureWidth, Color[] pixels)
     {
         int nonRedCount = 0;
         while (nonRedCount < nonRedThreshold && currentX < textureWidth - 1)
@@ -464,12 +470,13 @@ public void takingPicture()
                     Debug.Log("moveToCounter: " + moveToCounter + " moveFrom Counter: " + moveFromCounter);
                     moveToCounter++;
                     moveFromCounter++;
-                    if(Vector3.Distance(instantiatedObject.transform.position, cablePositinos[cablePositinos.Count - 1]) < 0.00275f)
+                    if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[cablePositinos.Count - 1]) < 0.00275f)
                     {
                         isAtEnd = true;
                     }
                 }
-            } else
+            }
+            else
             {
                 shouldMove = false;
             }
@@ -493,27 +500,29 @@ public void takingPicture()
         //Debug.Log("image size: " + image.width + " " + image.height);
 
         List<ARRaycastHit> hits = new List<ARRaycastHit>();
-        
+
         if (raycastManager.Raycast(screenCoordinates, hits, TrackableType.Planes))
-        { 
+        {
             for (int i = 0; i < hits.Count; i++)
+            {
+                if (hits[i].hitType != TrackableType.PlaneWithinInfinity)
                 {
-                    if (hits[i].hitType != TrackableType.PlaneWithinInfinity)
+                    if (hits[i] != null)
                     {
-                        if (hits[i] != null)
-                        {
-                            cablePositinos.Add(new Vector3(hits[i].pose.position.x, hits[i].pose.position.y + 0.05f, hits[i].pose.position.z));
-                            //debugRaycast(hits[i], Color.red);
+                        cablePositinos.Add(new Vector3(hits[i].pose.position.x, hits[i].pose.position.y + 0.05f, hits[i].pose.position.z));
+                        //debugRaycast(hits[i], Color.red);
                         break;
-                        } else
-                        {
-                            Debug.LogWarning("Hit " + hits[i] + " is null");
-                        return false;
-                        }
                     }
+                    else
+                    {
+                        Debug.LogWarning("Hit " + hits[i] + " is null");
+                        return false;
+                    }
+                }
             }
             return true;
-        } else
+        }
+        else
         {
             Debug.LogWarning("No Hits");
             return false;
