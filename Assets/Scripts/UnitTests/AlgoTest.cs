@@ -49,7 +49,7 @@ public class AlgoTest
         };
 
         System.Random random = new System.Random();
-        for (int i = 11; i <= 100; i++)
+        for (int i = 11; i <= 1000; i++)
         {
             int randomWeight = random.Next(1, 51);
             int randomValue = random.Next(1, 101);
@@ -72,6 +72,13 @@ public class AlgoTest
         Debug.Log($"Time taken by KnapsackMaxValueRecursive: {recursiveStopwatch.ElapsedMilliseconds} ms");
 
         Assert.AreEqual(maxValueComp, maxValue);
+
+        System.Diagnostics.Stopwatch dynamicProgrammingStopwatch = System.Diagnostics.Stopwatch.StartNew();
+        int maxValueDynamic = KnapsackMaxValueDynamicProgramming(capacity, items);
+        dynamicProgrammingStopwatch.Stop();
+        Debug.Log($"Time taken by KnapsackMaxValueDynamicProgramming: {dynamicProgrammingStopwatch.ElapsedMilliseconds} ms");
+
+        Assert.AreEqual(maxValueDynamic, maxValue);
     }
 
     // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode, you can use
@@ -106,5 +113,32 @@ public class AlgoTest
         memo[(n, remainingCapacity)] = result;
 
         return result;
+    }
+
+    private int KnapsackMaxValueDynamicProgramming(int capacity, Dictionary<int, QRData> items)
+    {
+        int n = items.Count;
+
+        int[,] dp = new int[n + 1, capacity + 1];
+
+        for (int i = 0; i <= n; i++)
+        {
+            for (int w = 0; w <= capacity; w++)
+            {
+                if (i == 0 || w == 0)
+                {
+                    dp[i, w] = 0;
+                }
+                else if (items[i].weight <= w)
+                {
+                    dp[i, w] = Math.Max(items[i].value + dp[i - 1, w - items[i].weight], dp[i - 1, w]);
+                }
+                else
+                {
+                    dp[i, w] = dp[i - 1, w];
+                }
+            }
+        }
+        return dp[n, capacity];
     }
 }
