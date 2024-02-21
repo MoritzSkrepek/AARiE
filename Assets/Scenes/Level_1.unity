@@ -859,9 +859,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6366612889619439592, guid: b1223a2002817f2448ea1d7d1af5e884, type: 3}
       insertIndex: -1
       addedObject: {fileID: 286028232}
-    - targetCorrespondingSourceObject: {fileID: 6366612889619439592, guid: b1223a2002817f2448ea1d7d1af5e884, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 286028241}
   m_SourcePrefab: {fileID: 100100000, guid: b1223a2002817f2448ea1d7d1af5e884, type: 3}
 --- !u!1 &286028230 stripped
 GameObject:
@@ -894,19 +891,6 @@ MonoBehaviour:
   additionalOffset: {x: 0, y: 0, z: 0}
   additionalRotation: {x: 0, y: 0, z: 0}
   updateSolvers: 1
---- !u!114 &286028241
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 286028230}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1e0a1901558ede4d936430fefc0cffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isActive: 0
 --- !u!1001 &387761000
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2240,6 +2224,19 @@ MonoBehaviour:
   infoTextT: {fileID: 945639710}
   infoTextS: {fileID: 1009093430}
   loadingCircle: {fileID: 697645918}
+--- !u!114 &1094012541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1094012532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1e0a1901558ede4d936430fefc0cffb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isActive: 0
 --- !u!1001 &1132310721
 PrefabInstance:
   m_ObjectHideFlags: 0

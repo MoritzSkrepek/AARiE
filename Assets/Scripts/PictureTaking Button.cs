@@ -153,7 +153,14 @@ public void takingPicture()
 
     public void ShowAndSendPackage()//string username, string message
     {
-        moveToCounter = 0;
+
+        if (isAtEnd)
+        {
+            isAtEnd = false;
+            moveToCounter = 1;
+            moveFromCounter = 0;
+
+        }
         //Debug.Log("username: " + username + " m: "+ message);
         if (isObjectInstantiated == false)
         {
@@ -442,6 +449,7 @@ public void takingPicture()
 
     int moveToCounter = 1;
     int moveFromCounter;
+    bool isAtEnd;
     // Update is called once per frame
     void Update()
     {
@@ -449,16 +457,17 @@ public void takingPicture()
         {
             if (moveToCounter < cablePositinos.Count)
             {
-                instantiatedObject.transform.Translate((cablePositinos[moveToCounter] - cablePositinos[moveFromCounter]) * 0.005f);
-                if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[moveToCounter]) < 0.0025f)
+                instantiatedObject.transform.Translate((cablePositinos[moveToCounter] - cablePositinos[moveFromCounter]) * 0.0075f);
+                if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[moveToCounter]) < 0.00275f)
                 {
                     instantiatedObject.transform.position = cablePositinos[moveToCounter];
+                    Debug.Log("moveToCounter: " + moveToCounter + " moveFrom Counter: " + moveFromCounter);
                     moveToCounter++;
                     moveFromCounter++;
-                    /*if (moveToCounter >= cablePositinos.Count - 1)
+                    if(Vector3.Distance(instantiatedObject.transform.position, cablePositinos[cablePositinos.Count - 1]) < 0.00275f)
                     {
-                        EventManager.SendMsg(username, message);
-                    }*/
+                        isAtEnd = true;
+                    }
                 }
             } else
             {
@@ -494,6 +503,7 @@ public void takingPicture()
                         if (hits[i] != null)
                         {
                             cablePositinos.Add(new Vector3(hits[i].pose.position.x, hits[i].pose.position.y + 0.05f, hits[i].pose.position.z));
+                            //debugRaycast(hits[i], Color.red);
                         break;
                         } else
                         {
