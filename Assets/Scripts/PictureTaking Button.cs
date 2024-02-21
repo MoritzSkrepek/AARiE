@@ -45,7 +45,7 @@ public class PictureTakingButton : MonoBehaviour
 
     void Start()
     {
-        //EventManager.OnMessageReceived += SendMessage;
+        EventManager.OnMessageReceived += SendMessage;
         cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).FirstOrDefault();
         targetTexture = new Texture2D(cameraResolution.width, cameraResolution.height);
         camera = Camera.main.transform;
@@ -151,7 +151,7 @@ public void takingPicture()
         }  
     }
 
-    public void ShowAndSendPackage()//string username, string message
+    public void ShowAndSendPackage(string username, string message)
     {
 
         if (isAtEnd)
@@ -161,7 +161,7 @@ public void takingPicture()
             moveFromCounter = 0;
 
         }
-        //Debug.Log("username: " + username + " m: "+ message);
+        Debug.Log("username: " + username + " m: "+ message);
         if (isObjectInstantiated == false)
         {
             instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
@@ -172,6 +172,7 @@ public void takingPicture()
             instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
         }
         shouldMove = !shouldMove;
+        EventManager.SendMsg(username, message);
     }
 
     private bool[,] redPixels;
