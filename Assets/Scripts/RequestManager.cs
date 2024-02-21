@@ -18,6 +18,8 @@ public class RequestManager : MonoBehaviour
 
     private void Start()
     {
+        EventManager.OnMessageSend += addMessage;
+
         listener = new HttpListener();
         listener.Prefixes.Add($"http://*:{port}/");
         listener.Start();
@@ -27,7 +29,6 @@ public class RequestManager : MonoBehaviour
     }
     private void Listen()
     {
-        EventManager.OnMessageSend += addMessage;
         while (true)
         {
             try
@@ -115,10 +116,13 @@ public class RequestManager : MonoBehaviour
 
     private void addMessage(string username, string message)
     {
-        lock (messageDataLock)
-        {
-            messageDataList.Add(new MessageData { username = username, message = message });
-        }
+        MainThreadDispatcher.Instance().Enqueue(() => {
+            lock (messageDataLock)
+            {
+                messageDataList.Add(new MessageData { username = username, message = message });
+            }
+        });
+        
     }
 
     private void Respond(HttpListenerContext context, HttpStatusCode statusCode, string responseMessage)
