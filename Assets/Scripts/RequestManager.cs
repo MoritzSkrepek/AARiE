@@ -8,144 +8,149 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class RequestManager : MonoBehaviour
+namespace QRTracking
 {
-    private HttpListener listener;
-    private string[] laptops = new string[2];
-    private int port = 9090;
-    private List<MessageData> messageDataList = new List<MessageData>();
-    private readonly object messageDataLock = new object();
-
-    private void Start()
+    public class RequestManager : MonoBehaviour
     {
-        EventManager.OnMessageSend += addMessage;
+        private HttpListener listener;
+        private string[] laptops = new string[2];
+        private int port = 9090;
+        private List<MessageData> messageDataList = new List<MessageData>();
+        private readonly object messageDataLock = new object();
 
-        listener = new HttpListener();
-        listener.Prefixes.Add($"http://*:{port}/");
-        listener.Start();
-
-        Thread listenerThread = new Thread(Listen);
-        listenerThread.Start();
-    }
-    private void Listen()
-    {
-        while (true)
+        private void Start()
         {
-            try
-            {
-                HttpListenerContext context = listener.GetContext();
-                ProcessRequest(context);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Error handling request: {e.Message}");
-            }
+            EventManager.OnMessageSend += addMessage;
+
+            listener = new HttpListener();
+            listener.Prefixes.Add($"http://*:{port}/");
+            listener.Start();
+
+            Thread listenerThread = new Thread(Listen);
+            listenerThread.Start();
         }
-    }
-
-    private void ProcessRequest(HttpListenerContext context)
-    {
-        string requestMethod = context.Request.HttpMethod;
-        string url = context.Request.Url.AbsolutePath;
-
-        if (requestMethod == "OPTIONS")
+        private void Listen()
         {
-            context.Response.StatusCode = (int)HttpStatusCode.OK;
-            context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-            context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-            context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
-            context.Response.Close();
-            return;
-        }
-
-        if (requestMethod == "POST")
-        {
-            if (url == "/message")
+            while (true)
             {
-                string requestBody;
-                using (StreamReader reader = new StreamReader(context.Request.InputStream))
+                try
                 {
-                    requestBody = reader.ReadToEnd();
+                    HttpListenerContext context = listener.GetContext();
+                    ProcessRequest(context);
                 }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Error handling request: {e.Message}");
+                }
+            }
+        }
 
-                ProcessMessage(requestBody);
-                Respond(context, HttpStatusCode.OK, "OK");
+        private void ProcessRequest(HttpListenerContext context)
+        {
+            string requestMethod = context.Request.HttpMethod;
+            string url = context.Request.Url.AbsolutePath;
+
+            if (requestMethod == "OPTIONS")
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.OK;
+                context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+                context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
+                context.Response.Close();
+                return;
+            }
+
+            if (requestMethod == "POST")
+            {
+                if (url == "/message")
+                {
+                    string requestBody;
+                    using (StreamReader reader = new StreamReader(context.Request.InputStream))
+                    {
+                        requestBody = reader.ReadToEnd();
+                    }
+
+                    ProcessMessage(requestBody);
+                    Respond(context, HttpStatusCode.OK, "OK");
+                }
+                else
+                {
+                    Respond(context, HttpStatusCode.NotFound, "Not Found");
+                }
+            }
+            else if (requestMethod == "GET")
+            {
+                if (url == "/get-messages")
+                {
+                    lock (messageDataLock)
+                    {
+                        string jsonResponse = JsonUtility.ToJson(messageDataList);
+                        Respond(context, HttpStatusCode.OK, jsonResponse);
+                    }
+                }
+                else if (url == "/connect")
+                {
+                    Respond(context, HttpStatusCode.OK, "OK");
+                }
+                else
+                {
+                    Respond(context, HttpStatusCode.NotFound, "Not Found");
+                }
             }
             else
             {
-                Respond(context, HttpStatusCode.NotFound, "Not Found");
+                Respond(context, HttpStatusCode.MethodNotAllowed, "Method Not Allowed");
+            }
+
+            context.Response.Close();
+        }
+
+        private void ProcessMessage(string requestBody)
+        {
+            if (!string.IsNullOrEmpty(requestBody))
+            {
+                MessageData messageData = JsonUtility.FromJson<MessageData>(requestBody);
+
+                EventManager.ReceiveMsg(messageData.username, messageData.message);
+                Debug.Log($"Received message: {messageData.username} - {messageData.message}");
             }
         }
-        else if (requestMethod == "GET")
+
+        private void addMessage(string username, string message)
         {
-            if (url == "/get-messages")
+            MainThreadDispatcher.Instance().Enqueue(() =>
             {
                 lock (messageDataLock)
                 {
-                    string jsonResponse = JsonUtility.ToJson(messageDataList);
-                    Respond(context, HttpStatusCode.OK, jsonResponse);
+                    messageDataList.Add(new MessageData { username = username, message = message });
                 }
-            }
-            else if (url == "/connect")
-            {
-                Respond(context, HttpStatusCode.OK, "OK");
-            }
-            else
-            {
-                Respond(context, HttpStatusCode.NotFound, "Not Found");
-            }
+            });
+
         }
-        else
+
+        private void Respond(HttpListenerContext context, HttpStatusCode statusCode, string responseMessage)
         {
-            Respond(context, HttpStatusCode.MethodNotAllowed, "Method Not Allowed");
+            byte[] responseBytes = System.Text.Encoding.UTF8.GetBytes(responseMessage);
+            context.Response.StatusCode = (int)statusCode;
+            context.Response.ContentType = "text/plain";
+            context.Response.ContentLength64 = responseBytes.Length;
+            context.Response.OutputStream.Write(responseBytes, 0, responseBytes.Length);
+
+
+            context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+            context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
+
+            context.Response.Close();
         }
 
-        context.Response.Close();
     }
 
-    private void ProcessMessage(string requestBody)
+    [Serializable]
+    public class MessageData
     {
-        if (!string.IsNullOrEmpty(requestBody))
-        {
-            MessageData messageData = JsonUtility.FromJson<MessageData>(requestBody);
-
-            EventManager.ReceiveMsg(messageData.username, messageData.message);
-            Debug.Log($"Received message: {messageData.username} - {messageData.message}");
-        }
+        public string username;
+        public string message;
     }
 
-    private void addMessage(string username, string message)
-    {
-        MainThreadDispatcher.Instance().Enqueue(() => {
-            lock (messageDataLock)
-            {
-                messageDataList.Add(new MessageData { username = username, message = message });
-            }
-        });
-        
-    }
-
-    private void Respond(HttpListenerContext context, HttpStatusCode statusCode, string responseMessage)
-    {
-        byte[] responseBytes = System.Text.Encoding.UTF8.GetBytes(responseMessage);
-        context.Response.StatusCode = (int)statusCode;
-        context.Response.ContentType = "text/plain";
-        context.Response.ContentLength64 = responseBytes.Length;
-        context.Response.OutputStream.Write(responseBytes, 0, responseBytes.Length);
-
-
-        context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-        context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-        context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
-
-        context.Response.Close();
-    }
-
-}
-
-[Serializable]
-public class MessageData
-{
-    public string username;
-    public string message;
 }
