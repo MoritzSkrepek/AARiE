@@ -20,7 +20,6 @@ public class InventoryController : MonoBehaviour
     private KnapsackSolver knapsackSolver;
     private int cap;
     private int currWeight = 0;
-    private string message;
     private HashSet<int> processedItems;
 
     void Start()
@@ -58,17 +57,15 @@ public class InventoryController : MonoBehaviour
                         {
                             userInfo.text = "";
                             processedItems.Add(itemId);
-                            message = "";
                             Vector2 startGridPosition = CalculateGridPosition(worldPosition);
                             idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = itemId;
-                            knapsackSolver?.UpdateInfoMesh(message);
+                            knapsackSolver?.UpdateInfoMesh("", Color.white);
                             currWeight += qRCode.item.qrData.weight;
                             EventManager.GridUpdate(idGrid);
                         }
                         else
                         {
-                            message = "Item hat zu viel Gewicht!";
-                            knapsackSolver?.UpdateInfoMesh(message);
+                            knapsackSolver?.UpdateInfoMesh("Item hat zu viel Gewicht!", Color.red);
                         }
                     }
                 }

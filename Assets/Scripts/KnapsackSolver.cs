@@ -35,8 +35,7 @@ public class KnapsackSolver : MonoBehaviour
             inventoryValue = KnapsackInventoryValue(inventory);
             if (maxValue == inventoryValue)
             {
-                infoMesh.color = Color.green;
-                infoMesh.text = "Maximale Punktzahl erreicht";
+                UpdateInfoMesh("Optimale Lösung gefunden", Color.green);
             }
             else
             {
@@ -153,9 +152,9 @@ public class KnapsackSolver : MonoBehaviour
         CalculateKnapsack();
     }
 
-    public void UpdateInfoMesh(string input)
+    public void UpdateInfoMesh(string input, Color color)
     {
-        infoMesh.color = Color.red;
+        infoMesh.color = color;
         infoMesh.text = input;
     }
 }
