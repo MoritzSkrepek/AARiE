@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Windows.WebCam;
@@ -9,7 +8,7 @@ using UnityEngine.XR.ARSubsystems;
 using Debug = UnityEngine.Debug;
 
 
-public class PictureTakingButton : MonoBehaviour
+public class PictureTakingScript : MonoBehaviour
 {
 
     bool takingNewPicture = false;
@@ -131,20 +130,20 @@ public class PictureTakingButton : MonoBehaviour
 
     public void ShowInformation()
     {
-        if (showInformation == 0)
+        if (showInformation == 0) // InfoText Technical is getting activated
         {
             infoTextT.SetActive(true);
             infoTextT.transform.position = cablePositinos[(cablePositinos.Count - 1) / 2] + new Vector3(0, 0.10f, 0.2f);
             showInformation = 1;
         }
-        else if (showInformation == 1)
+        else if (showInformation == 1)// InfoText Simple is getting activated
         {
             infoTextT.SetActive(false);
             infoTextS.SetActive(true);
             infoTextS.transform.position = cablePositinos[(cablePositinos.Count - 1) / 2] + new Vector3(0, 0.10f, 0.2f);
             showInformation = 2;
         }
-        else if (showInformation == 2)
+        else if (showInformation == 2)// Both text deactivated
         {
             infoTextT.SetActive(false);
             infoTextS.SetActive(false);
@@ -154,28 +153,27 @@ public class PictureTakingButton : MonoBehaviour
 
     public void ShowAndSendPackage(string username, string message)
     {
+        TextComponentEditing textS = new TextComponentEditing(infoTextS);
+        textS.EditText(username, message);
+        if (isAtEnd)
+        {
+            isAtEnd = false;
+            moveToCounter = 1;
+            moveFromCounter = 0;
+        }
+        if (isObjectInstantiated == false)
+        {
+            instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
+            isObjectInstantiated = true;
+        }
+        else
+        {
+            Destroy(instantiatedObject);
+            instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
+        }
+        shouldMove = !shouldMove;
         MainThreadDispatcher.Instance().Enqueue(() =>
         {
-
-            if (isAtEnd)
-            {
-                isAtEnd = false;
-                moveToCounter = 1;
-                moveFromCounter = 0;
-
-            }
-            Debug.Log("username: " + username + " m: " + message);
-            if (isObjectInstantiated == false)
-            {
-                instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
-                isObjectInstantiated = true;
-            }
-            else
-            {
-                Destroy(instantiatedObject);
-                instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
-            }
-            shouldMove = !shouldMove;
             EventManager.SendMsg(username, message);
         });
     }

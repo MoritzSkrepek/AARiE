@@ -51,6 +51,6 @@ public class CableSearch : MonoBehaviour
 
     private void placeFound()
     {
-        Plane.GetComponent<PictureTakingButton>().takingPicture();
+        Plane.GetComponent<PictureTakingScript>().takingPicture();
     }
 }
