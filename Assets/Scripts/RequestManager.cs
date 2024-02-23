@@ -88,6 +88,15 @@ public class RequestManager : MonoBehaviour
             {
                 Respond(context, HttpStatusCode.OK, "OK");
             }
+            else if (url == "/delete-list")
+            {
+                lock (messageDataLock)
+                {
+                    messageDataList.Clear();
+                }
+                Respond(context, HttpStatusCode.OK, "OK");
+            }
+
             else
             {
                 Respond(context, HttpStatusCode.NotFound, "Not Found");
@@ -106,8 +115,6 @@ public class RequestManager : MonoBehaviour
         if (!string.IsNullOrEmpty(requestBody))
         {
             MessageData messageData = JsonSerializer.Deserialize<MessageData>(requestBody);
-            Debug.Log(requestBody);
-            Debug.Log(messageData);
             addMessage(messageData.username, messageData.message);
             Debug.Log($"Received message: {messageData.username} - {messageData.message}");
         }
