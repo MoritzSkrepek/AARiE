@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using UnityEngine;
+using System.Text.Json;
 
 
 public class RequestManager : MonoBehaviour
@@ -79,7 +80,7 @@ public class RequestManager : MonoBehaviour
             {
                 lock (messageDataLock)
                 {
-                    string jsonResponse = JsonUtility.ToJson(messageDataList);
+                    string jsonResponse = JsonSerializer.Serialize(messageDataList);
                     Respond(context, HttpStatusCode.OK, jsonResponse);
                 }
             }
@@ -104,7 +105,9 @@ public class RequestManager : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(requestBody))
         {
-            MessageData messageData = JsonUtility.FromJson<MessageData>(requestBody);
+            MessageData messageData = JsonSerializer.Deserialize<MessageData>(requestBody);
+            Debug.Log(requestBody);
+            Debug.Log(messageData);
             addMessage(messageData.username, messageData.message);
             Debug.Log($"Received message: {messageData.username} - {messageData.message}");
         }
@@ -114,7 +117,7 @@ public class RequestManager : MonoBehaviour
     {
         lock (messageDataLock)
         {
-            messageDataList.Add(JsonUtility.ToJson(new MessageData { username = username, message = message }));
+            messageDataList.Add(JsonSerializer.Serialize(new MessageData { username = username, message = message }));
         }
     }
 
