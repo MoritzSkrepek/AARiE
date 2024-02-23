@@ -41,7 +41,7 @@ public class KnapsackSolver : MonoBehaviour
             {
                 infoMesh.text = "";
             }
-            ownMesh.text = "Erreichter Wert: " + inventoryValue.ToString();
+            ownMesh.text = inventoryValue.ToString();
 
         }
         catch (Exception e)
