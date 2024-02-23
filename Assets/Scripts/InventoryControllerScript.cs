@@ -35,11 +35,6 @@ public class InventoryController : MonoBehaviour
 
     void Update()
     {
-        UpdateGrid();
-    }
-
-    void UpdateGrid()
-    {
         lock (activeQRObjects)
         {
             foreach (var item in activeQRObjects.Values)
@@ -78,21 +73,6 @@ public class InventoryController : MonoBehaviour
                     EventManager.GridUpdate(idGrid);
                 }
             }
-            PrintGrid();
-        }
-    }
-
-
-    private void PrintGrid()
-    {
-        for (int row = 0; row < numRows; row++)
-        {
-            string rowString = "";
-            for (int col = 0; col < numColumns; col++)
-            {
-                rowString += idGrid[row, col] + " ";
-            }
-            Debug.Log("Row " + row + ": " + rowString);
         }
     }
 
