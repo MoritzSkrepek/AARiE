@@ -8,11 +8,12 @@ public class InventoryController : MonoBehaviour
     public GameObject QRCodeManager;
     public GameObject knapsackSolverGameObject;
     public TextMeshPro userInfo;
+    public TextMeshPro remCap;
+    public float verticalOffset = 0.125f;
 
     private SortedDictionary<System.Guid, GameObject> activeQRObjects;
 
     private GameObject inventoryObject;
-    public float verticalOffset = 0.1f;
     private Bounds inventoryBounds;
     private int numRows = 3;
     private int numColumns = 3;
@@ -56,6 +57,7 @@ public class InventoryController : MonoBehaviour
                             idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = itemId;
                             knapsackSolver?.UpdateInfoMesh("", Color.white);
                             currWeight += qRCode.item.qrData.weight;
+                            remCap.text = "Verbleibendes Gewicht: " + (cap - currWeight) + "/" + cap;
                             EventManager.GridUpdate(idGrid);
                         }
                         else
@@ -70,6 +72,7 @@ public class InventoryController : MonoBehaviour
                     processedItems.Remove(itemId);
                     RemoveItem(itemId);
                     currWeight -= qRCode.item.qrData.weight;
+                    remCap.text = "Verbleibendes Gewicht: " + (cap - currWeight) + "/" + cap;
                     EventManager.GridUpdate(idGrid);
                 }
             }

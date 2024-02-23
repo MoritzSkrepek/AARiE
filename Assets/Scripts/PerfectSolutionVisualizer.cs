@@ -19,40 +19,27 @@ public class PerfectSolutionVisualizer : MonoBehaviour
     public void Start()
     {
         isClicked = !isClicked;
-        if (isClicked == true)
+        if (isClicked)
         {
             anchorScript = inventoryPlacementObject.GetComponent<InventoryPlacementController>();
             originalInventoryPosition = anchorScript.objectPosition;
             knapsackSolver = KnapsackAlgoObject.GetComponent<KnapsackSolver>();
             perfectSolution = knapsackSolver.usedItems;
-            printItems();
             setNewPosition();
-            inventoryObject.SetActive(true);
+            inventoryObject.SetActive(isClicked);
             fillInventory();
         }
         else
         {
-            inventoryObject.SetActive(false);
-        }
-    }
-
-    private void printItems()
-    {
-        Debug.Log("Perfekte Lösung:");
-        for (int row = 0; row < 3; row++)
-        {
-            string rowString = "";
-            for (int col = 0; col < 3; col++)
-            {
-                rowString += perfectSolution[row, col] + " ";
-            }
-            Debug.Log("Row " + row + ": " + rowString);
+            inventoryObject.SetActive(isClicked);
         }
     }
 
     private void setNewPosition()
     {
-        Vector3 newPosition = originalInventoryPosition + Vector3.forward * 0.5f + Vector3.up * 0.205f;
+        //alt: 0.45, 0.205
+        //neu: 0.3, 0.19
+        Vector3 newPosition = originalInventoryPosition + Vector3.forward * 0.395f + Vector3.up * 0.16f;
         inventoryObject.transform.position = newPosition;
         Quaternion objectRotation = Quaternion.Euler(-45f, 0f, 0f);
         inventoryObject.transform.rotation = objectRotation;

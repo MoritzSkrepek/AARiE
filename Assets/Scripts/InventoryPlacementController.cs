@@ -7,11 +7,9 @@ using TMPro;
 
 public class InventoryPlacementController : MonoBehaviour
 {
-    public ARPlaneManager planeManager;
-    public GameObject inventoryObject;
+    public GameObject wholeInventory;
     public InventoryController inventoryController;
     public GameObject qrCodesManager;
-    public GameObject infoObject;
     public TextMeshPro userInfo;
     public float requiredLookTime = 5.0f; 
     public Vector3 objectPosition;
@@ -101,15 +99,12 @@ public class InventoryPlacementController : MonoBehaviour
     {
         qrCodesManager.SetActive(true);
         objectPosition = deskPlane.center + Vector3.up * heightOffset;
-        Quaternion objectRotation = Quaternion.Euler(-90f, 0f, 0f);
-        GameObject instantiatedObject = Instantiate(inventoryObject, objectPosition, objectRotation);
-        instantiatedObject.transform.localScale = new Vector3(20f, 20f, 20f);
-        Vector3 infoObjectPosition = objectPosition - Vector3.forward * 4.415f + Vector3.right * 0.4f;
-        infoObject.transform.position = infoObjectPosition;
-        infoObject.SetActive(true);
-        inventoryController.SetInventoryObject(instantiatedObject);
+        wholeInventory.transform.position = objectPosition;
+        wholeInventory.transform.rotation = Quaternion.Euler(0, 180f, 0);
+        wholeInventory.SetActive(true);
+        GameObject inventory = wholeInventory.transform.Find("inventory").gameObject;
+        inventoryController.SetInventoryObject(inventory);
         inventoryController.gameObject.SetActive(true);
-        planeManager.planePrefab.SetActive(false);
         gameObject.SetActive(false);
     }
 }
