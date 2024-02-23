@@ -52,21 +52,13 @@ public class InventoryController : MonoBehaviour
                         if (currWeight + qRCode.item.qrData.weight <= cap)
                         {
                             userInfo.text = "";
-                            Debug.Log("Hihi");
                             processedItems.Add(itemId);
-                            Debug.Log("Hiha");
                             Vector2 startGridPosition = CalculateGridPosition(worldPosition);
-                            Debug.Log("Hahi");
                             idGrid[(int)startGridPosition.x, (int)startGridPosition.y] = itemId;
-                            Debug.Log("Hihiha");
                             knapsackSolver?.UpdateInfoMesh("", Color.white);
-                            Debug.Log("Hihihu");
                             currWeight += qRCode.item.qrData.weight;
-                            Debug.Log("Haha");
                             remCap.text = "Verbleibendes Gewicht: " + (cap - currWeight) + "/" + cap;
-                            Debug.Log("Huhu");
                             EventManager.GridUpdate(idGrid);
-                            Debug.Log("Hehe");
                         }
                         else
                         {
@@ -76,17 +68,11 @@ public class InventoryController : MonoBehaviour
                 }
                 else if (!inventoryBounds.Contains(worldPosition) && processedItems.Contains(qRCode.item.qrData.id) && ContainsId(qRCode.item.qrData.id))
                 {
-                    Debug.Log("in entfernen 1");
                     int itemId = qRCode.item.qrData.id;
-                    Debug.Log("in entfernen 2");
                     processedItems.Remove(itemId);
-                    Debug.Log("in entfernen 3");
                     RemoveItem(itemId);
-                    Debug.Log("in entfernen 4");
                     currWeight -= qRCode.item.qrData.weight;
-                    Debug.Log("in entfernen 5");
                     remCap.text = "Verbleibendes Gewicht: " + (cap - currWeight) + "/" + cap;
-                    Debug.Log("in entfernen 6");
                     EventManager.GridUpdate(idGrid);
                 }
             }

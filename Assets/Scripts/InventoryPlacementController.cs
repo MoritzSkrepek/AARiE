@@ -100,10 +100,7 @@ public class InventoryPlacementController : MonoBehaviour
         qrCodesManager.SetActive(true);
         objectPosition = deskPlane.center + Vector3.up * heightOffset;
         wholeInventory.transform.position = objectPosition;
-
-        //Falls Scale fucked is das hier machen:
-        //wholeInventory.transform.localScale = new Vector3();
-        
+        wholeInventory.transform.rotation = Quaternion.Euler(0, 180f, 0);
         wholeInventory.SetActive(true);
         GameObject inventory = wholeInventory.transform.Find("inventory").gameObject;
         inventoryController.SetInventoryObject(inventory);
