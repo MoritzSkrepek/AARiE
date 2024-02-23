@@ -1,19 +1,17 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
+using System.Text.Json;
+
 
 public class RequestManager : MonoBehaviour
 {
     private HttpListener listener;
-    private string[] laptops = new string[2];
     private int port = 9090;
-    private List<MessageData> messageDataList = new List<MessageData>();
+    private List<string> messageDataList = new List<string>();
     private readonly object messageDataLock = new object();
 
     private void Start()
@@ -25,6 +23,7 @@ public class RequestManager : MonoBehaviour
         Thread listenerThread = new Thread(Listen);
         listenerThread.Start();
     }
+
     private void Listen()
     {
         EventManager.OnMessageSend += addMessage;
@@ -107,8 +106,7 @@ public class RequestManager : MonoBehaviour
         if (!string.IsNullOrEmpty(requestBody))
         {
             MessageData messageData = JsonUtility.FromJson<MessageData>(requestBody);
-
-            EventManager.ReceiveMsg(messageData.username, messageData.message);
+            addMessage(messageData.username, messageData.message);
             Debug.Log($"Received message: {messageData.username} - {messageData.message}");
         }
     }
@@ -117,7 +115,7 @@ public class RequestManager : MonoBehaviour
     {
         lock (messageDataLock)
         {
-            messageDataList.Add(new MessageData { username = username, message = message });
+            messageDataList.Add(JsonUtility.ToJson(new MessageData { username = username, message = message }));
         }
     }
 
@@ -129,19 +127,17 @@ public class RequestManager : MonoBehaviour
         context.Response.ContentLength64 = responseBytes.Length;
         context.Response.OutputStream.Write(responseBytes, 0, responseBytes.Length);
 
-
         context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
         context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
 
         context.Response.Close();
     }
-
 }
 
 [Serializable]
 public class MessageData
 {
-    public string username;
-    public string message;
+    public string username { get; set; }
+    public string message { get; set; }
 }
