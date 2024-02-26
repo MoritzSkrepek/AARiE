@@ -2,330 +2,327 @@
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-	<title>Networking</title>
-	<style>
-		html, body {
-			height: 100%;
-		}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <title>Networking</title>
+    <style>
+        html, body {
+            height: 100%;
+        }
 
-		.container-fluid {
-			overflow: hidden;
-		}
+        .container-fluid {
+            overflow: hidden;
+        }
 
-		.header-dark {
-			background-color: #172030; /* Dark color for the left column header */
-			color: #ffffff; /* White text on dark background */
-		}
+        .header-dark {
+            background-color: #2A3A59;
+            color: #ffffff;
+            padding: 5vh 0; /* Padding added to make headers equal height */
+        }
 
-		.btn-primary {
-			background-color: #172030; /* Dark color for buttons */
-			border-color: #172030; /* Border color */
-		}
+        .btn-primary {
+            background-color: #2A3A59;
+            border-color: #2A3A59;
+        }
 
-			.btn-primary:hover {
-				color: white;
-				background-color: #18314F;
-				border-color: #0D0630;
-			}
+            .btn-primary:hover {
+                color: white;
+                background-color: #18314F;
+                border-color: #0D0630;
+            }
 
-		.message-bubble {
-			display: flex;
-			flex-direction: column;
-			max-width: 70%;
-			background-color: #384E77;
-			color: #ffffff;
-			padding: 10px;
-			margin: 10px;
-			border-radius: 10px;
-			position: relative;
-		}
+        .message-bubble {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+            background-color: #384E77;
+            color: #ffffff;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 10px;
+            position: relative;
+        }
 
-		.message-row {
-			display: flex;
-			justify-content: flex-start; /* Align items to the left */
-			align-items: center; /* Center items vertically */
-		}
+        .message-row {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
 
-		.column1 {
-			display: flex;
-			flex-direction: column;
-			flex-grow: 1;
-		}
+        .column1 {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
 
-		.delete-button {
-			width: 30px; /* Set a fixed width for the delete button */
-			height: 30px; /* Set a fixed height for the delete button */
-			margin-left: 10px; /* Add space between message and delete button */
-			background-color: #FF6347;
-			color: white;
-			border: none;
-			padding: 0; /* Remove padding to ensure fixed size */
-			border-radius: 5px;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-		}
-
-		/* Added styles for centering message bubbles */
-		.message-output {
-			display: flex;
-			flex-direction: column;
-			/* align-items: center; Remove this line */
-			padding-top: 10px;
-			height: 100%;
-			overflow-y: auto;
-		}
-	</style>
+        .message-output {
+            display: flex;
+            flex-direction: column;
+            padding-top: 10px;
+            height: 100%;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 
 <body class="d-flex flex-column h-100">
 
-	<div class="container-fluid flex-grow-1">
-		<div class="row h-100">
-			<div class="col-md-8 border-right p-0" style="background-color: #384E77">
-				<!-- Header with Button and Title -->
-				<header class="header-dark text-light p-3 d-flex justify-content-between">
-					<div class="col-md-1 p-0">
-						<button class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; border-radius: 50%; background-color: #ffffff; border: 1px solid #ffffff;" data-toggle="modal" data-target="#settingsModal">
-							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#0D0630" class="bi bi-sliders" viewBox="0 0 16 16">
-								<path fill-rule="evenodd" d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1z" />
-							</svg>
-						</button>
-					</div>
-					<div class="col-md-11 text-center">
-						<h1>Sende deine Nachricht über das lokale Netzwerk!</h1>
-					</div>
-				</header>
+  <div class="container-fluid flex-grow-1">
+    <div class="row h-100">
+      <div class="col-md-8 border-right p-0" style="background-color: #384E77">
+        <header class="header-dark text-light p-3 d-flex justify-content-between align-items-center">
+          <div class="col-md-1 p-0">
+            <button class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; border-radius: 50%; background-color: #ffffff; border: 1px solid #ffffff;" data-toggle="modal" data-target="#settingsModal">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#0D0630" class="bi bi-sliders" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1z" />
+              </svg>
+            </button>
+          </div>
+          <div class="col-md-11 text-center">
+            <h1>Sende deine Nachricht über das lokale Netzwerk!</h1>
+          </div>
+        </header>
 
-				<!-- Content -->
-				<div class="d-flex flex-column align-items-center" style="margin-top: 25%; margin-bottom: 75%">
-					<div class="content p-4 align-middle">
-						<!-- Your content goes here -->
-						<div class="form-group" style="color: white">
-							<label for="username" style="width: 800px">Benutzername</label>
-							<input type="text" id="username" class="form-control" placeholder="Max Mustermann" maxlength="40">
-						</div>
-						<div class="form-group" style="color: white">
-							<label for="message">Nachricht</label>
-							<input type="text" id="message" class="form-control" placeholder="Hallo!" maxlength="40">
-						</div>
-						<button class="btn btn-primary btn-block" onclick="validateAndSendMessage()">Submit</button>
-					</div>
-				</div>
-			</div>
+        <div class="d-flex flex-column align-items-center" style="margin-top: 25%; margin-bottom: 75%">
+          <div class="content p-4 align-middle">
+            <div class="form-group" style="color: white">
+              <label for="username" style="width: 800px">Benutzername</label>
+              <input type="text" id="username" class="form-control" placeholder="Max Mustermann" maxlength="40">
+            </div>
+            <div class="form-group" style="color: white">
+              <label for="message">Nachricht</label>
+              <input type="text" id="message" class="form-control" placeholder="Hallo!" maxlength="40">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="validateAndSendMessage()">Submit</button>
+          </div>
+        </div>
+      </div>
 
-			<div class="col-md-4 p-0" style="background-color: #2a3a59">
-				<!-- Sidebar -->
-				<header class="header-dark text-light p-3 d-flex justify-content-center align-items-center">
-					<h1>Nachrichtenverlauf</h1>
-				</header>
+      <div class="col-md-4 p-0" style="background-color: #2c3e5f">
+        <header class="header-dark text-light p-3 d-flex justify-content-center align-items-center">
+          <h1>Nachrichtenverlauf</h1>
+        </header>
 
-				<div class="message-output p-4" style="color: white">
-					<!-- This is where messages will be displayed -->
-				</div>
-			</div>
-		</div>
-	</div>
+        <div class="message-output p-4" style="color: white">
+          <!-- This is where messages will be displayed -->
+        </div>
+      </div>
+    </div>
+  </div>
 
-	<!-- Settings Modal -->
-	<div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="settingsModalLabel">Einstellungen</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<!-- Label and input allowing only numbers and dots -->
-					<div class="form-group">
-						<label for="numericInput">IP-Adresse der HoloLens2</label>
-						<input type="text" id="numericInput" class="form-control" placeholder="z.B.: 192.168.20.1" onkeypress="return isNumberKey(event)">
-					</div>
+  <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="settingsModalLabel">Einstellungen</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="numericInput">IP-Adresse der HoloLens2</label>
+            <input type="text" id="numericInput" class="form-control" placeholder="z.B.: 192.168.20.1" onkeypress="return isNumberKey(event)">
+          </div>
+          <div class="form-group">
+            <label for="label1" maxlength="50"></label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" onclick="clearChat()" style="width: 30%;">Chat leeren</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width: 35%;">Schließen</button>
+          <button type="button" class="btn btn-primary" onclick="connect()" style="width: 35%;">Verbinden</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-					<!-- Two stacked labels -->
-					<div class="form-group">
-						<label for="label1" maxlength="50"></label>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
-					<button type="button" class="btn btn-primary" onclick="connect()">Verbinden</button>
-				</div>
-			</div>
-		</div>
-	</div>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
 
-	<!-- Bootstrap and Font Awesome Scripts -->
-	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-	<script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
 
-	<script>
+  <script>
+
+    
+
+    // Function to display message in the log
+    function showMessage(username, message) {
+      var messageOutput = document.querySelector(".message-output");
+
+      // Create a new message bubble
+      var messageBubble = document.createElement("div");
+      messageBubble.classList.add("message-bubble");
+
+      // Create a message row
+      var messageRow = document.createElement("div");
+      messageRow.classList.add("message-row");
+
+      // Create column1 for username and message
+      var column1 = document.createElement("div");
+      column1.classList.add("column1");
+
+      // Create a username element
+      var usernameElement = document.createElement("div");
+      usernameElement.classList.add("username");
+      usernameElement.textContent = username;
+
+      // Create a message element
+      var messageElement = document.createElement("div");
+      messageElement.classList.add("message");
+      messageElement.textContent = message;
+
+      // Append username and message to column1
+      column1.appendChild(usernameElement);
+      column1.appendChild(messageElement);
+
+      // Create column2 for delete button
+      var column2 = document.createElement("div");
+      column2.classList.add("column2");
+
+      // Append column1 and column2 to message row
+      messageRow.appendChild(column1);
+      messageRow.appendChild(column2);
+
+      // Append message row to message bubble
+      messageBubble.appendChild(messageRow);
+
+      // Append the message bubble to the message-output div
+      messageOutput.appendChild(messageBubble);
+
+      // Clear the input fields after sending a message
+      document.getElementById("username").value = "";
+      document.getElementById("message").value = "";
+    }
+
+    // Function to check if entered key is number or not
+    function isNumberKey(evt) {
+      var charCode = (evt.which) ? evt.which : evt.keyCode;
+      if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+        return false;
+      }
+      return true;
+    }
 
 		let ipAddress = '';
 
-		// Function to display message in the log
-		// Function to display message in the log
-		function showMessage(username, message) {
-			var messageOutput = document.querySelector(".message-output");
+    async function validateAndSendMessage() {
+      var username = document.getElementById("username").value.trim();
+      var message = document.getElementById("message").value.trim();
 
-			// Create a new message bubble
-			var messageBubble = document.createElement("div");
-			messageBubble.classList.add("message-bubble");
+      if (username !== '' && message !== '') {
+        const messageSent = await sendMessage(username, message);
 
-			// Create a message row
-			var messageRow = document.createElement("div");
-			messageRow.classList.add("message-row");
-
-			// Create column1 for username and message
-			var column1 = document.createElement("div");
-			column1.classList.add("column1");
-
-			// Create a username element
-			var usernameElement = document.createElement("div");
-			usernameElement.classList.add("username");
-			usernameElement.textContent = username;
-
-			// Create a message element
-			var messageElement = document.createElement("div");
-			messageElement.classList.add("message");
-			messageElement.textContent = message;
-
-			// Append username and message to column1
-			column1.appendChild(usernameElement);
-			column1.appendChild(messageElement);
-
-			// Create column2 for delete button
-			var column2 = document.createElement("div");
-			column2.classList.add("column2");
-
-			// Create a delete button
-			var deleteButton = document.createElement("button");
-			deleteButton.classList.add("delete-button", "btn", "btn-danger");
-			deleteButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">' +
-				'<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"></path></svg>';
-			deleteButton.addEventListener("click", function () {
-				// Remove the message bubble on delete button click
-				messageBubble.remove();
-			});
-
-			// Append delete button to column2
-			column2.appendChild(deleteButton);
-
-			// Append column1 and column2 to message row
-			messageRow.appendChild(column1);
-			messageRow.appendChild(column2);
-
-			// Append message row to message bubble
-			messageBubble.appendChild(messageRow);
-
-			// Append the message bubble to the message-output div
-			messageOutput.appendChild(messageBubble);
-
-			// Clear the input fields after sending a message
-			document.getElementById("username").value = "";
-			document.getElementById("message").value = "";
-		}
-
-		// Function to check if entered key is number or not
-		function isNumberKey(evt) {
-			var charCode = (evt.which) ? evt.which : evt.keyCode;
-			if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
-				return false;
-			}
-			return true;
-		}
-
-
-async function validateAndSendMessage() {
-        var username = document.getElementById("username").value.trim();
-        var message = document.getElementById("message").value.trim();
-
-        if (username !== '' && message !== '') {
-            const messageSent = await sendMessage(username, message);
-
-            if (!messageSent) {
-                alert("Message could not be sent.");
-            }
-        } else {
-            alert("Please fill in both fields!");
+        if (!messageSent) {
+          alert("Message could not be sent.");
         }
+      } else {
+        alert("Please fill in both fields!");
+      }
     }
 
     async function connect() {
-        let ipAddress = document.getElementById("numericInput").value.trim();
-        const url = `http://${ipAddress}:9090/connect`;
+      let ipAddress = document.getElementById("numericInput").value.trim();
+      const url = `http://${ipAddress}:9090/connect`;
 
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Failed to connect.');
-            }
-            alert('Connected successfully.');
-        } catch (error) {
-            ipAddress = '';
-            console.error('Error connecting to HoloLens:', error.message);
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Failed to connect.');
         }
+        alert('Connected successfully.');
+      } catch (error) {
+        ipAddress = '';
+        console.error('Error connecting to HoloLens:', error.message);
+      }
     }
+
+    async function clearChat() {
+			let ipAddress = document.getElementById("numericInput").value.trim();
+			if (ipAddress === '') {
+				alert('IP Address is empty. Please connect first.');
+				return;
+			}
+
+			const url = `http://${ipAddress}:9090/delete-list`;
+			const messageOutput = document.querySelector(".message-output");
+			messageOutput.innerHTML = '';
+			try {
+				const response = await fetch(url);
+				if (!response.ok) {
+					throw new Error('Failed to delete.');
+				}
+				alert('Liste gelöscht.');
+			} catch (error) {
+				console.error('Error deleting message list:', error.message);
+			}
+		}
 
     async function getMessages() {
-        let ipAddress = document.getElementById("numericInput").value.trim();
-        const url = `http://${ipAddress}:9090/get-messages`;
+      let ipAddress = document.getElementById("numericInput").value.trim();
+      const url = `http://${ipAddress}:9090/get-messages`;
 
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Failed to get messages.');
-            }
-            const messages = await response.json();
-
-            const messageOutput = document.querySelector(".message-output");
-            messageOutput.innerHTML = '';
-
-						console.log(messages);
-            messages.forEach(message => {
-                showMessage(message.username, message.message);
-            });
-        } catch (error) {
-            console.error('Error getting messages:', error.message);
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Failed to get messages.');
         }
+        const jsonResponse = await response.json();
+
+        const usernameInput = document.getElementById("username");
+        const messageInput = document.getElementById("message");
+        const usernameValue = usernameInput.value;
+        const messageValue = messageInput.value;
+
+        // Display received messages
+        const messageOutput = document.querySelector(".message-output");
+        messageOutput.innerHTML = ''; // Clear previous messages
+        jsonResponse.forEach(message => {
+          jsonMessage = JSON.parse(message);
+          showMessage(jsonMessage.username, jsonMessage.message);
+        });
+
+        usernameInput.value = usernameValue;
+        messageInput.value = messageValue;
+      } catch (error) {
+        console.error('Error getting messages:', error.message);
+      }
     }
 
-		 async function sendMessage() {
-			const username = document.getElementById("username").value.trim();
-			const message = document.getElementById("message").value.trim();
-			let ipAddress = document.getElementById("numericInput").value.trim(); // Get the IP address from the input field
-			const url = `http://${ipAddress}:9090/message`;
+    async function sendMessage(username, message) {
+      let ipAddress = document.getElementById("numericInput").value.trim(); // Get the IP address from the input field
+      const url = `http://${ipAddress}:9090/message`;
 
-			if (username !== '' && message !== '') {
-					const response = await fetch(url, {
-							method: 'POST',
-							headers: {
-									'Content-Type': 'application/json'
-							},
-							body: JSON.stringify({ username, message })
-					});
+      if (username !== '' && message !== '') {
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, message })
+          });
 
-					if (response.ok) {
-							console.log('Message sent successfully.');
-							return true;
-					} else {
-							console.error('Failed to send message.');
-							return false;
-					}
-			} else {
-					alert('Please fill in both username and message.');
-					return false;
-			}
-	}
+          if (response.ok) {
+            console.log('Message sent successfully.');
+            return true;
+          } else {
+            console.error('Failed to send message.');
+            return false;
+          }
+        } catch (error) {
+          console.error('Error sending message:', error.message);
+          return false;
+        }
+      } else {
+        alert('Please fill in both username and message.');
+        return false;
+      }
+    }
 
 
     setInterval(getMessages, 5000);
-	</script>
+  </script>
+
