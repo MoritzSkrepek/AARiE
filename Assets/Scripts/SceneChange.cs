@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -5,23 +6,37 @@ public class SceneChanger : MonoBehaviour
 {
     public string sceneToLoad;
 
-    // Referenz auf das SpawnPrefab-Skript
-    public SpawnPrefab spawnPrefabScript;
-
     public void ChangeScene()
     {
-        // Szene wechseln
+        // Prüfen, ob die zu ladende Szene level_1 oder Level_2 ist
+        if (sceneToLoad == "Level_1" || sceneToLoad == "Level_2")
+        {
+            GameObject menuManager = GameObject.FindGameObjectWithTag("MenuManager");
+            MenuManager menuScript = menuManager.GetComponent<MenuManager>();
+            Destroy(menuScript.spawnedMenu);
+            Debug.Log("menugone");
+        }
+        // Wenn die zu ladende Szene "main_menu" ist, dann Menü spawnen
+        else if (sceneToLoad == "main_menu")
+        {
+            // Menü-Prefab spawnen, falls Menu_Spawn vorhanden
+            GameObject menuSpawn = GameObject.FindGameObjectWithTag("menu(Clone)");
+            if (menuSpawn != null)
+            {
+                MenuManager menuSpawnScript = menuSpawn.GetComponent<MenuManager>();
+                if (menuSpawnScript != null)
+                {
+                    menuSpawnScript.SpawnMenu();
+                }
+            }
+            Debug.Log("scene to load is main_menu");
+        }
+
+        // Szene laden
         if (SceneManager.GetActiveScene().name != sceneToLoad)
         {
-            // Sicherstellen, dass das Menü-Prefab gelöscht wird, bevor die Szene gewechselt wird
-            if (spawnPrefabScript != null)
-            {
-                Debug.Log("Scenechanger menü destroy aufgerufen1");
-                spawnPrefabScript.DestroyMenuPrefab();
-                Debug.Log("Scenechanger menü destroy aufgerufen2");
-            }
-
-            Debug.Log("Scenechanger menü destroy aufgerufen3");
+            Debug.Log(sceneToLoad);
+            Debug.Log("szene laden nach menu");
             PlayerPrefs.DeleteAll();
             SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
         }
