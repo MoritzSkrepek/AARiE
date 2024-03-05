@@ -25,16 +25,11 @@ public class PictureTakingButton : MonoBehaviour
     int showInformation = 0;
     public bool planeInUse = false;
 
-    private Transform camera;
 
     public ARRaycastManager raycastManager;
 
     [SerializeField]
     private GameObject virtualObject;
-
-    public GameObject sendPackageButton;
-
-    public GameObject scanningButton;
 
     public GameObject infoTextT;
 
@@ -48,7 +43,6 @@ public class PictureTakingButton : MonoBehaviour
         EventManager.OnMessageReceived += ShowAndSendPackage;
         cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).FirstOrDefault();
         targetTexture = new Texture2D(cameraResolution.width, cameraResolution.height);
-        camera = Camera.main.transform;
     }
 
     public void takingPicture()
@@ -111,15 +105,13 @@ public class PictureTakingButton : MonoBehaviour
         // Shutdown the photo capture resource
         photoCaptureObject.Dispose();
         photoCaptureObject = null;
-
         if (redPixelCoordinates.Count != 0)
         {
             foreach (Vector2 redPixle in redPixelCoordinates)
             {
                 if (PositionVirtualObject(redPixle, targetTexture))
                 {
-                    sendPackageButton.SetActive(true);
-                    //scanningButton.SetActive(false);
+
                 }
             }
 
@@ -154,16 +146,15 @@ public class PictureTakingButton : MonoBehaviour
 
     public void ShowAndSendPackage(string username, string message)
     {
-        MainThreadDispatcher.Instance().Enqueue(() =>
+        if (isAtEnd)
         {
+            isAtEnd = false;
+            moveToCounter = 1;
+            moveFromCounter = 0;
 
-            if (isAtEnd)
-            {
-                isAtEnd = false;
-                moveToCounter = 1;
-                moveFromCounter = 0;
-
-            }
+        }
+        MainThreadDispatcher.Instance().Enqueue(() =>
+        {            
             Debug.Log("username: " + username + " m: " + message);
             if (isObjectInstantiated == false)
             {
