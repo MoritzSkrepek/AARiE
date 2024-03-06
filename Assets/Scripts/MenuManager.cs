@@ -4,28 +4,13 @@ using UnityEngine.SceneManagement;
 public class MenuManager : MonoBehaviour
 {
     public GameObject menuPrefab;
-    public GameObject spawnedMenu;
+    public Transform cameraPosition;
 
-    private void Start()
+    private void Awake()
     {
-        SpawnMenu();
-    }
-
-    public void SpawnMenu()
-    {
-        // Sicherstellen, dass das Menü-Prefab zugewiesen ist
-        if (menuPrefab != null)
-        {
-            // Menü-Prefab spawnen
-            spawnedMenu.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-            spawnedMenu = Instantiate(menuPrefab, transform.position, Quaternion.identity);
-
-            Debug.Log("Menu spawned.");
-            Debug.Log(spawnedMenu);
-        }
-        else
-        {
-            Debug.LogError("Menu Prefab not assigned!");
-        }
+        Vector3 newSpawnPoint = new Vector3(cameraPosition.position.x, cameraPosition.position.y, cameraPosition.position.z + 1);
+        menuPrefab.transform.position = newSpawnPoint;
+        menuPrefab.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+        menuPrefab.SetActive(true);
     }
 }
