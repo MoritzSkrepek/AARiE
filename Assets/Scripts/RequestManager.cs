@@ -116,6 +116,8 @@ public class RequestManager : MonoBehaviour
         {
             MessageData messageData = JsonSerializer.Deserialize<MessageData>(requestBody);
             addMessage(messageData.username, messageData.message);
+            EventManager.ReceiveMsg(messageData.username, messageData.message); //Hat Jonas Hinzugefügt
+
             Debug.Log($"Received message: {messageData.username} - {messageData.message}");
         }
     }
