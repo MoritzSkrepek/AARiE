@@ -17,10 +17,9 @@ public class MenuManager : MonoBehaviour
         if (menuPrefab != null)
         {
             // Menü-Prefab spawnen
+            spawnedMenu.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
             spawnedMenu = Instantiate(menuPrefab, transform.position, Quaternion.identity);
 
-            // Größe des Menüs ändern
-            spawnedMenu.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
             Debug.Log("Menu spawned.");
             Debug.Log(spawnedMenu);
         }
