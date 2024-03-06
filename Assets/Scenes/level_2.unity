@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -501,7 +501,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToLoad: main_menu
-  spawnPrefabScript: {fileID: 0}
 --- !u!1 &278432895
 GameObject:
   m_ObjectHideFlags: 0
@@ -898,7 +897,7 @@ GameObject:
   - component: {fileID: 472987675}
   - component: {fileID: 472987676}
   m_Layer: 0
-  m_Name: KnappsackSolver
+  m_Name: KnapsackSolver
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1453,13 +1452,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4336476877151286006, guid: 03faaef33e9674f439fff2ba65fc1cec, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 6406597574219561221, guid: 03faaef33e9674f439fff2ba65fc1cec, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 03faaef33e9674f439fff2ba65fc1cec, type: 3}
 --- !u!1 &1136453456 stripped
 GameObject:
@@ -2571,7 +2564,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8110664055982005406, guid: f443144a6d408c34bb8a7d70a73644c4, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 8110664055982005406, guid: f443144a6d408c34bb8a7d70a73644c4, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -2710,7 +2703,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToLoad: level_2
-  spawnPrefabScript: {fileID: 0}
 --- !u!114 &1645270690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2724,7 +2716,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToLoad: Level_1
-  spawnPrefabScript: {fileID: 0}
 --- !u!114 &1645270691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3720,7 +3711,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToLoad: main_menu
-  spawnPrefabScript: {fileID: 0}
 --- !u!1 &2140758030
 GameObject:
   m_ObjectHideFlags: 0
