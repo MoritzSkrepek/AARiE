@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class LoadingCircle : MonoBehaviour
 {
     public GameObject border;
-    private float runningTime = 0.0f;
     private float fillSpeed = 0.1f;
     private bool isRunnig = false;
 

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using TMPro;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Windows.WebCam;
@@ -22,16 +22,13 @@ public class PictureTakingButton : MonoBehaviour
     GameObject instantiatedObject;
     bool isObjectInstantiated = false;
     bool shouldMove = false;
-    int showInformation = 0;
+    bool showInformation = true;
     public bool planeInUse = false;
-
 
     public ARRaycastManager raycastManager;
 
     [SerializeField]
     private GameObject virtualObject;
-
-    public GameObject infoTextT;
 
     public GameObject infoTextS;
 
@@ -66,9 +63,9 @@ public class PictureTakingButton : MonoBehaviour
                     {
 
                         photoCaptureObject.StartPhotoModeAsync(cameraParameters, delegate (PhotoCapture.PhotoCaptureResult result)
-                    {
-                        photoCaptureObject.TakePhotoAsync(onCapturedPhotoToMemory);
-                    });
+                        {
+                            photoCaptureObject.TakePhotoAsync(onCapturedPhotoToMemory);
+                        });
 
                     }
                     catch (Exception e)
@@ -105,16 +102,15 @@ public class PictureTakingButton : MonoBehaviour
         // Shutdown the photo capture resource
         photoCaptureObject.Dispose();
         photoCaptureObject = null;
+
         if (redPixelCoordinates.Count != 0)
         {
             foreach (Vector2 redPixle in redPixelCoordinates)
             {
                 if (PositionVirtualObject(redPixle, targetTexture))
                 {
-
                 }
             }
-
         }
         takingNewPicture = false;
         loadingCircleCanvas.GetComponent<LoadingCircle>().StopLoading();
@@ -123,25 +119,16 @@ public class PictureTakingButton : MonoBehaviour
 
     public void ShowInformation()
     {
-        if (showInformation == 0)
+        if (showInformation)
         {
-            infoTextT.SetActive(true);
-            infoTextT.transform.position = cablePositinos[(cablePositinos.Count - 1) / 2] + new Vector3(0, 0.10f, 0.2f);
-            showInformation = 1;
-        }
-        else if (showInformation == 1)
-        {
-            infoTextT.SetActive(false);
             infoTextS.SetActive(true);
             infoTextS.transform.position = cablePositinos[(cablePositinos.Count - 1) / 2] + new Vector3(0, 0.10f, 0.2f);
-            showInformation = 2;
         }
-        else if (showInformation == 2)
+        else
         {
-            infoTextT.SetActive(false);
             infoTextS.SetActive(false);
-            showInformation = 0;
         }
+        showInformation = !showInformation;
     }
 
     public void ShowAndSendPackage(string username, string message)
@@ -151,11 +138,9 @@ public class PictureTakingButton : MonoBehaviour
             isAtEnd = false;
             moveToCounter = 1;
             moveFromCounter = 0;
-
         }
         MainThreadDispatcher.Instance().Enqueue(() =>
-        {            
-            Debug.Log("username: " + username + " m: " + message);
+        {
             if (isObjectInstantiated == false)
             {
                 instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
@@ -167,6 +152,9 @@ public class PictureTakingButton : MonoBehaviour
                 instantiatedObject = Instantiate(virtualObject, cablePositinos[0], Quaternion.identity);
             }
             shouldMove = !shouldMove;
+            EditTextOfInformationObject editTextOfInformationObject = new EditTextOfInformationObject(infoTextS);
+            editTextOfInformationObject.GetTextMeshProFromChild();
+            editTextOfInformationObject.EditText(username, message);
             EventManager.SendMsg(username, message);
         });
     }
@@ -197,7 +185,6 @@ public class PictureTakingButton : MonoBehaviour
             }
         }
 
-        Debug.Log(longestRedLine.Count());
         if (longestRedLine.Count() > 0)
         {
             addPointsForRaycast(longestRedLine);
@@ -205,6 +192,7 @@ public class PictureTakingButton : MonoBehaviour
 
         return textureToEdit;
     }
+
     void addPointsForRaycast(List<Vector2> longestRedLine)
     {
         redPixelCoordinates.Add(new Vector2(longestRedLine[0].x, longestRedLine[0].y));
@@ -501,7 +489,6 @@ public class PictureTakingButton : MonoBehaviour
                     if (hits[i] != null)
                     {
                         cablePositinos.Add(new Vector3(hits[i].pose.position.x, hits[i].pose.position.y + 0.05f, hits[i].pose.position.z));
-                        //debugRaycast(hits[i], Color.red);
                         break;
                     }
                     else
@@ -522,7 +509,7 @@ public class PictureTakingButton : MonoBehaviour
     }
     private List<GameObject> instantiatedObjects = new List<GameObject>();
 
-    void debugRaycast(ARRaycastHit hit, Color color)
+    void debugRaycast(ARRaycastHit hit)
     {
 
         Debug.Log("Ray hit position: " + hit.pose.position);
