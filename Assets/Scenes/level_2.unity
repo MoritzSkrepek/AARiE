@@ -1968,9 +1968,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf9c02c72aa27cd429f261e0f90a1d53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventoryObject: {fileID: 1477922843}
-  inventoryPlacementObject: {fileID: 367659235}
-  KnapsackAlgoObject: {fileID: 472987673}
+  perfectSolutionInventory: {fileID: 4530217326637089765, guid: 5ce1c5416acfc8c409c8080f07c78307, type: 3}
+  inventoryPlacementController: {fileID: 367659235}
+  KnapsackSolver: {fileID: 472987673}
   inventory: {fileID: 379523394}
 --- !u!1 &1504251771
 GameObject:

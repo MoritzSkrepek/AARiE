@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class PerfectSolutionVisualizer : MonoBehaviour
 {
-    public GameObject inventoryObject;
-    public GameObject inventoryPlacementObject;
-    public GameObject KnapsackAlgoObject;
+    public GameObject perfectSolutionInventory;
+    public GameObject inventoryPlacementController;
+    public GameObject KnapsackSolver;
     public Transform inventory;
 
     private InventoryPlacementController anchorScript;
@@ -21,17 +21,17 @@ public class PerfectSolutionVisualizer : MonoBehaviour
         isClicked = !isClicked;
         if (isClicked)
         {
-            anchorScript = inventoryPlacementObject.GetComponent<InventoryPlacementController>();
+            anchorScript = inventoryPlacementController.GetComponent<InventoryPlacementController>();
             originalInventoryPosition = anchorScript.objectPosition;
-            knapsackSolver = KnapsackAlgoObject.GetComponent<KnapsackSolver>();
+            knapsackSolver = KnapsackSolver.GetComponent<KnapsackSolver>();
             perfectSolution = knapsackSolver.usedItems;
             setNewPosition();
-            inventoryObject.SetActive(isClicked);
+            perfectSolutionInventory.SetActive(isClicked);
             fillInventory();
         }
         else
         {
-            inventoryObject.SetActive(isClicked);
+            perfectSolutionInventory.SetActive(isClicked);
         }
     }
 
@@ -40,9 +40,9 @@ public class PerfectSolutionVisualizer : MonoBehaviour
         //alt: 0.45, 0.205
         //neu: 0.3, 0.19
         Vector3 newPosition = originalInventoryPosition + Vector3.forward * 0.395f + Vector3.up * 0.16f;
-        inventoryObject.transform.position = newPosition;
+        perfectSolutionInventory.transform.position = newPosition;
         Quaternion objectRotation = Quaternion.Euler(-45f, 0f, 0f);
-        inventoryObject.transform.rotation = objectRotation;
+        perfectSolutionInventory.transform.rotation = objectRotation;
     }
 
     private void fillInventory()
