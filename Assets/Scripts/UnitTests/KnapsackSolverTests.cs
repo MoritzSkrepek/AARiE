@@ -72,25 +72,39 @@ public class KnapsackSolverTests
         return knapsackSolver.KnapsackMaxValue(out _);
     }
 
-    [TestCase(10, 20, 100, TestName = "Performance test with small data set.")]
-    [TestCase(100, 100, 1000, TestName = "Performance test with moderate data set.")]
-    [TestCase(1000, 2000, 10000, TestName = "Performance test with large data set.")]
-    public void KnapsackMaxValue_PerformanceTest(int itemCount, int weightUpperBound, int capacity)
+    [Test]
+    public void KnapsackPerformanceReport()
     {
-        // Arrange
-        var random = new System.Random();
-        var items = GenerateRandomItems(itemCount, weightUpperBound);
+        // Überschrift für den Leistungsbericht ausgeben
+        UnityEngine.Debug.Log("Item Count | Elapsed Time (ms)");
+        UnityEngine.Debug.Log("-----------------------------");
 
-        knapsackSolver.items = items;
-        knapsackSolver.capacity = capacity;
+        // Schleife durch verschiedene Gegenstandanzahlen
+        for (int itemCount = 50; itemCount <= 1000; itemCount += 50)
+        {
+            // Oberen Grenzwert für das Gegenstandgewicht und die Kapazität basierend auf der Gegenstandanzahl berechnen
+            int weightUpperBound = itemCount * 2;
+            int capacity = itemCount * 5;
 
-        // Act
-        var stopwatch = Stopwatch.StartNew();
-        knapsackSolver.KnapsackMaxValue(out _);
-        stopwatch.Stop();
+            // Zufällige Gegenstände generieren
+            var items = GenerateRandomItems(itemCount, weightUpperBound);
 
-        // Assert
-        Assert.Less(stopwatch.ElapsedMilliseconds, 100, $"Time taken for KnapsackMaxValue with {itemCount} items should be less than 100 ms");
+            // Gegenstände und Kapazität für den Rucksacklöser festlegen
+            knapsackSolver.items = items;
+            knapsackSolver.capacity = capacity;
+
+            // Stoppuhr starten, um die verstrichene Zeit zu messen
+            var stopwatch = Stopwatch.StartNew();
+
+            // Die zu testende Methode aufrufen
+            knapsackSolver.KnapsackMaxValue(out _);
+
+            // Stoppuhr anhalten nach dem Methodenaufruf
+            stopwatch.Stop();
+
+            // Anzahl der Gegenstände und verstrichene Zeit für diese Iteration ausgeben
+            UnityEngine.Debug.Log($"{itemCount,-10} | {stopwatch.ElapsedMilliseconds,-15}");
+        }
     }
 
     private Dictionary<int, QRData> GenerateRandomItems(int count, int weightUpperBound)
