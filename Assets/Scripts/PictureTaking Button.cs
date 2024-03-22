@@ -131,7 +131,7 @@ public class PictureTakingButton : MonoBehaviour
         showInformation = !showInformation;
     }
 
-    public void ShowAndSendPackage(string username, string message)
+    public void ShowAndSendPackage(string username, string message, string side)
     {
         if (isAtEnd)
         {
@@ -155,7 +155,7 @@ public class PictureTakingButton : MonoBehaviour
             EditTextOfInformationObject editTextOfInformationObject = new EditTextOfInformationObject(infoTextS);
             editTextOfInformationObject.GetTextMeshProFromChild();
             editTextOfInformationObject.EditText(username, message);
-            EventManager.SendMsg(username, message);
+            EventManager.SendMsg(username, message, side);
         });
     }
 

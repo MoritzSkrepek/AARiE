@@ -115,18 +115,17 @@ public class RequestManager : MonoBehaviour
         if (!string.IsNullOrEmpty(requestBody))
         {
             MessageData messageData = JsonSerializer.Deserialize<MessageData>(requestBody);
-            addMessage(messageData.username, messageData.message);
-            EventManager.ReceiveMsg(messageData.username, messageData.message); //Hat Jonas Hinzugefügt
+            EventManager.ReceiveMsg(messageData.username, messageData.message, messageData.side);
 
-            Debug.Log($"Received message: {messageData.username} - {messageData.message}");
+            Debug.Log($"Received message: {messageData.username} - {messageData.message} - {messageData.side}");
         }
     }
 
-    private void addMessage(string username, string message)
+    private void addMessage(string username, string message, string side)
     {
         lock (messageDataLock)
         {
-            messageDataList.Add(JsonSerializer.Serialize(new MessageData { username = username, message = message }));
+            messageDataList.Add(JsonSerializer.Serialize(new MessageData { username = username, message = message , side = side}));
         }
     }
 
@@ -151,4 +150,5 @@ public class MessageData
 {
     public string username { get; set; }
     public string message { get; set; }
+    public string side { get; set; }
 }
