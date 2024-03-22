@@ -73,7 +73,7 @@ public class KnapsackSolverTests
     }
 
     [Test]
-    public void KnapsackPerformanceReport()
+    public void KnapsackPerformanceReportItemRange()
     {
         // Überschrift für den Leistungsbericht ausgeben
         UnityEngine.Debug.Log("Item Count | Elapsed Time (ms)");
@@ -107,15 +107,54 @@ public class KnapsackSolverTests
         }
     }
 
+    [Test]
+    public void KnapsackPerformanceReportRangeIteration()
+    {
+        // Überschrift für den Leistungsbericht ausgeben
+        UnityEngine.Debug.Log("Iteration | Elapsed Time (ms)");
+        UnityEngine.Debug.Log("-----------------------------");
+
+        // Konstante für die Anzahl der Gegenstände
+        int itemCount = 20;
+
+        // Oberen Grenzwert für das Gegenstandgewicht basierend auf der Gegenstandanzahl berechnen
+        int weightUpperBound = itemCount * 2;
+
+        // Schleife für 1000 Mal wiederholen
+        for (int i = 1; i <= 500; i++)
+        {
+            // Oberen Grenzwert für die Kapazität basierend auf der Gegenstandanzahl berechnen
+            int capacity = itemCount * 5;
+
+            // Zufällige Gegenstände generieren (festgelegte Anzahl von Gegenständen)
+            var items = GenerateRandomItems(itemCount, weightUpperBound);
+
+            // Gegenstände und Kapazität für den Rucksacklöser festlegen
+            knapsackSolver.items = items;
+            knapsackSolver.capacity = capacity;
+
+            // Stoppuhr starten, um die verstrichene Zeit zu messen
+            var stopwatch = Stopwatch.StartNew();
+
+            // Die zu testende Methode aufrufen
+            knapsackSolver.KnapsackMaxValue(out _);
+
+            // Stoppuhr anhalten nach dem Methodenaufruf
+            stopwatch.Stop();
+
+            // Durchlaufnummer und verstrichene Zeit für diese Iteration ausgeben
+            UnityEngine.Debug.Log($"{i,-9} | {stopwatch.ElapsedTicks / (Stopwatch.Frequency / (1000.0 * 1000.0)):F2} µs");
+        }
+    }
+
     private Dictionary<int, QRData> GenerateRandomItems(int count, int weightUpperBound)
     {
         var items = new Dictionary<int, QRData>();
-        var random = new System.Random();
 
         for (int i = 1; i <= count; i++)
         {
-            int weight = random.Next(1, weightUpperBound + 1);
-            int value = random.Next(1, 101);
+            int weight = UnityEngine.Random.Range(1, weightUpperBound);
+            int value = UnityEngine.Random.Range(1, 100);
             items.Add(i, new QRData { id = i, weight = weight, value = value });
         }
 
