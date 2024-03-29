@@ -37,7 +37,7 @@ public class KnapsackSolverTests
         TestName = "Single item exceeding capacity returns zero value.")]
     [TestCase(30, 50, 30, ExpectedResult = 50,
         TestName = "Single item exact capacity returns expected value.")]
-    public int KnapsackMaxValue_SingleItem_ReturnsExpectedValue(
+    public int KnapsackMaxValue_Item_ReturnsExpectedValue(
         int weight, int value, int capacity)
     {
         // Arrange
