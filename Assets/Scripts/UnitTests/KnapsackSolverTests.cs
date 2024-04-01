@@ -110,26 +110,26 @@ public class KnapsackSolverTests
     [Test]
     public void KnapsackPerformanceReportRangeIteration()
     {
-        // Überschrift für den Leistungsbericht ausgeben
-        UnityEngine.Debug.Log("Iteration | Elapsed Time (ms)");
+        // Ueberschrift fuer den Leistungsbericht ausgeben
+        UnityEngine.Debug.Log("Iteration | Elapsed Time (microseconds)");
         UnityEngine.Debug.Log("-----------------------------");
 
-        // Konstante für die Anzahl der Gegenstände
+        // Konstante fuer die Anzahl der Gegenstaende
         int itemCount = 20;
 
-        // Oberen Grenzwert für das Gegenstandgewicht basierend auf der Gegenstandanzahl berechnen
+        // Oberen Grenzwert fuer das Gegenstandgewicht basierend auf der Gegenstandanzahl berechnen
         int weightUpperBound = itemCount * 2;
 
-        // Schleife für 1000 Mal wiederholen
+        // Schleife fuer 500 wiederholungen
         for (int i = 1; i <= 500; i++)
         {
-            // Oberen Grenzwert für die Kapazität basierend auf der Gegenstandanzahl berechnen
+            // Oberen Grenzwert fuer die Kapazitaet basierend auf der Gegenstandanzahl berechnen
             int capacity = itemCount * 5;
 
-            // Zufällige Gegenstände generieren (festgelegte Anzahl von Gegenständen)
+            // Zufaellige Gegenstaende generieren (festgelegte Anzahl von Gegenstaenden)
             var items = GenerateRandomItems(itemCount, weightUpperBound);
 
-            // Gegenstände und Kapazität für den Rucksacklöser festlegen
+            // Gegenstaende und Kapazitaet fuer den Rucksackloeser festlegen
             knapsackSolver.items = items;
             knapsackSolver.capacity = capacity;
 
@@ -142,8 +142,8 @@ public class KnapsackSolverTests
             // Stoppuhr anhalten nach dem Methodenaufruf
             stopwatch.Stop();
 
-            // Durchlaufnummer und verstrichene Zeit für diese Iteration ausgeben
-            UnityEngine.Debug.Log($"{i,-9} | {stopwatch.ElapsedTicks / (Stopwatch.Frequency / (1000.0 * 1000.0)):F2} µs");
+            // Durchlaufnummer und verstrichene Zeit fuer diese Iteration ausgeben
+            UnityEngine.Debug.Log($"{i,-9} | {stopwatch.ElapsedTicks / (Stopwatch.Frequency / (1000.0 * 1000.0)):F2} Mikrosekunden");
         }
     }
 
