@@ -701,9 +701,11 @@ PlayerSettings:
   metroSplashScreenUseBackgroundColor: 0
   platformCapabilities:
     WindowsStoreApps:
-      PrivateNetworkClientServer: True
       GazeInput: True
+      PrivateNetworkClientServer: True
+      InternetClientServer: True
       SpatialPerception: True
+      InternetClient: False
       WebCam: True
       Microphone: True
   metroTargetDeviceFamilies: {}
