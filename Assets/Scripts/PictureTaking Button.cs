@@ -130,7 +130,7 @@ public class PictureTakingButton : MonoBehaviour
         }
         showInformation = !showInformation;
     }
-
+    public bool rightSideActive;
     public void ShowAndSendPackage(string username, string message, string side)
     {
         if (isAtEnd)
@@ -138,6 +138,11 @@ public class PictureTakingButton : MonoBehaviour
             isAtEnd = false;
             moveToCounter = 1;
             moveFromCounter = 0;
+        }
+        if (side != "left")
+        {
+            cablePositinos.Reverse();
+            rightSideActive = true;
         }
         MainThreadDispatcher.Instance().Enqueue(() =>
         {
@@ -443,15 +448,21 @@ public class PictureTakingButton : MonoBehaviour
             if (moveToCounter < cablePositinos.Count)
             {
                 instantiatedObject.transform.Translate((cablePositinos[moveToCounter] - cablePositinos[moveFromCounter]) * 0.0075f);
+                Debug.Log("1tes moveToCounter: " + moveToCounter + " moveFrom Counter: " + moveFromCounter);
                 if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[moveToCounter]) < 0.00275f)
                 {
                     instantiatedObject.transform.position = cablePositinos[moveToCounter];
-                    Debug.Log("moveToCounter: " + moveToCounter + " moveFrom Counter: " + moveFromCounter);
+                    Debug.Log("2tes moveToCounter: " + moveToCounter + " moveFrom Counter: " + moveFromCounter);
                     moveToCounter++;
                     moveFromCounter++;
                     if (Vector3.Distance(instantiatedObject.transform.position, cablePositinos[cablePositinos.Count - 1]) < 0.00275f)
                     {
                         isAtEnd = true;
+                        if(rightSideActive)
+                        {
+                            cablePositinos.Reverse();
+                            rightSideActive = false;
+                        }
                     }
                 }
             }
