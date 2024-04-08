@@ -122,7 +122,7 @@ public class PictureTakingButton : MonoBehaviour
         if (showInformation)
         {
             infoTextS.SetActive(true);
-            infoTextS.transform.position = cablePositinos[(cablePositinos.Count - 1) / 2] + new Vector3(0, 0.10f, 0.2f);
+            infoTextS.transform.position = cablePositinos[(cablePositinos.Count - 1) / 2] + new Vector3(0, 0.40f, 0.2f);
         }
         else
         {
