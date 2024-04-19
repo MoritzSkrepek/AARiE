@@ -37,8 +37,6 @@ public class PerfectSolutionVisualizer : MonoBehaviour
 
     private void setNewPosition()
     {
-        //alt: 0.45, 0.205
-        //neu: 0.3, 0.19
         Vector3 newPosition = originalInventoryPosition + Vector3.forward * 0.395f + Vector3.up * 0.16f;
         perfectSolutionInventory.transform.position = newPosition;
         Quaternion objectRotation = Quaternion.Euler(-45f, 0f, 0f);
