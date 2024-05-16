@@ -36,7 +36,7 @@ public class KnapsackSolver : MonoBehaviour
             inventoryValue = KnapsackInventoryValue(inventory);
             if (maxValue == inventoryValue)
             {
-                UpdateInfoMesh("Optimale Lösung gefunden", Color.green);
+                UpdateInfoMesh("Optimale LÃ¶sung gefunden", Color.green);
             }
             else
             {
@@ -63,7 +63,7 @@ public class KnapsackSolver : MonoBehaviour
             {
                 if (i == 0 || w == 0)
                     dp[i, w] = 0;
-                else if (i <= n && itemsList[i - 1].weight <= w)
+                else if (itemsList[i - 1].weight <= w)
                 {
                     int newValue = itemsList[i - 1].value + dp[i - 1, w - itemsList[i - 1].weight];
                     if (newValue > dp[i - 1, w])
