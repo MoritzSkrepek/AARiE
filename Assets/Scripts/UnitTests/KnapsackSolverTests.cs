@@ -29,6 +29,8 @@ public class KnapsackSolverTests
         knapsackSolver.items = defaultItems.items;
         knapsackSolver.capacity = capacity;
         int result = knapsackSolver.KnapsackMaxValue(out int[,] usedItems);
+        UnityEngine.Debug.Log("Used Item Ids:");
+        UnityEngine.Debug.Log(GetUsedItemsString(usedItems));
 
         return result;
     }
@@ -177,5 +179,19 @@ public class KnapsackSolverTests
         return items;
     }
 
-
+    private string GetUsedItemsString(int[,] usedItems)
+    {
+        List<int> items = new List<int>();
+        for (int i = 0; i < usedItems.GetLength(0); i++)
+        {
+            for (int j = 0; j < usedItems.GetLength(1); j++)
+            {
+                if (usedItems[i, j] != 0)
+                {
+                    items.Add(usedItems[i, j]);
+                }
+            }
+        }
+        return string.Join(", ", items);
+    }
 }
