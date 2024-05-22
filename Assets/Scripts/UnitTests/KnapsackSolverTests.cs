@@ -141,14 +141,18 @@ public class KnapsackSolverTests
         knapsackSolver.KnapsackMaxValueNew(out int[,] usedItems);
 
         int resultValue = 0;
+        int resultWeight = 0;
 
         foreach (var item in usedItems)
         {
             if (defaultItems.items.TryGetValue(item, out QRData value))
             {
                 resultValue += value.value;
+                resultWeight += value.weight;
             }
         }
+
+        Assert.LessOrEqual(resultWeight, capacity);
 
         return resultValue;
     }
