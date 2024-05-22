@@ -17,7 +17,7 @@ public class KnapsackSolver : MonoBehaviour
     public int capacity = 120;
     public Dictionary<int, QRData> items;
     public int maxItems = 9;
-    
+
     private int[,] inventory;
 
     void Start()
@@ -159,6 +159,7 @@ public class KnapsackSolver : MonoBehaviour
         infoMesh.text = input;
     }
 
+
     public int KnapsackMaxValueNew(out int[,] usedItems)
     {
         int n = items.Count;
@@ -195,10 +196,11 @@ public class KnapsackSolver : MonoBehaviour
             }
         }
 
-        // Backtracking
+        // Backtrack to find selected items
         List<int> tempUsedItems = new List<int>();
         int row = n;
         int col = capacity;
+        Console.WriteLine("Verwendete Artikel (Backtracking):");
         while (row > 0 && col > 0)
         {
             if (selected[row, col])
@@ -209,10 +211,8 @@ public class KnapsackSolver : MonoBehaviour
             row--;
         }
 
-        //If solution contains more than maxItems remove the ones with the worst value/weight ratio
         if (tempUsedItems.Count > maxItems)
         {
-            // Sort items by weight/value ratio and remove the worst ones
             tempUsedItems = tempUsedItems
                 .Select(id => items[id])
                 .OrderBy(item => (double)item.weight / item.value)
@@ -223,13 +223,16 @@ public class KnapsackSolver : MonoBehaviour
 
         usedItems = new int[3, 3];
         int index = 0;
+        int totalValue = 0;
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
             {
                 if (index < tempUsedItems.Count)
                 {
-                    usedItems[i, j] = tempUsedItems[index];
+                    int itemId = tempUsedItems[index];
+                    usedItems[i, j] = itemId;
+                    totalValue += items[itemId].value;
                     index++;
                 }
                 else
@@ -238,7 +241,6 @@ public class KnapsackSolver : MonoBehaviour
                 }
             }
         }
-
-        return dp[n, capacity];
+        return totalValue;
     }
 }
