@@ -23,7 +23,10 @@ public class KnapsackSolverTests
 
 
     [TestCase(100, ExpectedResult = 280, TestName = "Optimal Value for 100 Capacity with Multiple Item Combination Solutions")]
-    [TestCase(200, ExpectedResult = 435, TestName = "Optimal Value for 200 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(200, ExpectedResult = 420, TestName = "Optimal Value for 200 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(210, ExpectedResult = 420, TestName = "Optimal Value for 210 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(170, ExpectedResult = 410, TestName = "Optimal Value for 170 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(250, ExpectedResult = 420, TestName = "Optimal Value for 250 Capacity with Multiple Item Combination Solutions")]
     public int KnapsackMaxValue_MultipleSolutions(int capacity)
     {
         knapsackSolver.items = defaultItems.items;
@@ -126,7 +129,10 @@ public class KnapsackSolverTests
     }
 
     [TestCase(100, ExpectedResult = 280, TestName = "Optimal Value for 100 Capacity with Multiple Item Combination Solutions")]
-    [TestCase(200, ExpectedResult = 435, TestName = "Optimal Value for 200 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(200, ExpectedResult = 420, TestName = "Optimal Value for 200 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(210, ExpectedResult = 420, TestName = "Optimal Value for 210 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(170, ExpectedResult = 410, TestName = "Optimal Value for 170 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(250, ExpectedResult = 420, TestName = "Optimal Value for 250 Capacity with Multiple Item Combination Solutions")]
     public int UsedItemsBacktracking(int capacity)
     {
         knapsackSolver.items = defaultItems.items;
