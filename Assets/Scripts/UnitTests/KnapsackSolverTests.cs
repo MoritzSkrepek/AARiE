@@ -24,24 +24,27 @@ public class KnapsackSolverTests
 
     [TestCase(100, ExpectedResult = 280, TestName = "Optimal Value for 100 Capacity with Multiple Item Combination Solutions")]
     [TestCase(200, ExpectedResult = 435, TestName = "Optimal Value for 200 Capacity with Multiple Item Combination Solutions")]
-    public int KnapsackMaxValue_MultipleSolutions(int capacity)
+    public int KnapsackMaxValueNew_MultipleSolutions(int capacity)
     {
         knapsackSolver.items = defaultItems.items;
         knapsackSolver.capacity = capacity;
-        int result = knapsackSolver.KnapsackMaxValue(out int[,] usedItems);
+        int result = knapsackSolver.KnapsackMaxValueNew(out int[,] usedItems);
+        UnityEngine.Debug.Log("Used Item Ids:");
+        UnityEngine.Debug.Log(GetUsedItemsString(usedItems));
+
 
         return result;
     }
 
     [Test]
-    public void KnapsackMaxValue_NoItems_ReturnsZero()
+    public void KnapsackMaxValueNew_NoItems_ReturnsZero()
     {
         // Arrange
         knapsackSolver.items = new Dictionary<int, QRData>();
         knapsackSolver.capacity = 100;
 
         // Act
-        int maxValue = knapsackSolver.KnapsackMaxValue(out int[,] usedItems);
+        int maxValue = knapsackSolver.KnapsackMaxValueNew(out int[,] usedItems);
 
         // Assert
         Assert.AreEqual(0, maxValue, "The maximum value should be zero when there are no items.");
@@ -53,7 +56,7 @@ public class KnapsackSolverTests
         TestName = "Single item exceeding capacity returns zero value.")]
     [TestCase(30, 50, 30, ExpectedResult = 50,
         TestName = "Single item exact capacity returns expected value.")]
-    public int KnapsackMaxValue_Item_ReturnsExpectedValue(
+    public int KnapsackMaxValueNew_Item_ReturnsExpectedValue(
         int weight, int value, int capacity)
     {
         // Arrange
@@ -62,7 +65,7 @@ public class KnapsackSolverTests
         knapsackSolver.capacity = capacity;
 
         // Act
-        return knapsackSolver.KnapsackMaxValue(out _);
+        return knapsackSolver.KnapsackMaxValueNew(out _);
     }
 
     [TestCase(10, ExpectedResult = 0,
@@ -71,7 +74,7 @@ public class KnapsackSolverTests
         TestName = "All items within capacity return expected value.")]
     [TestCase(70, ExpectedResult = 170,
         TestName = "Multiple items within capacity, return optimal selection.")]
-    public int KnapsackMaxValue_MultipleItems_ReturnsExpectedValue(
+    public int KnapsackMaxValueNew_MultipleItems_ReturnsExpectedValue(
         int capacity)
     {
         // Arrange
@@ -85,7 +88,7 @@ public class KnapsackSolverTests
         knapsackSolver.capacity = capacity;
 
         // Act
-        return knapsackSolver.KnapsackMaxValue(out _);
+        return knapsackSolver.KnapsackMaxValueNew(out _);
     }
 
     [Test]
@@ -113,7 +116,7 @@ public class KnapsackSolverTests
             var stopwatch = Stopwatch.StartNew();
 
             // Die zu testende Methode aufrufen
-            knapsackSolver.KnapsackMaxValue(out _);
+            knapsackSolver.KnapsackMaxValueNew(out _);
 
             // Stoppuhr anhalten nach dem Methodenaufruf
             stopwatch.Stop();
@@ -153,13 +156,13 @@ public class KnapsackSolverTests
             var stopwatch = Stopwatch.StartNew();
 
             // Die zu testende Methode aufrufen
-            knapsackSolver.KnapsackMaxValue(out _);
+            knapsackSolver.KnapsackMaxValueNew(out _);
 
             // Stoppuhr anhalten nach dem Methodenaufruf
             stopwatch.Stop();
 
             // Durchlaufnummer und verstrichene Zeit fuer diese Iteration ausgeben
-            UnityEngine.Debug.Log($"{i,-9} | {stopwatch.ElapsedTicks / (Stopwatch.Frequency / (1000.0 * 1000.0)):F2} Mikrosekunden");
+            UnityEngine.Debug.Log($"{i,-9} | {stopwatch.ElapsedTicks / (Stopwatch.Frequency / (1000.0 * 1000.0)):F2}");
         }
     }
 
@@ -177,5 +180,20 @@ public class KnapsackSolverTests
         return items;
     }
 
+    private string GetUsedItemsString(int[,] usedItems)
+    {
+        List<int> items = new List<int>();
+        for (int i = 0; i < usedItems.GetLength(0); i++)
+        {
+            for (int j = 0; j < usedItems.GetLength(1); j++)
+            {
+                if (usedItems[i, j] != 0)
+                {
+                    items.Add(usedItems[i, j]);
+                }
+            }
+        }
+        return string.Join(", ", items);
+    }
 
 }
