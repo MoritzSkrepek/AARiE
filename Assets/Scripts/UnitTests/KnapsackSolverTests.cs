@@ -126,6 +126,27 @@ public class KnapsackSolverTests
         }
     }
 
+    [TestCase(100, ExpectedResult = 280, TestName = "Optimal Value for 100 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(200, ExpectedResult = 435, TestName = "Optimal Value for 200 Capacity with Multiple Item Combination Solutions")]
+    public int UsedItemsBacktracking(int capacity)
+    {
+        knapsackSolver.items = defaultItems.items;
+        knapsackSolver.capacity = capacity;
+        knapsackSolver.KnapsackMaxValueNew(out int[,] usedItems);
+
+        int resultValue = 0;
+
+        foreach (var item in usedItems)
+        {
+            if (defaultItems.items.TryGetValue(item, out QRData value))
+            {
+                resultValue += value.value;
+            }
+        }
+
+        return resultValue;
+    }
+
     [Test]
     public void KnapsackPerformanceReportRangeIteration()
     {
