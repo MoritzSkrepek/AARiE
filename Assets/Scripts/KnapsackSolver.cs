@@ -1,6 +1,7 @@
 using QRTracking;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using static QRTracking.QRItem;
@@ -156,5 +157,88 @@ public class KnapsackSolver : MonoBehaviour
     {
         infoMesh.color = color;
         infoMesh.text = input;
+    }
+
+    public int KnapsackMaxValueNew(out int[,] usedItems)
+    {
+        int n = items.Count;
+        int[,] dp = new int[n + 1, capacity + 1];
+        bool[,] selected = new bool[n + 1, capacity + 1];
+
+        var itemsList = new List<QRData>(items.Values);
+
+        for (int i = 0; i <= n; i++)
+        {
+            for (int w = 0; w <= capacity; w++)
+            {
+                if (i == 0 || w == 0)
+                    dp[i, w] = 0;
+                else if (itemsList[i - 1].weight <= w)
+                {
+                    int newValue = itemsList[i - 1].value + dp[i - 1, w - itemsList[i - 1].weight];
+                    if (newValue > dp[i - 1, w])
+                    {
+                        dp[i, w] = newValue;
+                        selected[i, w] = true;
+                    }
+                    else
+                    {
+                        dp[i, w] = dp[i - 1, w];
+                        selected[i, w] = false;
+                    }
+                }
+                else
+                {
+                    dp[i, w] = dp[i - 1, w];
+                    selected[i, w] = false;
+                }
+            }
+        }
+
+        // Backtracking
+        List<int> tempUsedItems = new List<int>();
+        int row = n;
+        int col = capacity;
+        while (row > 0 && col > 0)
+        {
+            if (selected[row, col])
+            {
+                tempUsedItems.Add(itemsList[row - 1].id);
+                col -= itemsList[row - 1].weight;
+            }
+            row--;
+        }
+
+        //If solution contains more than maxItems remove the ones with the worst value/weight ratio
+        if (tempUsedItems.Count > maxItems)
+        {
+            // Sort items by weight/value ratio and remove the worst ones
+            tempUsedItems = tempUsedItems
+                .Select(id => items[id])
+                .OrderBy(item => (double)item.weight / item.value)
+                .Take(maxItems)
+                .Select(item => item.id)
+                .ToList();
+        }
+
+        usedItems = new int[3, 3];
+        int index = 0;
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                if (index < tempUsedItems.Count)
+                {
+                    usedItems[i, j] = tempUsedItems[index];
+                    index++;
+                }
+                else
+                {
+                    usedItems[i, j] = 0;
+                }
+            }
+        }
+
+        return dp[n, capacity];
     }
 }

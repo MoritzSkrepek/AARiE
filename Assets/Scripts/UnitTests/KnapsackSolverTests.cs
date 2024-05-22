@@ -4,17 +4,33 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System;
 using UnityEngine;
+using System.Linq;
+using QRTracking;
 
 [TestFixture]
 public class KnapsackSolverTests
 {
     private KnapsackSolver knapsackSolver;
+    private QRItem defaultItems;
 
     [SetUp]
     public void SetUp()
     {
         GameObject solverObject = new GameObject();
         knapsackSolver = solverObject.AddComponent<KnapsackSolver>();
+        defaultItems = new QRItem(0);
+    }
+
+
+    [TestCase(100, ExpectedResult = 280, TestName = "Optimal Value for 100 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(200, ExpectedResult = 435, TestName = "Optimal Value for 200 Capacity with Multiple Item Combination Solutions")]
+    public int KnapsackMaxValue_MultipleSolutions(int capacity)
+    {
+        knapsackSolver.items = defaultItems.items;
+        knapsackSolver.capacity = capacity;
+        int result = knapsackSolver.KnapsackMaxValue(out int[,] usedItems);
+
+        return result;
     }
 
     [Test]
@@ -160,4 +176,6 @@ public class KnapsackSolverTests
 
         return items;
     }
+
+
 }
