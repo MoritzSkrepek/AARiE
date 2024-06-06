@@ -31,7 +31,7 @@ public class KnapsackSolverTests
     {
         knapsackSolver.items = defaultItems.items;
         knapsackSolver.capacity = capacity;
-        int result = knapsackSolver.KnapsackMaxValueNew(out int[,] usedItems);
+        int result = knapsackSolver.KnapsackMaxValue(out int[,] usedItems);
         UnityEngine.Debug.Log("Used Item Ids:");
         UnityEngine.Debug.Log(GetUsedItemsString(usedItems));
 
@@ -47,7 +47,7 @@ public class KnapsackSolverTests
         knapsackSolver.capacity = 100;
 
         // Act
-        int maxValue = knapsackSolver.KnapsackMaxValueNew(out int[,] usedItems);
+        int maxValue = knapsackSolver.KnapsackMaxValue(out int[,] usedItems);
 
         // Assert
         Assert.AreEqual(0, maxValue, "The maximum value should be zero when there are no items.");
@@ -68,7 +68,7 @@ public class KnapsackSolverTests
         knapsackSolver.capacity = capacity;
 
         // Act
-        return knapsackSolver.KnapsackMaxValueNew(out _);
+        return knapsackSolver.KnapsackMaxValue(out _);
     }
 
     [TestCase(10, ExpectedResult = 0,
@@ -91,7 +91,7 @@ public class KnapsackSolverTests
         knapsackSolver.capacity = capacity;
 
         // Act
-        return knapsackSolver.KnapsackMaxValueNew(out _);
+        return knapsackSolver.KnapsackMaxValue(out _);
     }
 
     [Test]
@@ -119,7 +119,7 @@ public class KnapsackSolverTests
             var stopwatch = Stopwatch.StartNew();
 
             // Die zu testende Methode aufrufen
-            knapsackSolver.KnapsackMaxValueNew(out _);
+            knapsackSolver.KnapsackMaxValue(out _);
 
             // Stoppuhr anhalten nach dem Methodenaufruf
             stopwatch.Stop();
@@ -138,7 +138,7 @@ public class KnapsackSolverTests
     {
         knapsackSolver.items = defaultItems.items;
         knapsackSolver.capacity = capacity;
-        knapsackSolver.KnapsackMaxValueNew(out int[,] usedItems);
+        knapsackSolver.KnapsackMaxValue(out int[,] usedItems);
 
         int resultValue = 0;
 
@@ -183,7 +183,7 @@ public class KnapsackSolverTests
             var stopwatch = Stopwatch.StartNew();
 
             // Die zu testende Methode aufrufen
-            knapsackSolver.KnapsackMaxValueNew(out _);
+            knapsackSolver.KnapsackMaxValue(out _);
 
             // Stoppuhr anhalten nach dem Methodenaufruf
             stopwatch.Stop();
