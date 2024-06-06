@@ -4,21 +4,43 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System;
 using UnityEngine;
+using System.Linq;
+using QRTracking;
 
 [TestFixture]
 public class KnapsackSolverTests
 {
     private KnapsackSolver knapsackSolver;
+    private QRItem defaultItems;
 
     [SetUp]
     public void SetUp()
     {
         GameObject solverObject = new GameObject();
         knapsackSolver = solverObject.AddComponent<KnapsackSolver>();
+        defaultItems = new QRItem(0);
+    }
+
+
+    [TestCase(100, ExpectedResult = 280, TestName = "Optimal Value for 100 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(200, ExpectedResult = 420, TestName = "Optimal Value for 200 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(210, ExpectedResult = 420, TestName = "Optimal Value for 210 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(170, ExpectedResult = 410, TestName = "Optimal Value for 170 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(250, ExpectedResult = 420, TestName = "Optimal Value for 250 Capacity with Multiple Item Combination Solutions")]
+    public int KnapsackMaxValueNew_MultipleSolutions(int capacity)
+    {
+        knapsackSolver.items = defaultItems.items;
+        knapsackSolver.capacity = capacity;
+        int result = knapsackSolver.KnapsackMaxValue(out int[,] usedItems);
+        UnityEngine.Debug.Log("Used Item Ids:");
+        UnityEngine.Debug.Log(GetUsedItemsString(usedItems));
+
+
+        return result;
     }
 
     [Test]
-    public void KnapsackMaxValue_NoItems_ReturnsZero()
+    public void KnapsackMaxValueNew_NoItems_ReturnsZero()
     {
         // Arrange
         knapsackSolver.items = new Dictionary<int, QRData>();
@@ -37,7 +59,7 @@ public class KnapsackSolverTests
         TestName = "Single item exceeding capacity returns zero value.")]
     [TestCase(30, 50, 30, ExpectedResult = 50,
         TestName = "Single item exact capacity returns expected value.")]
-    public int KnapsackMaxValue_Item_ReturnsExpectedValue(
+    public int KnapsackMaxValueNew_Item_ReturnsExpectedValue(
         int weight, int value, int capacity)
     {
         // Arrange
@@ -55,7 +77,7 @@ public class KnapsackSolverTests
         TestName = "All items within capacity return expected value.")]
     [TestCase(70, ExpectedResult = 170,
         TestName = "Multiple items within capacity, return optimal selection.")]
-    public int KnapsackMaxValue_MultipleItems_ReturnsExpectedValue(
+    public int KnapsackMaxValueNew_MultipleItems_ReturnsExpectedValue(
         int capacity)
     {
         // Arrange
@@ -107,6 +129,30 @@ public class KnapsackSolverTests
         }
     }
 
+    [TestCase(100, ExpectedResult = 280, TestName = "Optimal Value for 100 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(200, ExpectedResult = 420, TestName = "Optimal Value for 200 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(210, ExpectedResult = 420, TestName = "Optimal Value for 210 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(170, ExpectedResult = 410, TestName = "Optimal Value for 170 Capacity with Multiple Item Combination Solutions")]
+    [TestCase(250, ExpectedResult = 420, TestName = "Optimal Value for 250 Capacity with Multiple Item Combination Solutions")]
+    public int UsedItemsBacktracking(int capacity)
+    {
+        knapsackSolver.items = defaultItems.items;
+        knapsackSolver.capacity = capacity;
+        knapsackSolver.KnapsackMaxValue(out int[,] usedItems);
+
+        int resultValue = 0;
+
+        foreach (var item in usedItems)
+        {
+            if (defaultItems.items.TryGetValue(item, out QRData value))
+            {
+                resultValue += value.value;
+            }
+        }
+
+        return resultValue;
+    }
+
     [Test]
     public void KnapsackPerformanceReportRangeIteration()
     {
@@ -143,7 +189,7 @@ public class KnapsackSolverTests
             stopwatch.Stop();
 
             // Durchlaufnummer und verstrichene Zeit fuer diese Iteration ausgeben
-            UnityEngine.Debug.Log($"{i,-9} | {stopwatch.ElapsedTicks / (Stopwatch.Frequency / (1000.0 * 1000.0)):F2} Mikrosekunden");
+            UnityEngine.Debug.Log($"{i,-9} | {stopwatch.ElapsedTicks / (Stopwatch.Frequency / (1000.0 * 1000.0)):F2}");
         }
     }
 
@@ -160,4 +206,21 @@ public class KnapsackSolverTests
 
         return items;
     }
+
+    private string GetUsedItemsString(int[,] usedItems)
+    {
+        List<int> items = new List<int>();
+        for (int i = 0; i < usedItems.GetLength(0); i++)
+        {
+            for (int j = 0; j < usedItems.GetLength(1); j++)
+            {
+                if (usedItems[i, j] != 0)
+                {
+                    items.Add(usedItems[i, j]);
+                }
+            }
+        }
+        return string.Join(", ", items);
+    }
+
 }

@@ -1,6 +1,7 @@
 using QRTracking;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using static QRTracking.QRItem;
@@ -16,7 +17,7 @@ public class KnapsackSolver : MonoBehaviour
     public int capacity = 120;
     public Dictionary<int, QRData> items;
     public int maxItems = 9;
-    
+
     private int[,] inventory;
 
     void Start()
@@ -48,73 +49,6 @@ public class KnapsackSolver : MonoBehaviour
         {
             Debug.LogError("Error calculating inventory value: " + e.Message);
         }
-    }
-
-    public int KnapsackMaxValue(out int[,] usedItems)
-    {
-        int n = items.Count;
-        int[,] dp = new int[n + 1, capacity + 1];
-        bool[,] selected = new bool[n + 1, capacity + 1];
-
-        for (int i = 0; i <= n; i++)
-        {
-            for (int w = 0; w <= capacity; w++)
-            {
-                if (i == 0 || w == 0)
-                    dp[i, w] = 0;
-                else if (i <= maxItems && items[i].weight <= w)
-                {
-                    int newValue = items[i].value + dp[i - 1, w - items[i].weight];
-                    if (newValue > dp[i - 1, w])
-                    {
-                        dp[i, w] = newValue;
-                        selected[i, w] = true;
-                    }
-                    else
-                    {
-                        dp[i, w] = dp[i - 1, w];
-                        selected[i, w] = false;
-                    }
-                }
-                else
-                {
-                    dp[i, w] = dp[i - 1, w];
-                    selected[i, w] = false;
-                }
-            }
-        }
-
-        // Backtrack to find selected items
-        int[,] tempUsedItems = new int[3, 3];
-        int row = n;
-        int col = capacity;
-        int rowIndex = 0;
-        int colIndex = 0;
-
-        while (row > 0 && col > 0 && rowIndex < 3 && colIndex < 3)
-        {
-            if (selected[row, col] && colIndex < maxItems)
-            {
-                tempUsedItems[rowIndex, colIndex] = items[row].id;
-                col -= items[row].weight;
-                row--;
-
-                colIndex++;
-                if (colIndex >= 3)
-                {
-                    colIndex = 0;
-                    rowIndex++;
-                }
-            }
-            else
-            {
-                row--;
-            }
-        }
-
-        usedItems = tempUsedItems;
-
-        return dp[n, capacity];
     }
 
     public int KnapsackInventoryValue(int[,] inventory)
@@ -156,5 +90,90 @@ public class KnapsackSolver : MonoBehaviour
     {
         infoMesh.color = color;
         infoMesh.text = input;
+    }
+
+
+    public int KnapsackMaxValue(out int[,] usedItems)
+    {
+        int n = items.Count;
+        int[,] dp = new int[n + 1, capacity + 1];
+        bool[,] selected = new bool[n + 1, capacity + 1];
+
+        var itemsList = new List<QRData>(items.Values);
+
+        for (int i = 0; i <= n; i++)
+        {
+            for (int w = 0; w <= capacity; w++)
+            {
+                if (i == 0 || w == 0)
+                    dp[i, w] = 0;
+                else if (itemsList[i - 1].weight <= w)
+                {
+                    int newValue = itemsList[i - 1].value + dp[i - 1, w - itemsList[i - 1].weight];
+                    if (newValue > dp[i - 1, w])
+                    {
+                        dp[i, w] = newValue;
+                        selected[i, w] = true;
+                    }
+                    else
+                    {
+                        dp[i, w] = dp[i - 1, w];
+                        selected[i, w] = false;
+                    }
+                }
+                else
+                {
+                    dp[i, w] = dp[i - 1, w];
+                    selected[i, w] = false;
+                }
+            }
+        }
+
+        // Backtrack to find selected items
+        List<int> tempUsedItems = new List<int>();
+        int row = n;
+        int col = capacity;
+        Console.WriteLine("Verwendete Artikel (Backtracking):");
+        while (row > 0 && col > 0)
+        {
+            if (selected[row, col])
+            {
+                tempUsedItems.Add(itemsList[row - 1].id);
+                col -= itemsList[row - 1].weight;
+            }
+            row--;
+        }
+
+        if (tempUsedItems.Count > maxItems)
+        {
+            tempUsedItems = tempUsedItems
+                .Select(id => items[id])
+                .OrderBy(item => (double)item.weight / item.value)
+                .Take(maxItems)
+                .Select(item => item.id)
+                .ToList();
+        }
+
+        usedItems = new int[3, 3];
+        int index = 0;
+        int totalValue = 0;
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                if (index < tempUsedItems.Count)
+                {
+                    int itemId = tempUsedItems[index];
+                    usedItems[i, j] = itemId;
+                    totalValue += items[itemId].value;
+                    index++;
+                }
+                else
+                {
+                    usedItems[i, j] = 0;
+                }
+            }
+        }
+        return totalValue;
     }
 }
